@@ -127,7 +127,8 @@
     /* لوحة التخصيص */
     .customization-panel {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap; /* منع التفاف العناصر */
+      justify-content: space-between; /* توزيع متساوي للعناصر */
       gap: var(--spacing);
       margin-bottom: var(--spacing);
       padding: 0.5rem;
@@ -139,18 +140,6 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-    }
-    .customization-option label {
-      font-weight: bold;
-      color: var(--primary);
-    }
-    .customization-option select {
-      padding: 0.4rem;
-      border: 1px solid var(--primary);
-      border-radius: var(--radius);
-      background: var(--light);
-      color: var(--secondary);
-      font-size: 0.9rem;
     }
     /* إعداد عرض الأرقام */
     .numbers-list.list-view {
@@ -298,6 +287,10 @@
       }
       .action-btn {
         width: 100%;
+      }
+      .customization-panel {
+        flex-wrap: wrap;
+        justify-content: flex-start;
       }
     }
     @keyframes fadeIn {
