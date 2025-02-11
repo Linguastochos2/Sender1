@@ -6,10 +6,9 @@
   <title>Lingua Stochos Sender</title>
   <!-- جلب خط Cairo للواجهة العربية -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
-  <!-- تضمين مكتبة Select2 (لم تعد مطلوبة الآن لعدم وجود اختيار دولة) -->
   <!-- تضمين مكتبة XLSX لمعالجة ملفات Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <!-- تضمين مكتبة libphonenumber‑js مع بياناتها -->
+  <!-- تضمين مكتبة libphonenumber-js مع بياناتها -->
   <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.9.48/bundle/libphonenumber-js.min.js"></script>
   <style>
     /* متغيرات الألوان والإعدادات العامة */
@@ -73,12 +72,12 @@
     .container.visible { opacity: 1; transform: translateY(0); }
     h2 { text-align: center; margin-bottom: var(--spacing); font-size: 2rem; color: var(--primary-color); }
     label { font-weight: 600; margin-top: var(--spacing); margin-bottom: 0.5rem; display: block; }
-    input[type="text"], textarea, input[type="file"], select {
+    input[type="text"], textarea, input[type="file"] {
       width: 100%; padding: 0.75rem; font-size: 1rem;
       border: 1px solid var(--input-border); border-radius: var(--radius);
       background-color: var(--input-bg); transition: border-color var(--transition-speed);
     }
-    input:focus, textarea:focus, select:focus { border-color: var(--primary-color); outline: none; }
+    input:focus, textarea:focus { border-color: var(--primary-color); outline: none; }
     button {
       background-color: var(--btn-bg); color: #fff;
       border: none; border-radius: var(--radius);
@@ -151,7 +150,7 @@
     @media (max-width: 480px) {
       .container { padding: 1.5rem; }
       h2 { font-size: 1.75rem; }
-      button, input, textarea, select { font-size: 0.9rem; }
+      button, input, textarea { font-size: 0.9rem; }
     }
   </style>
 </head>
@@ -215,7 +214,7 @@
   </div>
   
   <script>
-    /* ========= دوال إخفاء شاشة الترحيب ========= */
+    /* ========= إخفاء شاشة الترحيب ========= */
     function hideSplash() {
       const splash = document.getElementById('splash');
       splash.style.opacity = 0;
@@ -303,7 +302,7 @@
       if (e.target === document.getElementById("modal")) { closeModal(); }
     });
     
-    /* ========= دوال المعاينة ========= */
+    /* ========= معاينة الرسالة ========= */
     function previewMessage() {
       const message = document.getElementById("message").value.trim();
       if (!message) {
@@ -314,28 +313,39 @@
     }
     
     /* ========= دوال التطبيع والتمييز التلقائي للدولة ========= */
-    // الدالة التالية تعتمد على مكتبة libphonenumber‑js لاسترجاع قائمة الدول ورمز الاتصال الدولي لكل دولة.
+    // الدالة autoNormalizePhoneNumber تحاول تصحيح الرقم تلقائيًا:
     function autoNormalizePhoneNumber(number) {
       let raw = number.trim().replace(/[\s\-]/g, "");
       
-      // إذا كان يبدأ بـ"00" استبدل بـ"+"
+      // معالجة حالة إدخال "0010" بدلاً من "010"
+      if (raw.startsWith("0010")) {
+        raw = "010" + raw.substring(4);
+      }
+      
+      // إذا كان يبدأ بـ "00" استبدله بـ "+"
       if (raw.startsWith("00")) {
         raw = "+" + raw.substring(2);
       }
       
-      // إذا بدأ بـ"+" بالفعل، نعيده كما هو
+      // إذا كان الرقم يبدأ بـ "+" فهو بصيغة دولية، نعيده كما هو
       if (raw.startsWith("+")) return raw;
       
-      // الحصول على قائمة الدول من المكتبة (إن كانت مدعومة)
-      const candidateRegions = (typeof libphonenumber.getCountries === 'function') 
-                                 ? libphonenumber.getCountries() 
-                                 : ["EG", "US", "GB", "CA", "AU", "IN"];
+      // إذا كان الرقم محليًا مصريًا: 11 رقم يبدأ بـ 0 ومن بادئات الجوال المصرية
+      if (raw.startsWith("0") && raw.length === 11 && /^0(10|11|12|15)\d{8}$/.test(raw)) {
+        return "+20" + raw.substring(1);
+      }
       
-      // محاولة التطبيع لكل دولة
+      // إذا كان الرقم مكوناً من 10 أرقام (عادة ما تكون أرقام الولايات المتحدة)
+      if (/^\d{10}$/.test(raw)) {
+        return "+1" + raw;
+      }
+      
+      // إذا لم تطابق الحالات السابقة، نستخدم قائمة أولويات محددة
+      const candidateRegions = ["EG", "US", "GB", "CA", "AU", "IN"];
       for (let region of candidateRegions) {
         try {
           const callingCode = libphonenumber.getCountryCallingCode(region);
-          // إذا كان الرقم يبدأ بـ"0" قم بإزالة الصفر الأول
+          // إذا كان الرقم يبدأ بـ "0" فحذف الصفر الأول
           let candidate = raw.startsWith("0") ? raw.substring(1) : raw;
           let normalized = "+" + callingCode + candidate;
           const phoneNumber = libphonenumber.parsePhoneNumberFromString(normalized, region);
@@ -343,10 +353,10 @@
             return normalized;
           }
         } catch (e) {
-          // تجاهل الأخطاء والتجربة مع الدولة التالية
+          // تجاهل الخطأ وتجربة الدولة التالية
         }
       }
-      // في حال عدم إيجاد تطبيع صالح نعيد الرقم كما هو
+      // إذا لم يتم التطبيع بنجاح نعيد الرقم كما هو
       return raw;
     }
     
@@ -361,8 +371,7 @@
     }
     
     function validateNumbers() {
-      const numbersField = document.getElementById("numbers");
-      let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
+      let numbers = document.getElementById("numbers").value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
       numbers = [...new Set(numbers)];
       if (numbers.length === 0) {
         openModal("<p style='color: var(--error-color);'>لم يتم إدخال أرقام.</p>");
@@ -400,7 +409,7 @@
           return;
         }
       }
-      // تطبيع جميع الأرقام
+      // تطبيع جميع الأرقام قبل الإرسال
       numbers = numbers.map(num => autoNormalizePhoneNumber(num));
       localStorage.setItem("numbers", JSON.stringify(numbers));
       localStorage.setItem("message", encodeURIComponent(message));
