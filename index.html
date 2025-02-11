@@ -363,9 +363,11 @@
     <!-- قائمة اختيار الأعمدة تظهر بعد رفع ملف Excel -->
     <div id="columnSelectDiv"></div>
     
-    <!-- أزرار الإجراءات الرئيسية -->
+    <!-- أزرار الإجراءات الرئيسية مع إضافة زري "حفظ المسودة" و"محاكاة الإرسال" -->
     <div class="action-buttons">
       <button onclick="previewMessage()">معاينة الرسالة</button>
+      <button onclick="saveDraft()">حفظ المسودة</button>
+      <button onclick="simulateSend()">محاكاة الإرسال</button>
       <button onclick="validateNumbers()">تحقق من صحة الأرقام</button>
       <button onclick="startMessaging()">البدء في المراسلة</button>
       <button class="clear-btn" onclick="clearAll()">مسح الكل</button>
@@ -401,7 +403,7 @@
       }, 500);
     }
     
-    // تهيئة Select2 لقائمة الدول عند تحميل الصفحة
+    // عند تحميل الصفحة، تهيئة Select2 واسترجاع المسودة إن وُجدت
     document.addEventListener("DOMContentLoaded", function() {
       $('#countrySelect').select2({
         placeholder: "-- اختر الدولة --",
@@ -409,7 +411,39 @@
         width: "100%",
         dir: "rtl"
       });
+      loadDraft();
     });
+    
+    /* ============== دوال المسودة ============== */
+    function saveDraft() {
+      const numbersContent = document.getElementById("numbers").value;
+      const messageContent = document.getElementById("message").value;
+      const countrySelect = document.getElementById("countrySelect");
+      const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
+      // حفظ البيانات في التخزين المحلي
+      localStorage.setItem("draftNumbers", numbersContent);
+      localStorage.setItem("draftMessage", messageContent);
+      localStorage.setItem("draftCountry", countrySelect.value);
+      localStorage.setItem("draftDialCode", dialCode);
+      alert("تم حفظ المسودة!");
+    }
+    
+    function loadDraft() {
+      const draftNumbers = localStorage.getItem("draftNumbers");
+      const draftMessage = localStorage.getItem("draftMessage");
+      const draftCountry = localStorage.getItem("draftCountry");
+      if (draftNumbers) {
+        document.getElementById("numbers").value = draftNumbers;
+        formatNumbers();
+      }
+      if (draftMessage) {
+        document.getElementById("message").value = draftMessage;
+      }
+      if (draftCountry) {
+        document.getElementById("countrySelect").value = draftCountry;
+        $('#countrySelect').trigger('change');
+      }
+    }
     
     /* ============== دوال المساعدة للتنسيق وتقنية Debounce ============== */
     let debounceTimer;
@@ -543,6 +577,54 @@
       localStorage.setItem("message", encodeURIComponent(message));
       closeModal();
       window.location.href = "send_messages.html";
+    }
+    
+    /* ============== محاكاة الإرسال ============== */
+    function simulateSend() {
+      const numbersField = document.getElementById("numbers").value;
+      let numbers = numbersField.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
+      numbers = [...new Set(numbers)];
+      const message = document.getElementById("message").value.trim();
+      if (numbers.length === 0) {
+        openModal("<p style='color: var(--error-color);'>يرجى إدخال أرقام لمحاكاة الإرسال.</p>");
+        return;
+      }
+      if (!message) {
+        openModal("<p style='color: var(--error-color);'>يرجى إدخال رسالة لمحاكاة الإرسال.</p>");
+        return;
+      }
+      
+      const countrySelect = document.getElementById("countrySelect");
+      const region = countrySelect.value;
+      // اختيار رقم عشوائي من بين الأرقام الصالحة؛ إذا لم توجد أرقام صالحة نستخدم عشوائياً من القائمة
+      let validNumbers = numbers.filter(num => validatePhoneNumber(num, region));
+      let randomNumber = "";
+      if (validNumbers.length > 0) {
+        const randomIndex = Math.floor(Math.random() * validNumbers.length);
+        randomNumber = validNumbers[randomIndex];
+      } else {
+        const randomIndex = Math.floor(Math.random() * numbers.length);
+        randomNumber = numbers[randomIndex];
+      }
+      
+      // تصميم نافذة المحاكاة بشكل يشبه واجهة واتساب
+      let simulationHTML = `
+        <div style="max-width: 400px; margin: 0 auto; font-family: 'Cairo', sans-serif; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; background: #fff;">
+          <div style="background: #075e54; padding: 10px; text-align: center; color: #fff; font-size: 1.2rem;">
+            ${randomNumber}
+          </div>
+          <div style="padding: 15px; background: #e5ddd5;">
+            <div style="background: #dcf8c6; padding: 10px 15px; border-radius: 7px; box-shadow: 0px 1px 2px rgba(0,0,0,0.2); display: inline-block; max-width: 100%;">
+              ${message.replace(/\n/g, "<br>")}
+            </div>
+            <div style="text-align: right; margin-top: 5px; font-size: 0.8rem; color: #999;">12:34</div>
+          </div>
+        </div>
+        <div style="text-align: center; margin-top: 1rem;">
+          <button onclick="closeModal()" style="background: var(--btn-bg); color: #fff; padding: 0.5rem 1rem; border: none; border-radius: var(--radius); cursor: pointer;">حسنًا</button>
+        </div>
+      `;
+      openModal(simulationHTML);
     }
     
     /* ============== التعامل مع ملف Excel ============== */
