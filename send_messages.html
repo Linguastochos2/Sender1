@@ -234,26 +234,58 @@
     .action-btn:hover {
       background: var(--primary-hover);
     }
+    /* زر 3D بتأثير واقعي مُحسَّن */
     .btn-3d {
-      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+      background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+      border: none;
+      color: var(--light);
+      box-shadow: 0 4px 0 rgba(0,0,0,0.2), 0 6px 10px rgba(0,0,0,0.3);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .btn-3d:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.2), 0 3px 5px rgba(0,0,0,0.3);
     }
     .btn-flat {
       box-shadow: none;
       text-shadow: none;
     }
-    .whatsapp-btn:hover {
-      transform: translateY(-4px);
+    /* خيارات نمط الأزرار الجديدة */
+    .btn-outlined {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
     }
-    .status-btn {
-      cursor: default;
-      opacity: 0.9;
+    .btn-outlined:hover {
+      background: var(--primary);
+      color: var(--light);
     }
-    .sent-status {
-      background: var(--primary-hover);
+    .btn-soft {
+      background: rgba(26, 188, 156, 0.2);
+      color: var(--primary);
+      box-shadow: none;
+      border: none;
     }
-    .error-status {
-      background: var(--error);
+    .btn-soft:hover {
+      background: rgba(26, 188, 156, 0.3);
+    }
+    /* تصميم زر التذكير بالذكر بشكل مميز */
+    #manualReminderButton {
+      background: linear-gradient(90deg, #9b59b6, #8e44ad);
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+      min-width: 120px;
+      margin: 1rem 0;
+    }
+    #manualReminderButton:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
     }
     @media (max-width: 768px) {
       .container {
@@ -369,12 +401,14 @@
         <select id="buttonStyleSelect">
           <option value="btn-3d" selected>3D</option>
           <option value="btn-flat">مسطح</option>
+          <option value="btn-outlined">محدد</option>
+          <option value="btn-soft">ناعم</option>
         </select>
       </div>
     </div>
     
-    <!-- زر التذكير بالذكر لاستدعاء النافذة يدويًا -->
-    <button id="manualReminderButton" class="action-btn btn-3d" style="margin: 1rem 0;">التذكير بالذكر</button>
+    <!-- زر التذكير بالذكر بتصميم مميز -->
+    <button id="manualReminderButton" class="action-btn btn-3d">التذكير بالذكر</button>
     
     <!-- قائمة عرض الأرقام -->
     <div id="numbersList" class="numbers-list list-view card-size-medium"></div>
@@ -516,7 +550,7 @@
       const btnStyle = buttonStyleSelect.value;
       const buttons = elements.numbersList.querySelectorAll('.action-btn');
       buttons.forEach(btn => {
-        btn.classList.remove('btn-3d', 'btn-flat');
+        btn.classList.remove('btn-3d', 'btn-flat', 'btn-outlined', 'btn-soft');
         btn.classList.add(btnStyle);
       });
     }
