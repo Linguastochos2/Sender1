@@ -14,11 +14,11 @@
   <style>
     /* متغيرات الألوان والإعدادات العامة */
     :root {
-      --primary-color: #1abc9c;       /* أخضر سماوي */
+      --primary-color: #1abc9c;
       --primary-hover: #16a085;
-      --secondary-color: #2c3e50;       /* كحلي داكن */
-      --error-color: #e74c3c;           /* أحمر للخطأ */
-      --bg-color: #ecf0f1;              /* خلفية فاتحة */
+      --secondary-color: #2c3e50;
+      --error-color: #e74c3c;
+      --bg-color: #ecf0f1;
       --card-bg: #ffffff;
       --card-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
       --input-border: #bdc3c7;
@@ -29,13 +29,8 @@
       --radius: 8px;
       --spacing: 1rem;
     }
-    
     /* إعادة تعيين القواعد الأساسية */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     html { font-size: 16px; }
     body {
       font-family: 'Cairo', sans-serif;
@@ -45,251 +40,114 @@
       color: var(--secondary-color);
       line-height: 1.6;
     }
-    
     /* واجهة الترحيب (Splash Screen) */
     #splash {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
       background: linear-gradient(135deg, #1abc9c, #16a085);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      color: #fff;
-      text-align: center;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 2000; color: #fff; text-align: center;
       animation: fadeIn 1s;
     }
-    #splash h1 {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      animation: slideIn 1s;
-    }
-    #splash p {
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
-      animation: slideIn 1.2s;
-    }
+    #splash h1 { font-size: 3rem; margin-bottom: 1rem; animation: slideIn 1s; }
+    #splash p { font-size: 1.2rem; margin-bottom: 2rem; animation: slideIn 1.2s; }
     #splash button {
-      background-color: #fff;
-      color: var(--primary-color);
-      border: none;
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      border-radius: var(--radius);
-      cursor: pointer;
+      background-color: #fff; color: var(--primary-color);
+      border: none; padding: 0.75rem 1.5rem; font-size: 1rem;
+      border-radius: var(--radius); cursor: pointer;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       transition: transform 0.3s, background 0.3s;
     }
-    #splash button:hover {
-      transform: scale(1.05);
-      background: #f7f7f7;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes slideIn {
-      from { transform: translateY(30px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    
-    /* الحاوية الرئيسية (تكون مخفية في البداية) */
+    #splash button:hover { transform: scale(1.05); background: #f7f7f7; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideIn { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    /* الحاوية الرئيسية (مخفية في البداية) */
     .container {
-      max-width: 600px;
-      background-color: var(--card-bg);
-      margin: 2rem auto;
-      padding: 2rem;
-      border-radius: var(--radius);
-      box-shadow: var(--card-shadow);
-      opacity: 0;
-      transform: translateY(20px);
+      max-width: 600px; background-color: var(--card-bg);
+      margin: 2rem auto; padding: 2rem;
+      border-radius: var(--radius); box-shadow: var(--card-shadow);
+      opacity: 0; transform: translateY(20px);
       transition: opacity 0.5s ease, transform 0.5s ease;
     }
-    .container.visible {
-      opacity: 1;
-      transform: translateY(0);
+    .container.visible { opacity: 1; transform: translateY(0); }
+    h2 { text-align: center; margin-bottom: var(--spacing); font-size: 2rem; color: var(--primary-color); }
+    label { font-weight: 600; margin-top: var(--spacing); margin-bottom: 0.5rem; display: block; }
+    input[type="text"], textarea, input[type="file"], select {
+      width: 100%; padding: 0.75rem; font-size: 1rem;
+      border: 1px solid var(--input-border); border-radius: var(--radius);
+      background-color: var(--input-bg); transition: border-color var(--transition-speed);
     }
-    
-    h2 {
-      text-align: center;
-      margin-bottom: var(--spacing);
-      font-size: 2rem;
-      color: var(--primary-color);
-    }
-    label {
-      font-weight: 600;
-      margin-top: var(--spacing);
-      margin-bottom: 0.5rem;
-      display: block;
-    }
-    input[type="text"],
-    textarea,
-    input[type="file"],
-    select {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      border: 1px solid var(--input-border);
-      border-radius: var(--radius);
-      background-color: var(--input-bg);
-      transition: border-color var(--transition-speed);
-    }
-    input:focus,
-    textarea:focus,
-    select:focus {
-      border-color: var(--primary-color);
-      outline: none;
-    }
+    input:focus, textarea:focus, select:focus { border-color: var(--primary-color); outline: none; }
     button {
-      background-color: var(--btn-bg);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      padding: 0.75rem 1rem;
-      font-size: 1rem;
-      cursor: pointer;
+      background-color: var(--btn-bg); color: #fff;
+      border: none; border-radius: var(--radius);
+      padding: 0.75rem 1rem; font-size: 1rem; cursor: pointer;
       transition: background var(--transition-speed), transform 0.2s;
     }
-    button:hover {
-      background-color: var(--btn-hover);
-      transform: translateY(-2px);
-    }
-    .clear-btn {
-      background-color: #f39c12;
-      color: #fff;
-    }
-    .clear-btn:hover {
-      background-color: #e67e22;
-    }
+    button:hover { background-color: var(--btn-hover); transform: translateY(-2px); }
+    .clear-btn { background-color: #f39c12; color: #fff; }
+    .clear-btn:hover { background-color: #e67e22; }
     #errorDisplay {
-      background: #fdecea;
-      border: 1px solid var(--error-color);
-      color: var(--error-color);
-      padding: 1rem;
-      border-radius: var(--radius);
-      margin-bottom: var(--spacing);
-      text-align: center;
-      display: none;
+      background: #fdecea; border: 1px solid var(--error-color);
+      color: var(--error-color); padding: 1rem;
+      border-radius: var(--radius); margin-bottom: var(--spacing);
+      text-align: center; display: none;
     }
-    #numbersCount {
-      font-size: 0.9rem;
-      margin-top: var(--spacing);
-    }
+    #numbersCount { font-size: 0.9rem; margin-top: var(--spacing); }
     #numbersList {
-      margin-top: 0.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
+      margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem;
     }
     .number-item {
-      background-color: #f1f1f1;
-      padding: 0.75rem;
-      border-radius: var(--radius);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-      transition: transform var(--transition-speed);
+      background-color: #f1f1f1; padding: 0.75rem; border-radius: var(--radius);
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05); transition: transform var(--transition-speed);
     }
-    .number-item:hover {
-      transform: translateY(-2px);
-    }
-    .number-item span {
-      font-weight: 600;
-      color: var(--primary-color);
-    }
+    .number-item:hover { transform: translateY(-2px); }
+    .number-item span { font-weight: 600; color: var(--primary-color); }
     .number-item button {
-      background-color: var(--error-color);
-      color: #fff;
-      padding: 0.5rem 0.75rem;
-      border-radius: var(--radius);
-      font-size: 0.9rem;
-      border: none;
-      cursor: pointer;
+      background-color: var(--error-color); color: #fff;
+      padding: 0.5rem 0.75rem; border-radius: var(--radius);
+      font-size: 0.9rem; border: none; cursor: pointer;
       transition: background var(--transition-speed);
     }
-    .number-item button:hover {
-      background-color: #c0392b;
-    }
+    .number-item button:hover { background-color: #c0392b; }
     .action-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--spacing);
-      margin-top: var(--spacing);
+      display: flex; flex-wrap: wrap; gap: var(--spacing); margin-top: var(--spacing);
     }
-    .action-buttons button {
-      flex: 1;
-      min-width: 8rem;
-    }
-    .file-upload {
-      margin-top: var(--spacing);
-    }
+    .action-buttons button { flex: 1; min-width: 8rem; }
+    .file-upload { margin-top: var(--spacing); }
     /* تصميم النافذة المنبثقة (Modal) */
     #modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.6);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      animation: fadeIn 0.3s;
+      display: none; align-items: center; justify-content: center;
+      z-index: 1000; animation: fadeIn 0.3s;
     }
     #modalContent {
-      background: var(--card-bg);
-      width: 90%;
-      max-width: 800px;
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--card-shadow);
-      animation: scaleIn 0.3s;
+      background: var(--card-bg); width: 90%; max-width: 800px;
+      border-radius: var(--radius); overflow: hidden;
+      box-shadow: var(--card-shadow); animation: scaleIn 0.3s;
     }
     .modal-header {
-      background-color: var(--primary-color);
-      padding: 1rem;
-      text-align: center;
-      position: relative;
+      background-color: var(--primary-color); padding: 1rem;
+      text-align: center; position: relative;
     }
-    .modal-header h3 {
-      margin: 0;
-      color: #fff;
-      font-size: 1.5rem;
-    }
+    .modal-header h3 { margin: 0; color: #fff; font-size: 1.5rem; }
     #modalClose {
-      position: absolute;
-      top: 0.5rem;
-      left: 1rem;
-      background: var(--error-color);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 2.5rem;
-      height: 2.5rem;
-      font-size: 1.5rem;
-      line-height: 1.2rem;
-      cursor: pointer;
+      position: absolute; top: 0.5rem; left: 1rem;
+      background: var(--error-color); color: #fff;
+      border: none; border-radius: 50%;
+      width: 2.5rem; height: 2.5rem;
+      font-size: 1.5rem; line-height: 1.2rem; cursor: pointer;
       transition: background 0.2s;
     }
-    #modalClose:hover {
-      background: #c0392b;
-    }
+    #modalClose:hover { background: #c0392b; }
     #modalBody {
-      padding: 1rem;
-      max-height: 60vh;
-      overflow-y: auto;
-      font-size: 1rem;
+      padding: 1rem; max-height: 60vh; overflow-y: auto; font-size: 1rem;
     }
-    @keyframes scaleIn {
-      from { transform: scale(0.9); }
-      to { transform: scale(1); }
-    }
+    @keyframes scaleIn { from { transform: scale(0.9); } to { transform: scale(1); } }
     @media (max-width: 480px) {
       .container { padding: 1.5rem; }
       h2 { font-size: 1.75rem; }
@@ -305,7 +163,7 @@
     <button onclick="hideSplash()">ابدأ الآن</button>
   </div>
   
-  <!-- الحاوية الرئيسية للأداة (ستظهر بعد إخفاء شاشة الترحيب) -->
+  <!-- الحاوية الرئيسية للأداة (تظهر بعد إخفاء شاشة الترحيب) -->
   <div class="container" id="mainContainer">
     <h2 class="tool-logo">Lingua Stochos Sender</h2>
     <!-- منطقة عرض رسائل الخطأ -->
@@ -342,13 +200,7 @@
     <label for="numbers" style="font-size: 1.2rem; font-weight: bold; color: var(--primary-color);">
       الأرقام التي تود مراسلتها:
     </label>
-    <textarea 
-      id="numbers" 
-      placeholder="ادخل الأرقام هنا بنفسك أو الصق أرقاماً معدة سابقاً" 
-      class="input-field" 
-      rows="5" 
-      oninput="debounceFormatNumbers()"
-    ></textarea>
+    <textarea id="numbers" placeholder="ادخل الأرقام هنا بنفسك أو الصق أرقاماً معدة سابقاً" class="input-field" rows="5" oninput="debounceFormatNumbers()"></textarea>
     
     <!-- إدخال نص الرسالة -->
     <label for="message">نص الرسالة:</label>
@@ -363,7 +215,7 @@
     <!-- قائمة اختيار الأعمدة تظهر بعد رفع ملف Excel -->
     <div id="columnSelectDiv"></div>
     
-    <!-- أزرار الإجراءات الرئيسية مع إضافة زري "حفظ المسودة" و"محاكاة الإرسال" -->
+    <!-- أزرار الإجراءات الرئيسية مع إضافة "حفظ المسودة" و"محاكاة الإرسال" -->
     <div class="action-buttons">
       <button onclick="previewMessage()">معاينة الرسالة</button>
       <button onclick="saveDraft()">حفظ المسودة</button>
@@ -512,9 +364,69 @@
       }
     }
     
+    // دالة تطبيع الرقم لتشكيله بصيغة دولية صحيحة
+    function normalizePhoneNumber(number, dialCode, region) {
+      number = number.trim().replace(/[\s\-]/g, "");
+      
+      // إذا بدأ بـ"00" استبدله بـ"+"
+      if (number.startsWith("00")) {
+        number = "+" + number.substring(2);
+      }
+      
+      // إذا كان يبدأ بعلامة "+" نعود به كما هو (سنحاول معالجته لاحقًا)
+      if (number.startsWith("+")) {
+        // إذا كان للمستخدم مصر لكن الرقم لا يبدأ بـ"+20"، فنعيد تصحيحه
+        if (region === "EG" && !number.startsWith("+20")) {
+          // حاول إزالة البادئة الحالية وإضافة "+20"
+          number = "+20" + number.substring(1);
+        }
+        return number;
+      }
+      
+      // إذا كان الرقم لا يبدأ بعلامة "+":
+      // إذا بدأ بالرمز المحلي "0" فنحذف الصفر ونضيف رمز الدولة
+      if (number.startsWith("0")) {
+        return dialCode + number.substring(1);
+      }
+      
+      // إذا كان الرقم يبدأ بأرقام رمز الدولة بدون علامة "+"
+      let dialDigits = dialCode.replace("+", "");
+      if (number.startsWith(dialDigits)) {
+        return "+" + number;
+      }
+      
+      // إذا كان الرقم محلياً (مثلاً 10 أرقام لمصر) وفئة مصر
+      if (region === "EG" && number.length === 10) {
+        return dialCode + number;
+      }
+      
+      // خلاف ذلك نضيف رمز الدولة
+      return dialCode + number;
+    }
+    
+    // دالة التحقق من صحة الرقم مع معالجة إضافية للأرقام المصرية
     function validatePhoneNumber(number, region) {
+      const countrySelect = document.getElementById("countrySelect");
+      const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
+      let normalized = normalizePhoneNumber(number, dialCode, region);
+      
+      // إذا كانت الدولة مصر، نتحقق من أن الرقم يتطابق مع النمط الدولي الصحيح:
+      // يجب أن يكون على شكل "+20" تليه 10 أرقام (أي 12 رقمًا بدون علامة "+")
+      if (region === "EG") {
+        if (!/^\+20\d{10}$/.test(normalized)) {
+          return false;
+        }
+        // يمكننا أيضًا فحص بادئات الجوال المصرية؛ عادةً تبدأ بـ "10", "11", "12", أو "15"
+        let localPart = normalized.substring(3); // بعد "+20"
+        if (!/^(10|11|12|15)/.test(localPart)) {
+          return false;
+        }
+        return true;
+      }
+      
+      // بالنسبة للدول الأخرى، نعتمد على مكتبة libphonenumber-js
       try {
-        const phoneNumber = libphonenumber.parsePhoneNumberFromString(number, region);
+        const phoneNumber = libphonenumber.parsePhoneNumberFromString(normalized, region);
         return phoneNumber && phoneNumber.isValid();
       } catch (error) {
         return false;
@@ -571,7 +483,10 @@
           return;
         }
       }
-      numbers = numbers.map(num => num.startsWith("+") ? num : dialCode + num);
+      // تطبيع جميع الأرقام قبل التخزين أو الإرسال
+      numbers = numbers.map(num => {
+        return num.startsWith("+") ? num : normalizePhoneNumber(num, dialCode, region);
+      });
       localStorage.setItem("numbers", JSON.stringify(numbers));
       localStorage.setItem("countryCode", dialCode);
       localStorage.setItem("message", encodeURIComponent(message));
@@ -596,15 +511,16 @@
       
       const countrySelect = document.getElementById("countrySelect");
       const region = countrySelect.value;
-      // اختيار رقم عشوائي من بين الأرقام الصالحة؛ إذا لم توجد أرقام صالحة نستخدم عشوائياً من القائمة
+      const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
+      // اختيار رقم عشوائي من بين الأرقام الصالحة؛ إذا لم توجد أرقام صالحة نستخدم رقمًا عشوائيًا من القائمة
       let validNumbers = numbers.filter(num => validatePhoneNumber(num, region));
       let randomNumber = "";
       if (validNumbers.length > 0) {
         const randomIndex = Math.floor(Math.random() * validNumbers.length);
-        randomNumber = validNumbers[randomIndex];
+        randomNumber = normalizePhoneNumber(validNumbers[randomIndex], dialCode, region);
       } else {
         const randomIndex = Math.floor(Math.random() * numbers.length);
-        randomNumber = numbers[randomIndex];
+        randomNumber = normalizePhoneNumber(numbers[randomIndex], dialCode, region);
       }
       
       // تصميم نافذة المحاكاة بشكل يشبه واجهة واتساب
