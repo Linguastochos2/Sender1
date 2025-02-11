@@ -215,12 +215,13 @@
     <!-- قائمة اختيار الأعمدة تظهر بعد رفع ملف Excel -->
     <div id="columnSelectDiv"></div>
     
-    <!-- أزرار الإجراءات الرئيسية مع إضافة "حفظ المسودة" و"محاكاة الإرسال" -->
+    <!-- أزرار الإجراءات الرئيسية -->
     <div class="action-buttons">
       <button onclick="previewMessage()">معاينة الرسالة</button>
       <button onclick="saveDraft()">حفظ المسودة</button>
       <button onclick="simulateSend()">محاكاة الإرسال</button>
       <button onclick="validateNumbers()">تحقق من صحة الأرقام</button>
+      <button onclick="showInvalidNumbers()">عرض الأرقام الغير صالحة</button>
       <button onclick="startMessaging()">البدء في المراسلة</button>
       <button class="clear-btn" onclick="clearAll()">مسح الكل</button>
     </div>
@@ -373,18 +374,15 @@
         number = "+" + number.substring(2);
       }
       
-      // إذا كان يبدأ بعلامة "+" نعود به كما هو (سنحاول معالجته لاحقًا)
+      // إذا كان يبدأ بعلامة "+" نعود به كما هو (مع محاولة تصحيحه لدولة مصر)
       if (number.startsWith("+")) {
-        // إذا كان للمستخدم مصر لكن الرقم لا يبدأ بـ"+20"، فنعيد تصحيحه
         if (region === "EG" && !number.startsWith("+20")) {
-          // حاول إزالة البادئة الحالية وإضافة "+20"
           number = "+20" + number.substring(1);
         }
         return number;
       }
       
       // إذا كان الرقم لا يبدأ بعلامة "+":
-      // إذا بدأ بالرمز المحلي "0" فنحذف الصفر ونضيف رمز الدولة
       if (number.startsWith("0")) {
         return dialCode + number.substring(1);
       }
@@ -410,21 +408,20 @@
       const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
       let normalized = normalizePhoneNumber(number, dialCode, region);
       
-      // إذا كانت الدولة مصر، نتحقق من أن الرقم يتطابق مع النمط الدولي الصحيح:
-      // يجب أن يكون على شكل "+20" تليه 10 أرقام (أي 12 رقمًا بدون علامة "+")
       if (region === "EG") {
+        // يجب أن يكون الرقم بصيغة +20XXXXXXXXXX (أي 10 أرقام بعد +20)
         if (!/^\+20\d{10}$/.test(normalized)) {
           return false;
         }
-        // يمكننا أيضًا فحص بادئات الجوال المصرية؛ عادةً تبدأ بـ "10", "11", "12", أو "15"
-        let localPart = normalized.substring(3); // بعد "+20"
+        // التحقق من بادئات الجوال المصرية الشائعة (10، 11، 12، 15)
+        let localPart = normalized.substring(3);
         if (!/^(10|11|12|15)/.test(localPart)) {
           return false;
         }
         return true;
       }
       
-      // بالنسبة للدول الأخرى، نعتمد على مكتبة libphonenumber-js
+      // بالنسبة للدول الأخرى نعتمد على مكتبة libphonenumber-js
       try {
         const phoneNumber = libphonenumber.parsePhoneNumberFromString(normalized, region);
         return phoneNumber && phoneNumber.isValid();
@@ -484,9 +481,7 @@
         }
       }
       // تطبيع جميع الأرقام قبل التخزين أو الإرسال
-      numbers = numbers.map(num => {
-        return num.startsWith("+") ? num : normalizePhoneNumber(num, dialCode, region);
-      });
+      numbers = numbers.map(num => num.startsWith("+") ? num : normalizePhoneNumber(num, dialCode, region));
       localStorage.setItem("numbers", JSON.stringify(numbers));
       localStorage.setItem("countryCode", dialCode);
       localStorage.setItem("message", encodeURIComponent(message));
@@ -541,6 +536,47 @@
         </div>
       `;
       openModal(simulationHTML);
+    }
+    
+    /* ============== عرض الأرقام الغير صالحة ============== */
+    function showInvalidNumbers() {
+      const numbersField = document.getElementById("numbers").value;
+      let numbers = numbersField.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
+      numbers = [...new Set(numbers)];
+      const countrySelect = document.getElementById("countrySelect");
+      const region = countrySelect.value;
+      let invalidNumbers = numbers.filter(num => !validatePhoneNumber(num, region));
+      if (invalidNumbers.length === 0) {
+        openModal("<h3>الأرقام الغير صالحة</h3><p>لا توجد أرقام غير صالحة.</p>");
+      } else {
+        let textToCopy = invalidNumbers.join(", ");
+        let content = `<h3>الأرقام الغير صالحة</h3>
+                       <p>${invalidNumbers.join("<br>")}</p>
+                       <div style="text-align:center; margin-top:1rem;">
+                          <button onclick="copyText('${textToCopy}')">نسخ</button>
+                       </div>`;
+        openModal(content);
+      }
+    }
+    
+    function copyText(text) {
+      if(navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(() => { alert("تم النسخ!"); })
+          .catch(err => { alert("حدث خطأ أثناء النسخ: " + err); });
+      } else {
+        let textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          alert("تم النسخ!");
+        } catch (err) {
+          alert("حدث خطأ أثناء النسخ");
+        }
+        document.body.removeChild(textArea);
+      }
     }
     
     /* ============== التعامل مع ملف Excel ============== */
