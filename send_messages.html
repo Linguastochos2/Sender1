@@ -3,18 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>المراسل الذكي</title>
-  <!-- تضمين خط Cairo -->
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+  <title>المرسل الذكي</title>
   <style>
     :root {
-      --primary: #128C7E;         /* أخضر WhatsApp */
-      --secondary: #25D366;       /* أخضر فاتح */
-      --light: #f8f9fa;           /* لون فاتح للخلفية */
-      --success: #34B7F1;         /* أزرق فاتح */
-      --error: #dc3545;           /* أحمر */
-      --text: #2d3748;            /* نص داكن */
-      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --primary: #128C7E;
+      --secondary: #25D366;
+      --light: #f8f9fa;
+      --success: #34B7F1;
+      --error: #dc3545;
+      --text: #2d3748;
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
       --radius: 12px;
       --spacing: 1rem;
       --transition: 0.3s;
@@ -24,16 +22,12 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-    }
-    html {
-      font-size: 16px;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
     }
     body {
-      font-family: 'Cairo', sans-serif;
       background: #f0f2f5;
       padding: var(--spacing);
       color: var(--text);
-      line-height: 1.6;
     }
     .container {
       max-width: 800px;
@@ -42,6 +36,7 @@
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 2rem;
+      position: relative;
       animation: fadeIn 0.5s ease-in;
     }
     .header {
@@ -50,43 +45,59 @@
       gap: var(--spacing);
       margin-bottom: 2rem;
     }
-    .back-btn {
-      background: var(--light);
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: transform var(--transition), box-shadow var(--transition);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+   .back-btn {
+  background: linear-gradient(145deg, var(--light), #6698FF);
+  color: var(--text);
+  padding: 1rem;
+  border-radius: 75%;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.back-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.back-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+}
     .back-btn:hover {
       transform: scale(1.1);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
-    .header h1 {
-      font-size: 2.5rem;
-      background: linear-gradient(90deg, var(--secondary), var(--primary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin: 0;
-    }
+    
+.header h1 {
+  font-size: 3rem;
+  color: var(--primary);
+  text-shadow: 
+    1px 1px 0px #00000033, /* ظل خفيف أساسي */
+    2px 2px 0px #00000022, 
+    3px 3px 5px rgba(0, 0, 0, 0.3); /* تأثير ثلاثي الأبعاد */
+  letter-spacing: 1px; /* توسيع الحروف قليلاً */
+  font-weight: bold;
+  background: linear-gradient(90deg, #25d366, #128c7e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transform: translateZ(1px);
+  perspective: 100
+}
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, 9fr);
       gap: var(--spacing);
-      margin-bottom: var(--spacing);
+      margin-bottom: 1.1rem;
     }
     .stat-card {
-      position: relative;
+      padding: 1.5rem;
       background: var(--light);
-      padding: 1rem;
       border-radius: var(--radius);
       text-align: center;
-      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
       transition: transform var(--transition);
     }
     .stat-card:hover {
@@ -95,7 +106,7 @@
     .stat-title {
       font-size: 1rem;
       margin-bottom: 0.5rem;
-      color: var(--text);
+      color: #2B1B17;
     }
     .stat-value {
       font-size: 1.5rem;
@@ -103,27 +114,26 @@
       color: var(--primary);
     }
     .stat-card::before {
-      content: "";
+      content: '';
       position: absolute;
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 5px;
-      border-radius: 0 0 var(--radius) var(--radius);
+      height: 7px;
       background: linear-gradient(90deg, var(--secondary), var(--primary));
     }
     .progress-container {
-      height: 8px;
-      background: #e0e0e0;
-      border-radius: 4px;
-      margin: 1rem 0;
+      height: 6px;
+      background: #e9ecef;
+      border-radius: 10px;
+      margin: 2rem 0;
       overflow: hidden;
+      position: relative;
     }
     .progress-bar {
       height: 100%;
-      width: 0%;
       background: linear-gradient(90deg, var(--secondary), var(--primary));
-      transition: width 0.4s ease;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
     /* لوحة التخصيص */
     .customization-panel {
@@ -131,10 +141,10 @@
       flex-wrap: wrap;
       gap: var(--spacing);
       margin-bottom: var(--spacing);
-      padding: 0.5rem;
+      padding: .5rem;
       background: var(--light);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      box-shadow: 0 5px 0px rgba(0,0,0,0.1);
     }
     .customization-option {
       display: flex;
@@ -143,13 +153,13 @@
     }
     .customization-option label {
       font-weight: bold;
-      color: var(--text);
+      color: var(--primary);
     }
     .customization-option select {
-      padding: 0.4rem;
+      padding: .4rem;
       border: 1px solid var(--primary);
       border-radius: var(--radius);
-      background: var(--light);
+      background: #C68E17;
       color: var(--text);
       font-size: 0.9rem;
     }
@@ -161,28 +171,29 @@
     }
     .numbers-list.grid-view {
       display: grid;
+      /* باستخدام auto-fit مع minmax لضمان ظهور عدة أعمدة */
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: var(--spacing);
     }
     /* إعداد حجم الخانات */
     .card-size-extra-small .number-card {
-      padding: 0.5rem;
-      font-size: 0.7rem;
+      padding: 0.1rem 0.3rem;
+      font-size: 0.4rem;
     }
     .card-size-small .number-card {
-      padding: 0.75rem;
+      padding: 0.5rem 1rem;
       font-size: 0.8rem;
     }
     .card-size-medium .number-card {
-      padding: 1rem;
+      padding: 1rem 1.5rem;
       font-size: 1rem;
     }
     .card-size-large .number-card {
-      padding: 1.25rem;
+      padding: 1.5rem 2rem;
       font-size: 1.1rem;
     }
     .card-size-extra-large .number-card {
-      padding: 1.5rem;
+      padding: 2rem 2.5rem;
       font-size: 1.3rem;
     }
     .number-card {
@@ -192,9 +203,13 @@
       background: var(--light);
       border-radius: var(--radius);
       transition: transform var(--transition), box-shadow var(--transition);
-      border: 2px solid transparent;
+      border: 3px solid transparent;
       opacity: 0;
       animation: slideIn 0.5s forwards;
+    }
+    /* تأخير ظهور كل بطاقة بشكل تدريجي */
+    .number-card:nth-child(n) {
+      animation-delay: calc(0.1s * var(--i));
     }
     .number-info {
       display: flex;
@@ -203,50 +218,62 @@
     }
     .number-badge {
       background: var(--primary);
-      color: #fff;
-      padding: 0.3rem 0.7rem;
-      border-radius: 50%;
-      font-size: 1rem;
-      min-width: 30px;
-      text-align: center;
+      color: yellow;
+      padding: 0.15rem 0.50rem;
+      border-radius: 100px;
+      font-size: 1.2em;
     }
+    /* إعداد الأزرار بنمط 3D / مسطح */
     .action-btn {
-      padding: 0.6rem 1.2rem;
+      padding: 0.75rem 1.5rem;
       border: none;
-      border-radius: 30px;
+      border-radius: 50px;
       cursor: pointer;
       transition: all var(--transition);
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      font-weight: bold;
+      gap: 0.75rem;
+      font-weight: 600;
       min-width: 120px;
       justify-content: center;
     }
-    /* نمط الأزرار ثلاثي الأبعاد */
+    /* النمط ثلاثي الأبعاد */
     .btn-3d {
       background: linear-gradient(145deg, var(--secondary), var(--primary));
-      color: #fff;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    .btn-3d:hover {
-      transform: translateY(-3px);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
     /* النمط المسطح */
     .btn-flat {
       background: var(--secondary);
-      color: #fff;
       box-shadow: none;
+      text-shadow: none;
+    }
+    /* سنضيف الكلاس الافتراضي للأزرار عند الإنشاء */
+    .whatsapp-btn {
+      /* سيتم تحديثه لاحقاً بناءً على اختيار المستخدم */
+    }
+    .whatsapp-btn:hover {
+      transform: translateY(-4px);
     }
     .status-btn {
       cursor: default;
       opacity: 0.9;
     }
     .sent-status {
-      background: var(--primary);
+      background: var(--success);
     }
     .error-status {
       background: var(--error);
+    }
+    @media (max-width: 768px) {
+      .container { padding: 1.5rem; }
+      .number-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing);
+      }
+      .action-btn { width: 100%; }
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: scale(0.95); }
@@ -255,11 +282,6 @@
     @keyframes slideIn {
       from { opacity: 0; transform: translateX(30px); }
       to { opacity: 1; transform: translateX(0); }
-    }
-    @media (max-width: 768px) {
-      .container { padding: 1.5rem; }
-      .header h1 { font-size: 2rem; }
-      .action-btn { width: 100%; }
     }
   </style>
 </head>
@@ -289,7 +311,7 @@
       <div class="progress-bar" id="progress"></div>
     </div>
     
-    <!-- لوحة التخصيص -->
+    <!-- لوحة التخصيص مع ثلاث خيارات -->
     <div class="customization-panel">
       <div class="customization-option">
         <label for="viewModeSelect">العرض:</label>
@@ -317,7 +339,7 @@
       </div>
     </div>
     
-    <!-- قائمة عرض الأرقام -->
+    <!-- قائمة عرض الأرقام مع تطبيق إعدادات العرض والحجم -->
     <div id="numbersList" class="numbers-list list-view card-size-medium"></div>
   </div>
   
@@ -415,6 +437,7 @@
       btn.onclick = () => handleSend(btn.dataset.number, btn);
     }
     
+    // إعادة عرض الأرقام بعد التخصيص
     function renderNumbers() {
       elements.numbersList.innerHTML = "";
       numbers.forEach((number, index) => {
@@ -442,6 +465,7 @@
       elements.numbersList.classList.add(sizeClass);
       // تحديث نمط الأزرار
       const btnStyle = buttonStyleSelect.value;
+      // عند كل تغيير، نقوم بتحديث كل زر موجود داخل بطاقات الأرقام
       const buttons = elements.numbersList.querySelectorAll('.action-btn');
       buttons.forEach(btn => {
         btn.classList.remove('btn-3d', 'btn-flat');
