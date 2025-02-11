@@ -47,23 +47,24 @@
       gap: var(--spacing);
       margin-bottom: 2rem;
     }
+    /* زر الرجوع بتصميم 3D أكثر واقعية */
     .back-btn {
-      background: var(--primary);
+      background: linear-gradient(145deg, var(--primary), var(--primary-hover));
       color: var(--light);
       padding: 0.75rem;
-      border-radius: 50%;
       border: none;
+      border-radius: 50%;
       cursor: pointer;
-      transition: transform var(--transition), box-shadow var(--transition);
-      box-shadow: var(--shadow);
+      box-shadow: 4px 4px 8px rgba(0,0,0,0.2), -4px -4px 8px rgba(255,255,255,0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
     }
     .back-btn:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+      transform: translateY(-3px);
+      box-shadow: 6px 6px 12px rgba(0,0,0,0.3), -6px -6px 12px rgba(255,255,255,0.4);
     }
     .back-btn:active {
-      transform: scale(0.95);
-      box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+      transform: translateY(1px);
+      box-shadow: 3px 3px 6px rgba(0,0,0,0.2), -3px -3px 6px rgba(255,255,255,0.3);
     }
     .header h1 {
       font-size: 2.5rem;
@@ -124,11 +125,11 @@
       background: linear-gradient(90deg, var(--primary), var(--primary-hover));
       transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    /* لوحة التخصيص */
+    /* لوحة التخصيص مع ترتيب الخيارات في صف واحد */
     .customization-panel {
       display: flex;
-      flex-wrap: nowrap; /* منع التفاف العناصر */
-      justify-content: space-between; /* توزيع متساوي للعناصر */
+      flex-wrap: nowrap;
+      justify-content: space-between;
       gap: var(--spacing);
       margin-bottom: var(--spacing);
       padding: 0.5rem;
@@ -140,6 +141,18 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
+    }
+    .customization-option label {
+      font-weight: bold;
+      color: var(--primary);
+    }
+    .customization-option select {
+      padding: 0.4rem;
+      border: 1px solid var(--primary);
+      border-radius: var(--radius);
+      background: var(--light);
+      color: var(--secondary);
+      font-size: 0.9rem;
     }
     /* إعداد عرض الأرقام */
     .numbers-list.list-view {
@@ -288,10 +301,6 @@
       .action-btn {
         width: 100%;
       }
-      .customization-panel {
-        flex-wrap: wrap;
-        justify-content: flex-start;
-      }
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: scale(0.95); }
@@ -361,8 +370,8 @@
         <div class="stat-value" id="successCount">0</div>
       </div>
       <div class="stat-card">
-        <div class="stat-title">فشل الإرسال</div>
-        <div class="stat-value" id="errorCount">0</div>
+        <div class="stat-title">المتبقي</div>
+        <div class="stat-value" id="remainingCount">0</div>
       </div>
     </div>
     
@@ -433,11 +442,13 @@
       progress: document.getElementById('progress'),
       totalCount: document.getElementById('totalCount'),
       successCount: document.getElementById('successCount'),
-      errorCount: document.getElementById('errorCount')
+      remainingCount: document.getElementById('remainingCount')
     };
     
     // تحديث الإحصائيات
     elements.totalCount.textContent = numbers.length;
+    elements.successCount.textContent = state.sent;
+    elements.remainingCount.textContent = numbers.length - state.sent;
     
     function createNumberCard(number, index) {
       const card = document.createElement('div');
@@ -497,17 +508,23 @@
     }
     
     function updateStatus(success, btn) {
-      state[success ? 'sent' : 'failed']++;
-      elements[success ? 'successCount' : 'errorCount'].textContent = state[success ? 'sent' : 'failed'];
-      const progressPercent = ((state.sent + state.failed) / numbers.length) * 100;
+      if(success) {
+        state.sent++;
+      } else {
+        state.failed++;
+      }
+      elements.successCount.textContent = state.sent;
+      elements.remainingCount.textContent = numbers.length - state.sent;
+      const progressPercent = (state.sent / numbers.length) * 100;
       elements.progress.style.width = `${progressPercent}%`;
       btn.classList.remove('whatsapp-btn');
       if (success) {
         btn.classList.add('sent-status', 'status-btn');
         btn.innerHTML = 'مراسلة الرقم مرة أخرى';
       } else {
-        btn.classList.add('error-status', 'status-btn');
-        btn.innerHTML = '✗ فشل الإرسال<br><small style="display:block;font-size:0.8em">انقر للمحاولة مجددًا</small>';
+        btn.classList.add('remaining-status', 'status-btn');
+        let remaining = numbers.length - state.sent;
+        btn.innerHTML = `المتبقي: ${remaining}<br><small style="display:block;font-size:0.8em">انقر للمحاولة مجددًا</small>`;
       }
       btn.disabled = false;
       btn.onclick = () => handleSend(btn.dataset.number, btn);
@@ -523,7 +540,7 @@
     }
     
     // تهيئة شريط التقدم
-    elements.progress.style.width = `${((state.sent + state.failed) / numbers.length) * 100}%`;
+    elements.progress.style.width = `${(state.sent / numbers.length) * 100}%`;
     
     // التعامل مع خيارات التخصيص
     const viewModeSelect = document.getElementById('viewModeSelect');
@@ -571,10 +588,8 @@
       
       if (triggerType === "manual") {
         manualButtons.style.display = "block";
-        // عند الاستدعاء اليدوي لا نعتمد على الإخفاء التلقائي
       } else {
         manualButtons.style.display = "none";
-        // إخفاء تلقائي بعد 30 ثانية
         setTimeout(hideReminder, 30000);
       }
       
