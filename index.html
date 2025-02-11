@@ -6,10 +6,11 @@
   <title>Lingua Stochos Sender</title>
   <!-- جلب خط Cairo للواجهة العربية -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+  <!-- تضمين مكتبة Select2 لتحسين قائمة الدول -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <!-- تضمين مكتبة XLSX لمعالجة ملفات Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <!-- تضمين مكتبة libphonenumber-js مع بياناتها -->
-  <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.9.48/bundle/libphonenumber-js.min.js"></script>
   <style>
     /* متغيرات الألوان والإعدادات العامة */
     :root {
@@ -72,12 +73,12 @@
     .container.visible { opacity: 1; transform: translateY(0); }
     h2 { text-align: center; margin-bottom: var(--spacing); font-size: 2rem; color: var(--primary-color); }
     label { font-weight: 600; margin-top: var(--spacing); margin-bottom: 0.5rem; display: block; }
-    input[type="text"], textarea, input[type="file"] {
+    input[type="text"], textarea, input[type="file"], select {
       width: 100%; padding: 0.75rem; font-size: 1rem;
       border: 1px solid var(--input-border); border-radius: var(--radius);
       background-color: var(--input-bg); transition: border-color var(--transition-speed);
     }
-    input:focus, textarea:focus { border-color: var(--primary-color); outline: none; }
+    input:focus, textarea:focus, select:focus { border-color: var(--primary-color); outline: none; }
     button {
       background-color: var(--btn-bg); color: #fff;
       border: none; border-radius: var(--radius);
@@ -150,7 +151,7 @@
     @media (max-width: 480px) {
       .container { padding: 1.5rem; }
       h2 { font-size: 1.75rem; }
-      button, input, textarea { font-size: 0.9rem; }
+      button, input, textarea, select { font-size: 0.9rem; }
     }
   </style>
 </head>
@@ -167,6 +168,33 @@
     <h2 class="tool-logo">Lingua Stochos Sender</h2>
     <!-- منطقة عرض رسائل الخطأ -->
     <div id="errorDisplay"></div>
+    
+    <!-- اختيار الدولة مع بحث باستخدام Select2 -->
+    <label for="countrySelect">اختر الدولة:</label>
+    <select id="countrySelect" class="input-field">
+      <option value="">-- اختر الدولة --</option>
+      <option value="DZ" data-dial="+213">الجزائر</option>
+      <option value="BH" data-dial="+973">البحرين</option>
+      <option value="DJ" data-dial="+253">جيبوتي</option>
+      <option value="EG" data-dial="+20">مصر</option>
+      <option value="IQ" data-dial="+964">العراق</option>
+      <option value="JO" data-dial="+962">الأردن</option>
+      <option value="KW" data-dial="+965">الكويت</option>
+      <option value="LB" data-dial="+961">لبنان</option>
+      <option value="LY" data-dial="+218">ليبيا</option>
+      <option value="MR" data-dial="+222">موريتانيا</option>
+      <option value="MA" data-dial="+212">المغرب</option>
+      <option value="OM" data-dial="+968">عمان</option>
+      <option value="PS" data-dial="+970">فلسطين</option>
+      <option value="QA" data-dial="+974">قطر</option>
+      <option value="SA" data-dial="+966">السعودية</option>
+      <option value="SO" data-dial="+252">الصومال</option>
+      <option value="SD" data-dial="+249">السودان</option>
+      <option value="SY" data-dial="+963">سوريا</option>
+      <option value="TN" data-dial="+216">تونس</option>
+      <option value="AE" data-dial="+971">الإمارات</option>
+      <option value="YE" data-dial="+967">اليمن</option>
+    </select>
     
     <!-- إدخال الأرقام يدويًا -->
     <label for="numbers" style="font-size: 1.2rem; font-weight: bold; color: var(--primary-color);">
@@ -213,29 +241,49 @@
     </div>
   </div>
   
+  <!-- تضمين مكتبة libphonenumber للتحقق من صحة الأرقام -->
+  <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.9.48/bundle/libphonenumber-js.min.js"></script>
   <script>
-    /* ========= إخفاء شاشة الترحيب ========= */
+    // دالة لإخفاء شاشة الترحيب وإظهار الواجهة الرئيسية
     function hideSplash() {
       const splash = document.getElementById('splash');
       splash.style.opacity = 0;
       setTimeout(() => {
         splash.style.display = 'none';
-        document.getElementById('mainContainer').classList.add('visible');
+        const mainContainer = document.getElementById('mainContainer');
+        mainContainer.classList.add('visible');
       }, 500);
     }
     
-    /* ========= دوال المسودة ========= */
+    // عند تحميل الصفحة، تهيئة Select2 واسترجاع المسودة إن وُجدت
+    document.addEventListener("DOMContentLoaded", function() {
+      $('#countrySelect').select2({
+        placeholder: "-- اختر الدولة --",
+        allowClear: true,
+        width: "100%",
+        dir: "rtl"
+      });
+      loadDraft();
+    });
+    
+    /* ============== دوال المسودة ============== */
     function saveDraft() {
       const numbersContent = document.getElementById("numbers").value;
       const messageContent = document.getElementById("message").value;
+      const countrySelect = document.getElementById("countrySelect");
+      const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
+      // حفظ البيانات في التخزين المحلي
       localStorage.setItem("draftNumbers", numbersContent);
       localStorage.setItem("draftMessage", messageContent);
+      localStorage.setItem("draftCountry", countrySelect.value);
+      localStorage.setItem("draftDialCode", dialCode);
       alert("تم حفظ المسودة!");
     }
     
     function loadDraft() {
       const draftNumbers = localStorage.getItem("draftNumbers");
       const draftMessage = localStorage.getItem("draftMessage");
+      const draftCountry = localStorage.getItem("draftCountry");
       if (draftNumbers) {
         document.getElementById("numbers").value = draftNumbers;
         formatNumbers();
@@ -243,11 +291,13 @@
       if (draftMessage) {
         document.getElementById("message").value = draftMessage;
       }
+      if (draftCountry) {
+        document.getElementById("countrySelect").value = draftCountry;
+        $('#countrySelect').trigger('change');
+      }
     }
     
-    document.addEventListener("DOMContentLoaded", loadDraft);
-    
-    /* ========= دوال التنسيق وتقنية Debounce ========= */
+    /* ============== دوال المساعدة للتنسيق وتقنية Debounce ============== */
     let debounceTimer;
     function debounceFormatNumbers() {
       clearTimeout(debounceTimer);
@@ -286,10 +336,11 @@
       formatNumbers();
     }
     
-    /* ========= دوال النافذة (Modal) ========= */
+    /* ============== دوال النافذة (Modal) ============== */
     function openModal(content) {
+      const modalBody = document.getElementById("modalBody");
       const modal = document.getElementById("modal");
-      document.getElementById("modalBody").innerHTML = content;
+      modalBody.innerHTML = content;
       modal.style.display = "flex";
     }
     
@@ -299,10 +350,11 @@
     }
     
     window.addEventListener("click", function(e) {
-      if (e.target === document.getElementById("modal")) { closeModal(); }
+      const modal = document.getElementById("modal");
+      if (e.target === modal) { closeModal(); }
     });
     
-    /* ========= معاينة الرسالة ========= */
+    /* ============== دوال المعاينة والتحقق ============== */
     function previewMessage() {
       const message = document.getElementById("message").value.trim();
       if (!message) {
@@ -312,73 +364,87 @@
       }
     }
     
-    /* ========= دوال التطبيع والتمييز التلقائي للدولة ========= */
-    // الدالة autoNormalizePhoneNumber تحاول تصحيح الرقم تلقائيًا:
-    function autoNormalizePhoneNumber(number) {
-      let raw = number.trim().replace(/[\s\-]/g, "");
+    // دالة تطبيع الرقم لتشكيله بصيغة دولية صحيحة
+    function normalizePhoneNumber(number, dialCode, region) {
+      number = number.trim().replace(/[\s\-]/g, "");
       
-      // معالجة حالة إدخال "0010" بدلاً من "010"
-      if (raw.startsWith("0010")) {
-        raw = "010" + raw.substring(4);
+      // إذا بدأ بـ"00" استبدله بـ"+"
+      if (number.startsWith("00")) {
+        number = "+" + number.substring(2);
       }
       
-      // إذا كان يبدأ بـ "00" استبدله بـ "+"
-      if (raw.startsWith("00")) {
-        raw = "+" + raw.substring(2);
-      }
-      
-      // إذا كان الرقم يبدأ بـ "+" فهو بصيغة دولية، نعيده كما هو
-      if (raw.startsWith("+")) return raw;
-      
-      // إذا كان الرقم محليًا مصريًا: 11 رقم يبدأ بـ 0 ومن بادئات الجوال المصرية
-      if (raw.startsWith("0") && raw.length === 11 && /^0(10|11|12|15)\d{8}$/.test(raw)) {
-        return "+20" + raw.substring(1);
-      }
-      
-      // إذا كان الرقم مكوناً من 10 أرقام (عادة ما تكون أرقام الولايات المتحدة)
-      if (/^\d{10}$/.test(raw)) {
-        return "+1" + raw;
-      }
-      
-      // إذا لم تطابق الحالات السابقة، نستخدم قائمة أولويات محددة
-      const candidateRegions = ["EG", "US", "GB", "CA", "AU", "IN"];
-      for (let region of candidateRegions) {
-        try {
-          const callingCode = libphonenumber.getCountryCallingCode(region);
-          // إذا كان الرقم يبدأ بـ "0" فحذف الصفر الأول
-          let candidate = raw.startsWith("0") ? raw.substring(1) : raw;
-          let normalized = "+" + callingCode + candidate;
-          const phoneNumber = libphonenumber.parsePhoneNumberFromString(normalized, region);
-          if (phoneNumber && phoneNumber.isValid()) {
-            return normalized;
-          }
-        } catch (e) {
-          // تجاهل الخطأ وتجربة الدولة التالية
+      // إذا كان يبدأ بعلامة "+" نعود به كما هو (سنحاول معالجته لاحقًا)
+      if (number.startsWith("+")) {
+        // إذا كان للمستخدم مصر لكن الرقم لا يبدأ بـ"+20"، فنعيد تصحيحه
+        if (region === "EG" && !number.startsWith("+20")) {
+          // حاول إزالة البادئة الحالية وإضافة "+20"
+          number = "+20" + number.substring(1);
         }
+        return number;
       }
-      // إذا لم يتم التطبيع بنجاح نعيد الرقم كما هو
-      return raw;
+      
+      // إذا كان الرقم لا يبدأ بعلامة "+":
+      // إذا بدأ بالرمز المحلي "0" فنحذف الصفر ونضيف رمز الدولة
+      if (number.startsWith("0")) {
+        return dialCode + number.substring(1);
+      }
+      
+      // إذا كان الرقم يبدأ بأرقام رمز الدولة بدون علامة "+"
+      let dialDigits = dialCode.replace("+", "");
+      if (number.startsWith(dialDigits)) {
+        return "+" + number;
+      }
+      
+      // إذا كان الرقم محلياً (مثلاً 10 أرقام لمصر) وفئة مصر
+      if (region === "EG" && number.length === 10) {
+        return dialCode + number;
+      }
+      
+      // خلاف ذلك نضيف رمز الدولة
+      return dialCode + number;
     }
     
-    function validatePhoneNumber(number) {
-      const normalized = autoNormalizePhoneNumber(number);
+    // دالة التحقق من صحة الرقم مع معالجة إضافية للأرقام المصرية
+    function validatePhoneNumber(number, region) {
+      const countrySelect = document.getElementById("countrySelect");
+      const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
+      let normalized = normalizePhoneNumber(number, dialCode, region);
+      
+      // إذا كانت الدولة مصر، نتحقق من أن الرقم يتطابق مع النمط الدولي الصحيح:
+      // يجب أن يكون على شكل "+20" تليه 10 أرقام (أي 12 رقمًا بدون علامة "+")
+      if (region === "EG") {
+        if (!/^\+20\d{10}$/.test(normalized)) {
+          return false;
+        }
+        // يمكننا أيضًا فحص بادئات الجوال المصرية؛ عادةً تبدأ بـ "10", "11", "12", أو "15"
+        let localPart = normalized.substring(3); // بعد "+20"
+        if (!/^(10|11|12|15)/.test(localPart)) {
+          return false;
+        }
+        return true;
+      }
+      
+      // بالنسبة للدول الأخرى، نعتمد على مكتبة libphonenumber-js
       try {
-        const phoneNumber = libphonenumber.parsePhoneNumberFromString(normalized);
+        const phoneNumber = libphonenumber.parsePhoneNumberFromString(normalized, region);
         return phoneNumber && phoneNumber.isValid();
-      } catch (e) {
+      } catch (error) {
         return false;
       }
     }
     
     function validateNumbers() {
-      let numbers = document.getElementById("numbers").value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
+      const numbersField = document.getElementById("numbers");
+      let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
       numbers = [...new Set(numbers)];
       if (numbers.length === 0) {
         openModal("<p style='color: var(--error-color);'>لم يتم إدخال أرقام.</p>");
         return;
       }
-      const validNumbers = numbers.filter(num => validatePhoneNumber(num));
-      const invalidNumbers = numbers.filter(num => !validatePhoneNumber(num));
+      const countrySelect = document.getElementById("countrySelect");
+      const region = countrySelect.value;
+      const validNumbers = numbers.filter(num => validatePhoneNumber(num, region));
+      const invalidNumbers = numbers.filter(num => !validatePhoneNumber(num, region));
       let report = `<h3>تقرير التحقق من صحة الأرقام</h3>
                     <p>إجمالي الأرقام: ${numbers.length}</p>
                     <p>الأرقام الصالحة: ${validNumbers.length}</p>
@@ -390,7 +456,15 @@
     }
     
     function startMessaging() {
-      let numbers = document.getElementById("numbers").value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
+      const countrySelect = document.getElementById("countrySelect");
+      const region = countrySelect.value;
+      const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
+      if (!region) {
+        openModal("<p style='color: var(--error-color);'>يرجى اختيار الدولة.</p>");
+        return;
+      }
+      const numbersField = document.getElementById("numbers");
+      let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
       numbers = [...new Set(numbers)];
       const message = document.getElementById("message").value.trim();
       if (numbers.length === 0) {
@@ -400,7 +474,7 @@
       if (!message && !confirm("لم يتم إدخال رسالة. هل تريد المتابعة بدون رسالة؟")) {
         return;
       }
-      let validNumbers = numbers.filter(num => validatePhoneNumber(num));
+      let validNumbers = numbers.filter(num => validatePhoneNumber(num, region));
       if (validNumbers.length !== numbers.length) {
         if (!confirm("بعض الأرقام غير صحيحة. المتابعة بالأرقام الصالحة فقط؟")) { return; }
         numbers = validNumbers;
@@ -409,16 +483,21 @@
           return;
         }
       }
-      // تطبيع جميع الأرقام قبل الإرسال
-      numbers = numbers.map(num => autoNormalizePhoneNumber(num));
+      // تطبيع جميع الأرقام قبل التخزين أو الإرسال
+      numbers = numbers.map(num => {
+        return num.startsWith("+") ? num : normalizePhoneNumber(num, dialCode, region);
+      });
       localStorage.setItem("numbers", JSON.stringify(numbers));
+      localStorage.setItem("countryCode", dialCode);
       localStorage.setItem("message", encodeURIComponent(message));
       closeModal();
       window.location.href = "send_messages.html";
     }
     
+    /* ============== محاكاة الإرسال ============== */
     function simulateSend() {
-      let numbers = document.getElementById("numbers").value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
+      const numbersField = document.getElementById("numbers").value;
+      let numbers = numbersField.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
       numbers = [...new Set(numbers)];
       const message = document.getElementById("message").value.trim();
       if (numbers.length === 0) {
@@ -429,15 +508,22 @@
         openModal("<p style='color: var(--error-color);'>يرجى إدخال رسالة لمحاكاة الإرسال.</p>");
         return;
       }
-      let validNumbers = numbers.filter(num => validatePhoneNumber(num));
+      
+      const countrySelect = document.getElementById("countrySelect");
+      const region = countrySelect.value;
+      const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
+      // اختيار رقم عشوائي من بين الأرقام الصالحة؛ إذا لم توجد أرقام صالحة نستخدم رقمًا عشوائيًا من القائمة
+      let validNumbers = numbers.filter(num => validatePhoneNumber(num, region));
       let randomNumber = "";
       if (validNumbers.length > 0) {
         const randomIndex = Math.floor(Math.random() * validNumbers.length);
-        randomNumber = autoNormalizePhoneNumber(validNumbers[randomIndex]);
+        randomNumber = normalizePhoneNumber(validNumbers[randomIndex], dialCode, region);
       } else {
         const randomIndex = Math.floor(Math.random() * numbers.length);
-        randomNumber = autoNormalizePhoneNumber(numbers[randomIndex]);
+        randomNumber = normalizePhoneNumber(numbers[randomIndex], dialCode, region);
       }
+      
+      // تصميم نافذة المحاكاة بشكل يشبه واجهة واتساب
       let simulationHTML = `
         <div style="max-width: 400px; margin: 0 auto; font-family: 'Cairo', sans-serif; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; background: #fff;">
           <div style="background: #075e54; padding: 10px; text-align: center; color: #fff; font-size: 1.2rem;">
@@ -457,7 +543,7 @@
       openModal(simulationHTML);
     }
     
-    /* ========= التعامل مع ملف Excel ========= */
+    /* ============== التعامل مع ملف Excel ============== */
     document.getElementById("fileInput").addEventListener("change", handleFile, false);
     
     function handleFile(e) {
