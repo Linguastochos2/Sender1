@@ -29,16 +29,14 @@
       --radius: 8px;
       --spacing: 1rem;
     }
-
+    
     /* إعادة تعيين القواعد الأساسية */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-    html {
-      font-size: 16px;
-    }
+    html { font-size: 16px; }
     body {
       font-family: 'Cairo', sans-serif;
       direction: rtl;
@@ -47,14 +45,59 @@
       color: var(--secondary-color);
       line-height: 1.6;
     }
-    h2 {
+    
+    /* واجهة الترحيب (Splash Screen) */
+    #splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1abc9c, #16a085);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      color: #fff;
       text-align: center;
-      margin-bottom: var(--spacing);
-      font-size: 2rem;
-      color: var(--primary-color);
+      animation: fadeIn 1s;
     }
-
-    /* تصميم الحاوية الرئيسية */
+    #splash h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      animation: slideIn 1s;
+    }
+    #splash p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      animation: slideIn 1.2s;
+    }
+    #splash button {
+      background-color: #fff;
+      color: var(--primary-color);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s, background 0.3s;
+    }
+    #splash button:hover {
+      transform: scale(1.05);
+      background: #f7f7f7;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideIn {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    /* الحاوية الرئيسية (تكون مخفية في البداية) */
     .container {
       max-width: 600px;
       background-color: var(--card-bg);
@@ -62,9 +105,21 @@
       padding: 2rem;
       border-radius: var(--radius);
       box-shadow: var(--card-shadow);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
     }
-
-    /* أنماط الحقول والعناصر */
+    .container.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    h2 {
+      text-align: center;
+      margin-bottom: var(--spacing);
+      font-size: 2rem;
+      color: var(--primary-color);
+    }
     label {
       font-weight: 600;
       margin-top: var(--spacing);
@@ -89,8 +144,6 @@
       border-color: var(--primary-color);
       outline: none;
     }
-
-    /* أنماط الأزرار */
     button {
       background-color: var(--btn-bg);
       color: #fff;
@@ -112,8 +165,6 @@
     .clear-btn:hover {
       background-color: #e67e22;
     }
-
-    /* عرض رسائل الخطأ */
     #errorDisplay {
       background: #fdecea;
       border: 1px solid var(--error-color);
@@ -124,8 +175,6 @@
       text-align: center;
       display: none;
     }
-
-    /* منطقة عرض الأرقام */
     #numbersCount {
       font-size: 0.9rem;
       margin-top: var(--spacing);
@@ -166,8 +215,6 @@
     .number-item button:hover {
       background-color: #c0392b;
     }
-
-    /* أزرار الإجراءات الرئيسية */
     .action-buttons {
       display: flex;
       flex-wrap: wrap;
@@ -178,12 +225,9 @@
       flex: 1;
       min-width: 8rem;
     }
-
-    /* أنماط رفع الملفات */
     .file-upload {
       margin-top: var(--spacing);
     }
-
     /* تصميم النافذة المنبثقة (Modal) */
     #modal {
       position: fixed;
@@ -242,16 +286,10 @@
       overflow-y: auto;
       font-size: 1rem;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
     @keyframes scaleIn {
       from { transform: scale(0.9); }
       to { transform: scale(1); }
     }
-
-    /* استجابة الشاشات الصغيرة */
     @media (max-width: 480px) {
       .container { padding: 1.5rem; }
       h2 { font-size: 1.75rem; }
@@ -260,7 +298,15 @@
   </style>
 </head>
 <body>
-  <div class="container">
+  <!-- واجهة الترحيب -->
+  <div id="splash">
+    <h1>أهلاً وسهلاً!</h1>
+    <p>مرحباً بك في أداة Lingua Stochos Sender الذكية</p>
+    <button onclick="hideSplash()">ابدأ الآن</button>
+  </div>
+  
+  <!-- الحاوية الرئيسية للأداة (ستظهر بعد إخفاء شاشة الترحيب) -->
+  <div class="container" id="mainContainer">
     <h2 class="tool-logo">Lingua Stochos Sender</h2>
     <!-- منطقة عرض رسائل الخطأ -->
     <div id="errorDisplay"></div>
@@ -344,6 +390,17 @@
   <!-- تضمين مكتبة libphonenumber للتحقق من صحة الأرقام -->
   <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.9.48/bundle/libphonenumber-js.min.js"></script>
   <script>
+    // دالة لإخفاء شاشة الترحيب وإظهار الواجهة الرئيسية
+    function hideSplash() {
+      const splash = document.getElementById('splash');
+      splash.style.opacity = 0;
+      setTimeout(() => {
+        splash.style.display = 'none';
+        const mainContainer = document.getElementById('mainContainer');
+        mainContainer.classList.add('visible');
+      }, 500);
+    }
+    
     // تهيئة Select2 لقائمة الدول عند تحميل الصفحة
     document.addEventListener("DOMContentLoaded", function() {
       $('#countrySelect').select2({
@@ -364,7 +421,6 @@
     function formatNumbers() {
       const numbersField = document.getElementById("numbers");
       const rawInput = numbersField.value.trim();
-      // تقسيم النص على المسافات أو الفواصل أو الأسطر وإزالة التكرارات
       const numbersList = [...new Set(rawInput.split(/[\s,]+/).filter(num => num.trim().length > 0))];
       document.getElementById("numbersCount").textContent = `الأرقام المدخلة: ${numbersList.length}`;
       const numbersListDiv = document.getElementById("numbersList");
