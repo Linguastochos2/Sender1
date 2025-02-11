@@ -434,7 +434,8 @@
     let state = {
       sent: 0,
       failed: 0,
-      processing: new Set()
+      processing: new Set(),
+      sentNumbers: new Set()
     };
     
     const elements = {
@@ -509,7 +510,11 @@
     
     function updateStatus(success, btn) {
       if(success) {
-        state.sent++;
+        // إذا لم يتم إرسال هذا الرقم من قبل نقوم بتحديث العدادات
+        if (!state.sentNumbers.has(btn.dataset.number)) {
+          state.sentNumbers.add(btn.dataset.number);
+          state.sent++;
+        }
       } else {
         state.failed++;
       }
