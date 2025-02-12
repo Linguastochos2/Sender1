@@ -38,7 +38,8 @@
   <!-- SweetAlert2 لتحسين التنبيهات -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
-  <!-- تم حذف مكتبة Axios غير المستخدمة -->
+  <!-- Axios للتعامل مع طلبات HTTP (للتطوير المستقبلي) -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   
   <!-- Toastify JS -->
   <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
@@ -80,7 +81,62 @@
       color: var(--secondary-color);
       line-height: 1.6;
     }
-    /* قاعدة عامة لتحسين تأثير hover لجميع الأزرار */
+    /* تأثير Glow عند التحويم على الأزرار */
+    button:hover {
+      box-shadow: 0 0 10px var(--primary-color), 0 4px 6px rgba(0,0,0,0.1);
+    }
+    /* واجهة الترحيب (Splash Screen) */
+    #splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.2) 10%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(255,255,255,0.2) 10%, transparent 40%),
+        linear-gradient(135deg, #1abc9c, #16a085);
+      background-size: cover;
+      animation: gradientAnimation 15s ease infinite, fadeIn 1s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      color: #fff;
+      text-align: center;
+    }
+    #splash h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      animation: slideIn 1s;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    #splash p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      animation: slideIn 1.2s;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+    #splash button {
+      background: linear-gradient(145deg, #ff8c00, #ff4500);
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #d63c00, 0 8px 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    #splash button:hover {
+      transform: translateY(-2px);
+    }
+    #splash button:active {
+      transform: translateY(4px) scale(0.97);
+      box-shadow: 0 1px 0 #d63c00, inset 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    /* تحسين أزرار الواجهة الرئيسية */
     button {
       background-color: var(--btn-bg);
       color: #fff;
@@ -90,10 +146,6 @@
       font-size: 1rem;
       cursor: pointer;
       transition: background var(--transition-speed), transform 0.2s, box-shadow 0.2s;
-    }
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 10px var(--primary-color), 0 4px 6px rgba(0,0,0,0.1);
     }
     button:active {
       transform: translateY(2px) scale(0.98);
@@ -194,7 +246,6 @@
       position: relative;
     }
     .modal-header h3 { margin: 0; color: #fff; font-size: 1.5rem; }
-    /* تحديث زر إغلاق النافذة المنبثقة ليكون واضحًا */
     #modalClose {
       position: absolute;
       top: 0.5rem;
@@ -238,7 +289,7 @@
       font-size: 3rem;
       font-weight: bold;
       text-align: center;
-      margin-top: 0.5rem;
+      margin-top: 0.5rem; /* يظهر أعلى قليلاً */
       margin-bottom: 1.5rem;
       background: linear-gradient(90deg, #1abc9c, #16a085);
       -webkit-background-clip: text;
@@ -378,7 +429,7 @@
     <div id="modalContent">
       <div class="modal-header">
         <h3>معاينة</h3>
-        <button id="modalClose" onclick="closeModal()">× إغلاق</button>
+        <button id="modalClose" onclick="closeModal()">×</button>
       </div>
       <div id="modalBody"></div>
     </div>
@@ -433,9 +484,8 @@
       const messageContent = document.getElementById("message").value;
       const countrySelect = document.getElementById("countrySelect");
       const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
-      // تخزين البيانات مع ترميز بسيط (Base64) لتحسين الأمان
-      localStorage.setItem("draftNumbers", btoa(numbersContent));
-      localStorage.setItem("draftMessage", btoa(messageContent));
+      localStorage.setItem("draftNumbers", numbersContent);
+      localStorage.setItem("draftMessage", messageContent);
       localStorage.setItem("draftCountry", countrySelect.value);
       localStorage.setItem("draftDialCode", dialCode);
       Swal.fire({ icon: 'success', title: 'تم حفظ المسودة!' });
@@ -446,22 +496,14 @@
       const draftNumbers = localStorage.getItem("draftNumbers");
       const draftMessage = localStorage.getItem("draftMessage");
       const draftCountry = localStorage.getItem("draftCountry");
-      if (draftNumbers && draftNumbers.trim() !== "") {
-        try {
-          document.getElementById("numbers").value = atob(draftNumbers);
-        } catch (e) {
-          document.getElementById("numbers").value = draftNumbers;
-        }
+      if (draftNumbers) {
+        document.getElementById("numbers").value = draftNumbers;
         formatNumbers();
       }
-      if (draftMessage && draftMessage.trim() !== "") {
-        try {
-          document.getElementById("message").value = atob(draftMessage);
-        } catch (e) {
-          document.getElementById("message").value = draftMessage;
-        }
+      if (draftMessage) {
+        document.getElementById("message").value = draftMessage;
       }
-      if (draftCountry && draftCountry.trim() !== "") {
+      if (draftCountry) {
         document.getElementById("countrySelect").value = draftCountry;
         $('#countrySelect').trigger('change');
       }
@@ -572,39 +614,31 @@
                     <p>الأرقام غير الصالحة: ${invalidNumbers.length}</p>`;
       if (invalidNumbers.length > 0) {
         report += `<p>الأرقام غير الصالحة: ${invalidNumbers.join(", ")}</p>`;
-        report += `<div style="text-align:center; margin-top:1rem;">
-                     <button onclick="removeInvalidNumbers()">حذف الأرقام غير الصالحة</button>
-                   </div>`;
       }
       openModal(report);
     }
     
-    function removeInvalidNumbers() {
-      const numbersField = document.getElementById("numbers");
-      let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
-      const countrySelect = document.getElementById("countrySelect");
-      const region = countrySelect.value;
-      const validNumbers = numbers.filter(num => validatePhoneNumber(num, region));
-      numbersField.value = validNumbers.join(" ");
-      formatNumbers();
-      closeModal();
-      Toastify({ text: "تم حذف الأرقام غير الصالحة!", duration: 3000, gravity: "top", position: "center", style: { background: "#e74c3c" } }).showToast();
-    }
-    
-    // تطبيع الرقم بصيغة دولية صحيحة - تم تحسينها لتكون أكثر عمومية
+    // تطبيع الرقم بصيغة دولية صحيحة
     function normalizePhoneNumber(number, dialCode, region) {
       number = number.trim().replace(/[\s\-]/g, "");
       if (number.startsWith("00")) {
         number = "+" + number.substring(2);
       }
       if (number.startsWith("+")) {
+        if (region === "EG" && !number.startsWith("+20")) {
+          number = "+20" + number.substring(1);
+        }
         return number;
-      }
-      if (region === "EG" && number.length === 10) {
-        return dialCode + number;
       }
       if (number.startsWith("0")) {
         return dialCode + number.substring(1);
+      }
+      let dialDigits = dialCode.replace("+", "");
+      if (number.startsWith(dialDigits)) {
+        return "+" + number;
+      }
+      if (region === "EG" && number.length === 10) {
+        return dialCode + number;
       }
       return dialCode + number;
     }
@@ -675,7 +709,7 @@
       numbers = numbers.map(num => num.startsWith("+") ? num : normalizePhoneNumber(num, dialCode, region));
       localStorage.setItem("numbers", JSON.stringify(numbers));
       localStorage.setItem("countryCode", dialCode);
-      localStorage.setItem("message", btoa(message));
+      localStorage.setItem("message", encodeURIComponent(message));
       closeModal();
       showLottieAnimation();
       Toastify({ text: "بدأت عملية المراسلة!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
