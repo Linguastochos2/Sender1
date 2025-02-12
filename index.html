@@ -4,15 +4,54 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lingua Stochos Sender</title>
+  
   <!-- جلب خط Cairo للواجهة العربية -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- إضافة Font Awesome للأيقونات -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-p/gnXOUq+gxxYlyDH0CFkQj3s8Q6Jd2MVV6FbC+LaoQwtLwPx+eUd8ZZ/CElibWhr1q/MPRiO6xZl3P2Z5A2pg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Bootstrap CSS لتحسين التصميم والاستجابة -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- مكتبة Toastify لإظهار إشعارات Toast -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  
+  <!-- Waves CSS لتأثير Ripple -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-waves/0.7.6/waves.min.css">
+  
+  <!-- Animate.css لتأثيرات الحركة -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  
+  <!-- تم حذف مكتبة Tippy.js والتلميحات -->
+  
   <!-- تضمين مكتبة jQuery (ضرورية لـ Select2) -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <!-- تضمين مكتبة Select2 لتحسين قائمة الدول -->
+  
+  <!-- Select2 لتحسين قائمة الدول -->
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-  <!-- تضمين مكتبة XLSX لمعالجة ملفات Excel -->
+  
+  <!-- XLSX لمعالجة ملفات Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
+  <!-- SweetAlert2 لتحسين التنبيهات -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <!-- Axios للتعامل مع طلبات HTTP (للتطوير المستقبلي) -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  
+  <!-- Toastify JS -->
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  
+  <!-- Waves JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/node-waves/0.7.6/waves.min.js"></script>
+  
+  <!-- تم حذف سكريبتات Tippy.js -->
+  
+  <!-- Lottie لتأثيرات الرسوم المتحركة -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.4/lottie.min.js"></script>
+  
   <style>
     /* متغيرات الألوان والإعدادات العامة */
     :root {
@@ -21,7 +60,7 @@
       --secondary-color: #2c3e50;
       --error-color: #e74c3c;
       --bg-color: #ecf0f1;
-      --card-bg: #f2f3f5; /* خلفية مريحة للعين بدلاً من الأبيض */
+      --card-bg: #f2f3f5;
       --card-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
       --input-border: #bdc3c7;
       --input-bg: #ffffff;
@@ -42,6 +81,10 @@
       color: var(--secondary-color);
       line-height: 1.6;
     }
+    /* تأثير Glow عند التحويم على الأزرار */
+    button:hover {
+      box-shadow: 0 0 10px var(--primary-color), 0 4px 6px rgba(0,0,0,0.1);
+    }
     /* واجهة الترحيب (Splash Screen) */
     #splash {
       position: fixed;
@@ -49,7 +92,6 @@
       left: 0;
       width: 100%;
       height: 100%;
-      /* الخلفية تتكون من تدرجات دائرية شفافة مع تدرج أساسي متحرك */
       background: 
         radial-gradient(circle at 20% 30%, rgba(255,255,255,0.2) 10%, transparent 40%),
         radial-gradient(circle at 80% 70%, rgba(255,255,255,0.2) 10%, transparent 40%),
@@ -76,7 +118,6 @@
       animation: slideIn 1.2s;
       text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
     }
-    /* زر ابدأ الآن مع تأثير الضغط الواقعي */
     #splash button {
       background: linear-gradient(145deg, #ff8c00, #ff4500);
       color: #fff;
@@ -86,17 +127,16 @@
       border-radius: 12px;
       cursor: pointer;
       box-shadow: 0 6px 0 #d63c00, 0 8px 15px rgba(0, 0, 0, 0.2);
-      transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.1s, box-shadow 0.1s;
     }
     #splash button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 0 #d63c00, 0 10px 15px rgba(0, 0, 0, 0.3);
     }
     #splash button:active {
       transform: translateY(4px) scale(0.97);
       box-shadow: 0 1px 0 #d63c00, inset 0 4px 8px rgba(0, 0, 0, 0.3);
     }
-    /* تحسين أزرار الواجهة الرئيسية لتكون أكثر واقعية عند الضغط */
+    /* تحسين أزرار الواجهة الرئيسية */
     button {
       background-color: var(--btn-bg);
       color: #fff;
@@ -107,17 +147,13 @@
       cursor: pointer;
       transition: background var(--transition-speed), transform 0.2s, box-shadow 0.2s;
     }
-    button:hover { 
-      background-color: var(--btn-hover); 
-      transform: translateY(-2px);
-    }
     button:active {
       transform: translateY(2px) scale(0.98);
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
     }
     .clear-btn { background-color: #f39c12; color: #fff; }
     .clear-btn:hover { background-color: #e67e22; }
-    /* تحسين حقول الإدخال لتكون أكثر واقعية عند التركيز */
+    /* تحسين حقول الإدخال */
     input[type="text"], textarea, input[type="file"], select {
       width: 100%;
       padding: 0.75rem;
@@ -201,7 +237,7 @@
       border-radius: var(--radius);
       overflow: hidden;
       box-shadow: var(--card-shadow);
-      animation: scaleIn 0.3s;
+      animation: animate__animated animate__zoomIn;
     }
     .modal-header {
       background-color: var(--primary-color);
@@ -239,29 +275,84 @@
     }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideIn { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes scaleIn { from { transform: scale(0.9); } to { transform: scale(1); } }
     @media (max-width: 480px) {
       .container { padding: 1.5rem; }
       h2 { font-size: 1.75rem; }
       button, input, textarea, select { font-size: 0.9rem; }
     }
-    /* تحسين واجهة الحاوية الرئيسية لتكون أكثر دفئاً وراحة للعين */
+    /* تحسين واجهة الحاوية الرئيسية */
     .container {
       background-color: var(--card-bg);
     }
+    /* تحسين اسم الأداة في الصفحة الرئيسية */
+    .tool-logo {
+      font-size: 3rem;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 0.5rem; /* يظهر أعلى قليلاً */
+      margin-bottom: 1.5rem;
+      background: linear-gradient(90deg, #1abc9c, #16a085);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    /* أنماط روابط مواقع المؤسسة */
+    #socialLinks {
+      margin-top: var(--spacing);
+      text-align: center;
+    }
+    #socialLinks a {
+      margin: 0 10px;
+      font-size: 2rem;
+      text-decoration: none;
+    }
+    /* Loader (سبينر) يغطي الشاشة أثناء العمليات */
+    #loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    }
+    .spinner {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid var(--primary-color);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
+  <!-- Loader Overlay -->
+  <div id="loader">
+    <div class="spinner"></div>
+  </div>
+  
+  <!-- Lottie Animation Container -->
+  <div id="lottieContainer" style="display:none; position: fixed; top: 0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 4000; align-items: center; justify-content: center;">
+    <div id="lottieAnimation" style="width:200px; height:200px;"></div>
+  </div>
+  
   <!-- واجهة الترحيب -->
-  <div id="splash">
+  <div id="splash" class="animate__animated animate__fadeIn">
     <h1>أهلاً وسهلاً!</h1>
     <p>مرحباً بك في أداة Lingua Stochos Sender الذكية</p>
     <button onclick="hideSplash()">ابدأ الآن</button>
   </div>
   
-  <!-- الحاوية الرئيسية للأداة (تظهر بعد إخفاء شاشة الترحيب) -->
-  <div class="container" id="mainContainer">
+  <!-- الحاوية الرئيسية للأداة (مخفية في البداية) -->
+  <div class="container animate__animated animate__fadeIn" id="mainContainer" style="display: none;">
+    <!-- اسم الأداة يظهر هنا بشكل مميز -->
     <h2 class="tool-logo">Lingua Stochos Sender</h2>
+    
     <!-- منطقة عرض رسائل الخطأ -->
     <div id="errorDisplay"></div>
     
@@ -322,9 +413,15 @@
       <button class="clear-btn" onclick="clearAll()">مسح الكل</button>
     </div>
     
-    <!-- عرض عدد الأرقام والقائمة المنظمة -->
     <div id="numbersCount">الأرقام المدخلة: 0</div>
     <div id="numbersList"></div>
+    
+    <div id="socialLinks">
+      <a href="https://www.facebook.com/LinguaStochos1" target="_blank" style="color: #3b5998;"><i class="fab fa-facebook"></i></a>
+      <a href="https://t.me/asmsal1" target="_blank" style="color: #0088cc;"><i class="fab fa-telegram"></i></a>
+      <a href="https://www.instagram.com/lstochos?igsh=MTZpYmZ5b2piYTQ1ag==" target="_blank" style="color: #C13584;"><i class="fab fa-instagram"></i></a>
+      <a href="https://youtube.com/@linguastochosofficialchannel?si=zyHs_J4yan6t5SVv" target="_blank" style="color: #FF0000;"><i class="fab fa-youtube"></i></a>
+    </div>
   </div>
   
   <!-- نافذة (Modal) للمعاينة والتقارير -->
@@ -340,19 +437,9 @@
   
   <!-- تضمين مكتبة libphonenumber للتحقق من صحة الأرقام -->
   <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.9.48/bundle/libphonenumber-js.min.js"></script>
+  
   <script>
-    // دالة لإخفاء شاشة الترحيب وإظهار الواجهة الرئيسية
-    function hideSplash() {
-      const splash = document.getElementById('splash');
-      splash.style.opacity = 0;
-      setTimeout(() => {
-        splash.style.display = 'none';
-        const mainContainer = document.getElementById('mainContainer');
-        mainContainer.classList.add('visible');
-      }, 500);
-    }
-    
-    // عند تحميل الصفحة، تهيئة Select2 واسترجاع المسودة إن وُجدت
+    // عند تحميل الصفحة: تهيئة Select2 وتطبيق Waves
     document.addEventListener("DOMContentLoaded", function() {
       $('#countrySelect').select2({
         placeholder: "-- اختر الدولة --",
@@ -360,21 +447,49 @@
         width: "100%",
         dir: "rtl"
       });
+      Waves.attach('button');
+      Waves.init();
+      
       loadDraft();
     });
     
-    /* ============== دوال المسودة ============== */
+    /* ===================== Loader ===================== */
+    function showLoader() {
+      document.getElementById('loader').style.display = 'flex';
+    }
+    function hideLoader() {
+      document.getElementById('loader').style.display = 'none';
+    }
+    
+    /* ===================== Lottie Animation ===================== */
+    function showLottieAnimation() {
+      const container = document.getElementById('lottieContainer');
+      container.style.display = "flex";
+      var animation = bodymovin.loadAnimation({
+        container: document.getElementById('lottieAnimation'),
+        renderer: 'svg',
+        loop: false,
+        autoplay: true,
+        path: 'https://assets7.lottiefiles.com/packages/lf20_x62chJ.json'
+      });
+      setTimeout(() => {
+        container.style.display = "none";
+        animation.destroy();
+      }, 3000);
+    }
+    
+    /* ===================== دوال المسودة ===================== */
     function saveDraft() {
       const numbersContent = document.getElementById("numbers").value;
       const messageContent = document.getElementById("message").value;
       const countrySelect = document.getElementById("countrySelect");
       const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
-      // حفظ البيانات في التخزين المحلي
       localStorage.setItem("draftNumbers", numbersContent);
       localStorage.setItem("draftMessage", messageContent);
       localStorage.setItem("draftCountry", countrySelect.value);
       localStorage.setItem("draftDialCode", dialCode);
-      alert("تم حفظ المسودة!");
+      Swal.fire({ icon: 'success', title: 'تم حفظ المسودة!' });
+      Toastify({ text: "تم حفظ المسودة بنجاح!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
     }
     
     function loadDraft() {
@@ -394,7 +509,7 @@
       }
     }
     
-    /* ============== دوال المساعدة للتنسيق وتقنية Debounce ============== */
+    /* ===================== دوال التنسيق وتقنية Debounce ===================== */
     let debounceTimer;
     function debounceFormatNumbers() {
       clearTimeout(debounceTimer);
@@ -404,24 +519,32 @@
     function formatNumbers() {
       const numbersField = document.getElementById("numbers");
       const rawInput = numbersField.value.trim();
-      // تقسيم النص إلى أرقام بناءً على الفراغات أو الفواصل وإزالة التكرار
       const numbersList = [...new Set(rawInput.split(/[\s,]+/).filter(num => num.trim().length > 0))];
       document.getElementById("numbersCount").textContent = `الأرقام المدخلة: ${numbersList.length}`;
       const numbersListDiv = document.getElementById("numbersList");
       numbersListDiv.innerHTML = "";
       numbersList.forEach((number, index) => {
         const numberDiv = document.createElement("div");
-        numberDiv.classList.add("number-item");
+        numberDiv.classList.add("number-item", "animate__animated", "animate__fadeIn");
         numberDiv.innerHTML = `<span>${index + 1}. ${number}</span>
                                 <button onclick="removeNumber(${index})">حذف</button>`;
         numbersListDiv.appendChild(numberDiv);
       });
+      Waves.attach('.number-item button');
       numbersField.value = numbersList.join(" ");
     }
     
-    function removeNumber(index) {
+    async function removeNumber(index) {
+      const result = await Swal.fire({
+        icon: 'question',
+        title: 'حذف الرقم',
+        text: 'هل أنت متأكد من حذف هذا الرقم؟',
+        showCancelButton: true,
+        confirmButtonText: 'نعم',
+        cancelButtonText: 'لا'
+      });
+      if (!result.isConfirmed) return;
       const numbersField = document.getElementById("numbers");
-      // استخدام نفس طريقة التقسيم المستخدمة في formatNumbers للحفاظ على تناسق البيانات
       let numbersList = numbersField.value.split(/[\s,]+/).filter(num => num.trim().length > 0);
       numbersList = [...new Set(numbersList)];
       if (index >= 0 && index < numbersList.length) {
@@ -431,12 +554,21 @@
       }
     }
     
-    function clearAll() {
+    async function clearAll() {
+      const result = await Swal.fire({
+        icon: 'question',
+        title: 'مسح الكل',
+        text: 'هل أنت متأكد من مسح كل الأرقام؟',
+        showCancelButton: true,
+        confirmButtonText: 'نعم',
+        cancelButtonText: 'لا'
+      });
+      if (!result.isConfirmed) return;
       document.getElementById("numbers").value = "";
       formatNumbers();
     }
     
-    /* ============== دوال النافذة (Modal) ============== */
+    /* ===================== دوال النافذة (Modal) ===================== */
     function openModal(content) {
       const modalBody = document.getElementById("modalBody");
       const modal = document.getElementById("modal");
@@ -454,78 +586,13 @@
       if (e.target === modal) { closeModal(); }
     });
     
-    /* ============== دوال المعاينة والتحقق ============== */
+    /* ===================== دوال المعاينة والتحقق ===================== */
     function previewMessage() {
       const message = document.getElementById("message").value.trim();
       if (!message) {
         openModal("<p style='color: var(--error-color);'>لم يتم إدخال رسالة.</p>");
       } else {
         openModal(`<h3>معاينة الرسالة</h3><p>${message.replace(/\n/g, "<br>")}</p>`);
-      }
-    }
-    
-    // دالة تطبيع الرقم لتشكيله بصيغة دولية صحيحة
-    function normalizePhoneNumber(number, dialCode, region) {
-      number = number.trim().replace(/[\s\-]/g, "");
-      
-      // إذا بدأ بـ"00" استبدله بـ"+"
-      if (number.startsWith("00")) {
-        number = "+" + number.substring(2);
-      }
-      
-      // إذا كان يبدأ بعلامة "+" نعود به كما هو (مع محاولة تصحيحه لدولة مصر)
-      if (number.startsWith("+")) {
-        if (region === "EG" && !number.startsWith("+20")) {
-          number = "+20" + number.substring(1);
-        }
-        return number;
-      }
-      
-      // إذا كان الرقم لا يبدأ بعلامة "+":
-      if (number.startsWith("0")) {
-        return dialCode + number.substring(1);
-      }
-      
-      // إذا كان الرقم يبدأ بأرقام رمز الدولة بدون علامة "+"
-      let dialDigits = dialCode.replace("+", "");
-      if (number.startsWith(dialDigits)) {
-        return "+" + number;
-      }
-      
-      // إذا كان الرقم محلياً (مثلاً 10 أرقام لمصر) وفئة مصر
-      if (region === "EG" && number.length === 10) {
-        return dialCode + number;
-      }
-      
-      // خلاف ذلك نضيف رمز الدولة
-      return dialCode + number;
-    }
-    
-    // دالة التحقق من صحة الرقم مع معالجة إضافية للأرقام المصرية
-    function validatePhoneNumber(number, region) {
-      const countrySelect = document.getElementById("countrySelect");
-      const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
-      let normalized = normalizePhoneNumber(number, dialCode, region);
-      
-      if (region === "EG") {
-        // يجب أن يكون الرقم بصيغة +20XXXXXXXXXX (أي 10 أرقام بعد +20)
-        if (!/^\+20\d{10}$/.test(normalized)) {
-          return false;
-        }
-        // التحقق من بادئات الجوال المصرية الشائعة (10، 11، 12، 15)
-        let localPart = normalized.substring(3);
-        if (!/^(10|11|12|15)/.test(localPart)) {
-          return false;
-        }
-        return true;
-      }
-      
-      // بالنسبة للدول الأخرى نعتمد على مكتبة libphonenumber-js
-      try {
-        const phoneNumber = libphonenumber.parsePhoneNumberFromString(normalized, region);
-        return phoneNumber && phoneNumber.isValid();
-      } catch (error) {
-        return false;
       }
     }
     
@@ -551,7 +618,51 @@
       openModal(report);
     }
     
-    function startMessaging() {
+    // تطبيع الرقم بصيغة دولية صحيحة
+    function normalizePhoneNumber(number, dialCode, region) {
+      number = number.trim().replace(/[\s\-]/g, "");
+      if (number.startsWith("00")) {
+        number = "+" + number.substring(2);
+      }
+      if (number.startsWith("+")) {
+        if (region === "EG" && !number.startsWith("+20")) {
+          number = "+20" + number.substring(1);
+        }
+        return number;
+      }
+      if (number.startsWith("0")) {
+        return dialCode + number.substring(1);
+      }
+      let dialDigits = dialCode.replace("+", "");
+      if (number.startsWith(dialDigits)) {
+        return "+" + number;
+      }
+      if (region === "EG" && number.length === 10) {
+        return dialCode + number;
+      }
+      return dialCode + number;
+    }
+    
+    // التحقق من صحة الرقم
+    function validatePhoneNumber(number, region) {
+      const countrySelect = document.getElementById("countrySelect");
+      const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
+      let normalized = normalizePhoneNumber(number, dialCode, region);
+      if (region === "EG") {
+        if (!/^\+20\d{10}$/.test(normalized)) { return false; }
+        let localPart = normalized.substring(3);
+        if (!/^(10|11|12|15)/.test(localPart)) { return false; }
+        return true;
+      }
+      try {
+        const phoneNumber = libphonenumber.parsePhoneNumberFromString(normalized, region);
+        return phoneNumber && phoneNumber.isValid();
+      } catch (error) {
+        return false;
+      }
+    }
+    
+    async function startMessaging() {
       const countrySelect = document.getElementById("countrySelect");
       const region = countrySelect.value;
       const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
@@ -567,28 +678,45 @@
         openModal("<p style='color: var(--error-color);'>يرجى إدخال أرقام.</p>");
         return;
       }
-      if (!message && !confirm("لم يتم إدخال رسالة. هل تريد المتابعة بدون رسالة؟")) {
-        return;
+      if (!message) {
+        const result = await Swal.fire({
+          icon: 'question',
+          title: 'لم يتم إدخال رسالة',
+          text: 'هل تريد المتابعة بدون رسالة؟',
+          showCancelButton: true,
+          confirmButtonText: 'نعم',
+          cancelButtonText: 'لا'
+        });
+        if (!result.isConfirmed) return;
       }
       let validNumbers = numbers.filter(num => validatePhoneNumber(num, region));
       if (validNumbers.length !== numbers.length) {
-        if (!confirm("بعض الأرقام غير صحيحة. المتابعة بالأرقام الصالحة فقط؟")) { return; }
+        const result = await Swal.fire({
+          icon: 'warning',
+          title: 'بعض الأرقام غير صحيحة',
+          text: 'المتابعة بالأرقام الصالحة فقط؟',
+          showCancelButton: true,
+          confirmButtonText: 'نعم',
+          cancelButtonText: 'لا'
+        });
+        if (!result.isConfirmed) return;
         numbers = validNumbers;
         if (numbers.length === 0) {
           openModal("<p style='color: var(--error-color);'>لا توجد أرقام صالحة بعد التحقق.</p>");
           return;
         }
       }
-      // تطبيع جميع الأرقام قبل التخزين أو الإرسال
       numbers = numbers.map(num => num.startsWith("+") ? num : normalizePhoneNumber(num, dialCode, region));
       localStorage.setItem("numbers", JSON.stringify(numbers));
       localStorage.setItem("countryCode", dialCode);
       localStorage.setItem("message", encodeURIComponent(message));
       closeModal();
+      showLottieAnimation();
+      Toastify({ text: "بدأت عملية المراسلة!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
       window.location.href = "send_messages.html";
     }
     
-    /* ============== محاكاة الإرسال ============== */
+    /* ===================== محاكاة الإرسال ===================== */
     function simulateSend() {
       const numbersField = document.getElementById("numbers").value;
       let numbers = numbersField.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
@@ -602,11 +730,9 @@
         openModal("<p style='color: var(--error-color);'>يرجى إدخال رسالة لمحاكاة الإرسال.</p>");
         return;
       }
-      
       const countrySelect = document.getElementById("countrySelect");
       const region = countrySelect.value;
       const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
-      // اختيار رقم عشوائي من بين الأرقام الصالحة؛ إذا لم توجد أرقام صالحة نستخدم رقمًا عشوائيًا من القائمة
       let validNumbers = numbers.filter(num => validatePhoneNumber(num, region));
       let randomNumber = "";
       if (validNumbers.length > 0) {
@@ -616,8 +742,6 @@
         const randomIndex = Math.floor(Math.random() * numbers.length);
         randomNumber = normalizePhoneNumber(numbers[randomIndex], dialCode, region);
       }
-      
-      // تصميم نافذة المحاكاة بشكل يشبه واجهة واتساب
       let simulationHTML = `
         <div style="max-width: 400px; margin: 0 auto; font-family: 'Cairo', sans-serif; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; background: #fff;">
           <div style="background: #075e54; padding: 10px; text-align: center; color: #fff; font-size: 1.2rem;">
@@ -637,7 +761,7 @@
       openModal(simulationHTML);
     }
     
-    /* ============== عرض الأرقام الغير صالحة ============== */
+    /* ===================== عرض الأرقام الغير صالحة ===================== */
     function showInvalidNumbers() {
       const numbersField = document.getElementById("numbers").value;
       let numbers = numbersField.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
@@ -661,8 +785,12 @@
     function copyText(text) {
       if(navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text)
-          .then(() => { alert("تم النسخ!"); })
-          .catch(err => { alert("حدث خطأ أثناء النسخ: " + err); });
+          .then(() => { 
+            Swal.fire({ icon: 'success', title: 'تم النسخ!' });
+          })
+          .catch(err => { 
+            Swal.fire({ icon: 'error', title: 'حدث خطأ أثناء النسخ', text: err });
+          });
       } else {
         let textArea = document.createElement("textarea");
         textArea.value = text;
@@ -670,20 +798,21 @@
         textArea.select();
         try {
           document.execCommand('copy');
-          alert("تم النسخ!");
+          Swal.fire({ icon: 'success', title: 'تم النسخ!' });
         } catch (err) {
-          alert("حدث خطأ أثناء النسخ");
+          Swal.fire({ icon: 'error', title: 'حدث خطأ أثناء النسخ' });
         }
         document.body.removeChild(textArea);
       }
     }
     
-    /* ============== التعامل مع ملف Excel ============== */
+    /* ===================== التعامل مع ملف Excel ===================== */
     document.getElementById("fileInput").addEventListener("change", handleFile, false);
     
     function handleFile(e) {
       const file = e.target.files[0];
       if (!file) return;
+      showLoader();
       const reader = new FileReader();
       reader.onload = function(event) {
         const data = new Uint8Array(event.target.result);
@@ -691,8 +820,9 @@
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        hideLoader();
         if (jsonData.length === 0) {
-          alert("الملف فارغ!");
+          Swal.fire({ icon: 'error', title: 'الملف فارغ!' });
           return;
         }
         const headers = jsonData[0];
@@ -723,7 +853,7 @@
       if (colIndex === "") return;
       const data = window.excelData;
       if (!data || data.length < 2) {
-        alert("لا توجد بيانات كافية في الملف.");
+        Swal.fire({ icon: 'error', title: 'لا توجد بيانات كافية في الملف.' });
         return;
       }
       const phoneNumbers = [];
@@ -738,6 +868,17 @@
       numbersField.value = phoneNumbers.join(" ");
       formatNumbers();
     }
+    
+    /* ===================== دالة إخفاء شاشة الترحيب ===================== */
+    function hideSplash() {
+      const splash = document.getElementById('splash');
+      splash.style.opacity = 0;
+      setTimeout(() => {
+        splash.style.display = 'none';
+        const mainContainer = document.getElementById('mainContainer');
+        mainContainer.style.display = 'block';
+      }, 500);
+    }
   </script>
 </body>
-</html>
+      </html>
