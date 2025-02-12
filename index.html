@@ -374,7 +374,7 @@
       <button class="clear-btn" onclick="clearAll()">مسح الكل</button>
     </div>
     
-    <!-- تم إزالة عرض قائمة الأرقام المُدخلة -->
+    <!-- تمت إزالة عرض قائمة الأرقام المُدخلة -->
     
     <div id="socialLinks">
       <a href="https://www.facebook.com/LinguaStochos1" target="_blank" style="color: #3b5998;"><i class="fab fa-facebook"></i></a>
@@ -633,6 +633,7 @@
       window.location.href = "send_messages.html";
     }
     
+    /* ===================== محاكاة الإرسال مع تصميم يشبه واتساب ===================== */
     function simulateSend() {
       const numbersField = document.getElementById("numbers").value;
       let numbers = numbersField.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
@@ -658,16 +659,22 @@
         const randomIndex = Math.floor(Math.random() * numbers.length);
         randomNumber = normalizePhoneNumber(numbers[randomIndex], dialCode, region);
       }
+      // تصميم محاكاة الإرسال بأسلوب واتساب
       let simulationHTML = `
         <div style="max-width: 400px; margin: 0 auto; font-family: 'Cairo', sans-serif; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; background: #fff;">
-          <div style="background: #075e54; padding: 10px; text-align: center; color: #fff; font-size: 1.2rem;">
+          <div style="background: #075e54; padding: 10px; text-align: center; color: #fff; font-size: 1.2rem; border-top-left-radius: 10px; border-top-right-radius: 10px;">
             ${randomNumber}
           </div>
           <div style="padding: 15px; background: #e5ddd5;">
-            <div style="background: #dcf8c6; padding: 10px 15px; border-radius: 7px; box-shadow: 0px 1px 2px rgba(0,0,0,0.2); display: inline-block; max-width: 100%;">
+            <div style="background: #dcf8c6; padding: 10px 15px; border-radius: 7px; box-shadow: 0 1px 2px rgba(0,0,0,0.2); display: inline-block; max-width: 100%; position: relative;">
               ${message.replace(/\n/g, "<br>")}
+              <div style="position: absolute; bottom: -20px; right: 5px; font-size: 0.8rem; color: #999; display: flex; align-items: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#4fc3f7" viewBox="0 0 16 16" style="margin-right: 3px;">
+                  <path d="M15.854 4.146a.5.5 0 00-.708 0L6.5 12.793 3.854 10.146a.5.5 0 10-.708.708l3 3a.5.5 0 00.708 0l9-9a.5.5 0 000-.708z"/>
+                </svg>
+                12:34
+              </div>
             </div>
-            <div style="text-align: right; margin-top: 5px; font-size: 0.8rem; color: #999;">12:34</div>
           </div>
         </div>
         <div style="text-align: center; margin-top: 1rem;">
