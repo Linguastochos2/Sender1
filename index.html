@@ -23,8 +23,6 @@
   <!-- Animate.css لتأثيرات الحركة -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   
-  <!-- تم حذف مكتبة Tippy.js والتلميحات -->
-  
   <!-- تضمين مكتبة jQuery (ضرورية لـ Select2) -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   
@@ -46,8 +44,6 @@
   
   <!-- Waves JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/node-waves/0.7.6/waves.min.js"></script>
-  
-  <!-- تم حذف سكريبتات Tippy.js -->
   
   <!-- Lottie لتأثيرات الرسوم المتحركة -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.4/lottie.min.js"></script>
@@ -178,36 +174,7 @@
       text-align: center;
       display: none;
     }
-    #numbersCount { font-size: 0.9rem; margin-top: var(--spacing); }
-    #numbersList {
-      margin-top: 0.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .number-item {
-      background-color: #f1f1f1;
-      padding: 0.75rem;
-      border-radius: var(--radius);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-      transition: transform var(--transition-speed);
-    }
-    .number-item:hover { transform: translateY(-2px); }
-    .number-item span { font-weight: 600; color: var(--primary-color); }
-    .number-item button {
-      background-color: var(--error-color);
-      color: #fff;
-      padding: 0.5rem 0.75rem;
-      border-radius: var(--radius);
-      font-size: 0.9rem;
-      border: none;
-      cursor: pointer;
-      transition: background var(--transition-speed);
-    }
-    .number-item button:hover { background-color: #c0392b; }
+    /* تمت إزالة خاصية عرض الأرقام المدخلة */
     .action-buttons {
       display: flex;
       flex-wrap: wrap;
@@ -280,23 +247,20 @@
       h2 { font-size: 1.75rem; }
       button, input, textarea, select { font-size: 0.9rem; }
     }
-    /* تحسين واجهة الحاوية الرئيسية */
     .container {
       background-color: var(--card-bg);
     }
-    /* تحسين اسم الأداة في الصفحة الرئيسية */
     .tool-logo {
       font-size: 3rem;
       font-weight: bold;
       text-align: center;
-      margin-top: 0.5rem; /* يظهر أعلى قليلاً */
+      margin-top: 0.5rem;
       margin-bottom: 1.5rem;
       background: linear-gradient(90deg, #1abc9c, #16a085);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     }
-    /* أنماط روابط مواقع المؤسسة */
     #socialLinks {
       margin-top: var(--spacing);
       text-align: center;
@@ -306,7 +270,6 @@
       font-size: 2rem;
       text-decoration: none;
     }
-    /* Loader (سبينر) يغطي الشاشة أثناء العمليات */
     #loader {
       position: fixed;
       top: 0;
@@ -350,7 +313,6 @@
   
   <!-- الحاوية الرئيسية للأداة (مخفية في البداية) -->
   <div class="container animate__animated animate__fadeIn" id="mainContainer" style="display: none;">
-    <!-- اسم الأداة يظهر هنا بشكل مميز -->
     <h2 class="tool-logo">Lingua Stochos Sender</h2>
     
     <!-- منطقة عرض رسائل الخطأ -->
@@ -402,9 +364,8 @@
     <!-- قائمة اختيار الأعمدة تظهر بعد رفع ملف Excel -->
     <div id="columnSelectDiv"></div>
     
-    <!-- أزرار الإجراءات الرئيسية -->
+    <!-- أزرار الإجراءات الرئيسية بدون زر "معاينة الرسالة" -->
     <div class="action-buttons">
-      <button onclick="previewMessage()">معاينة الرسالة</button>
       <button onclick="saveDraft()">حفظ المسودة</button>
       <button onclick="simulateSend()">محاكاة الإرسال</button>
       <button onclick="validateNumbers()">تحقق من صحة الأرقام</button>
@@ -413,8 +374,7 @@
       <button class="clear-btn" onclick="clearAll()">مسح الكل</button>
     </div>
     
-    <div id="numbersCount">الأرقام المدخلة: 0</div>
-    <div id="numbersList"></div>
+    <!-- تم إزالة عرض قائمة الأرقام المُدخلة -->
     
     <div id="socialLinks">
       <a href="https://www.facebook.com/LinguaStochos1" target="_blank" style="color: #3b5998;"><i class="fab fa-facebook"></i></a>
@@ -424,7 +384,7 @@
     </div>
   </div>
   
-  <!-- نافذة (Modal) للمعاينة والتقارير -->
+  <!-- نافذة (Modal) للتقارير -->
   <div id="modal">
     <div id="modalContent">
       <div class="modal-header">
@@ -439,7 +399,6 @@
   <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.9.48/bundle/libphonenumber-js.min.js"></script>
   
   <script>
-    // عند تحميل الصفحة: تهيئة Select2 وتطبيق Waves
     document.addEventListener("DOMContentLoaded", function() {
       $('#countrySelect').select2({
         placeholder: "-- اختر الدولة --",
@@ -519,39 +478,8 @@
     function formatNumbers() {
       const numbersField = document.getElementById("numbers");
       const rawInput = numbersField.value.trim();
-      const numbersList = [...new Set(rawInput.split(/[\s,]+/).filter(num => num.trim().length > 0))];
-      document.getElementById("numbersCount").textContent = `الأرقام المدخلة: ${numbersList.length}`;
-      const numbersListDiv = document.getElementById("numbersList");
-      numbersListDiv.innerHTML = "";
-      numbersList.forEach((number, index) => {
-        const numberDiv = document.createElement("div");
-        numberDiv.classList.add("number-item", "animate__animated", "animate__fadeIn");
-        numberDiv.innerHTML = `<span>${index + 1}. ${number}</span>
-                                <button onclick="removeNumber(${index})">حذف</button>`;
-        numbersListDiv.appendChild(numberDiv);
-      });
-      Waves.attach('.number-item button');
-      numbersField.value = numbersList.join(" ");
-    }
-    
-    async function removeNumber(index) {
-      const result = await Swal.fire({
-        icon: 'question',
-        title: 'حذف الرقم',
-        text: 'هل أنت متأكد من حذف هذا الرقم؟',
-        showCancelButton: true,
-        confirmButtonText: 'نعم',
-        cancelButtonText: 'لا'
-      });
-      if (!result.isConfirmed) return;
-      const numbersField = document.getElementById("numbers");
-      let numbersList = numbersField.value.split(/[\s,]+/).filter(num => num.trim().length > 0);
-      numbersList = [...new Set(numbersList)];
-      if (index >= 0 && index < numbersList.length) {
-        numbersList.splice(index, 1);
-        numbersField.value = numbersList.join(" ");
-        formatNumbers();
-      }
+      const uniqueNumbers = [...new Set(rawInput.split(/[\s,]+/).filter(num => num.trim().length > 0))];
+      numbersField.value = uniqueNumbers.join(" ");
     }
     
     async function clearAll() {
@@ -586,16 +514,7 @@
       if (e.target === modal) { closeModal(); }
     });
     
-    /* ===================== دوال المعاينة والتحقق ===================== */
-    function previewMessage() {
-      const message = document.getElementById("message").value.trim();
-      if (!message) {
-        openModal("<p style='color: var(--error-color);'>لم يتم إدخال رسالة.</p>");
-      } else {
-        openModal(`<h3>معاينة الرسالة</h3><p>${message.replace(/\n/g, "<br>")}</p>`);
-      }
-    }
-    
+    /* ===================== دوال التحقق ===================== */
     function validateNumbers() {
       const numbersField = document.getElementById("numbers");
       let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
@@ -618,7 +537,6 @@
       openModal(report);
     }
     
-    // تطبيع الرقم بصيغة دولية صحيحة
     function normalizePhoneNumber(number, dialCode, region) {
       number = number.trim().replace(/[\s\-]/g, "");
       if (number.startsWith("00")) {
@@ -643,7 +561,6 @@
       return dialCode + number;
     }
     
-    // التحقق من صحة الرقم
     function validatePhoneNumber(number, region) {
       const countrySelect = document.getElementById("countrySelect");
       const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
@@ -716,7 +633,6 @@
       window.location.href = "send_messages.html";
     }
     
-    /* ===================== محاكاة الإرسال ===================== */
     function simulateSend() {
       const numbersField = document.getElementById("numbers").value;
       let numbers = numbersField.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
@@ -761,7 +677,6 @@
       openModal(simulationHTML);
     }
     
-    /* ===================== عرض الأرقام الغير صالحة ===================== */
     function showInvalidNumbers() {
       const numbersField = document.getElementById("numbers").value;
       let numbers = numbersField.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
@@ -806,7 +721,6 @@
       }
     }
     
-    /* ===================== التعامل مع ملف Excel ===================== */
     document.getElementById("fileInput").addEventListener("change", handleFile, false);
     
     function handleFile(e) {
@@ -869,7 +783,6 @@
       formatNumbers();
     }
     
-    /* ===================== دالة إخفاء شاشة الترحيب ===================== */
     function hideSplash() {
       const splash = document.getElementById('splash');
       splash.style.opacity = 0;
