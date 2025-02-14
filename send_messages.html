@@ -1,945 +1,767 @@
-<!DOCTYPE html><html lang="ar">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lingua Stochos sender</title>  
-  <!-- إضافة الصورة كأيقونة للصفحة (Favicon) -->  
-  <link rel="icon" type="image/jpeg" href="https://github.com/Linguastochos2/Sender1/blob/main/IMG_20250214_145035_585.jpg?raw=true">  
-  <!-- جلب خط Cairo للواجهة العربية -->  
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">  
-  <!-- إضافة Font Awesome للأيقونات -->  
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-p/gnXOUq+gxxYlyDH0CFkQj3s8Q6Jd2MVV6FbC+LaoQwtLwPx+eUd8ZZ/CElibWhr1q/MPRiO6xZl3P2Z5A2pg==" crossorigin="anonymous" referrerpolicy="no-referrer" />  
-  <!-- Bootstrap CSS لتحسين التصميم والاستجابة -->  
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">  
-  <!-- مكتبة Toastify لإظهار إشعارات Toast -->  
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">  
-  <!-- Waves CSS لتأثير Ripple -->  
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-waves/0.7.6/waves.min.css">  
-  <!-- Animate.css لتأثيرات الحركة -->  
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-  <!-- تضمين مكتبة jQuery (ضرورية لـ Select2) -->  
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  
-  <!-- Select2 لتحسين قائمة الدول -->  
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>  
-  <!-- XLSX لمعالجة ملفات Excel -->  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>  
-  <!-- SweetAlert2 لتحسين التنبيهات -->  
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>  
-  <!-- Axios للتعامل مع طلبات HTTP (للتطوير المستقبلي) -->  
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>  
-  <!-- Toastify JS -->  
-  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>  
-  <!-- Waves JS -->  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/node-waves/0.7.6/waves.min.js"></script>  
-  <!-- Lottie لتأثيرات الرسوم المتحركة -->  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.4/lottie.min.js"></script>  
+  <title>المرسل الذكي</title>
+  <!-- إضافة خط Cairo للواجهة العربية -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* متغيرات الألوان والإعدادات العامة */
+    /* تعريف المتغيرات الجديدة للألوان والأبعاد */
     :root {
-      --primary-color: #1abc9c;
-      --primary-hover: #16a085;
-      --secondary-color: #2c3e50;
-      --error-color: #e74c3c;
-      --bg-color: #ecf0f1;
-      --card-bg: #f2f3f5;
-      --card-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-      --input-border: #bdc3c7;
-      --input-bg: #ffffff;
-      --btn-bg: #1abc9c;
-      --btn-hover: #16a085;
-      --transition-speed: 0.3s;
-      --radius: 8px;
-      --spacing: 1rem;
+      --primary: #1abc9c;             /* أخضر */
+      --primary-hover: #16a085;         /* أخضر أغمق عند التحويم */
+      --secondary: #2c3e50;             /* رمادي داكن */
+      --error: #dc3545;                 /* أحمر */
+      --bg: #f8f9fa;                   /* خلفية فاتحة */
+      --light: #ffffff;                /* أبيض */
+      --shadow: 0 4px 8px rgba(0,0,0,0.1); /* ظل خفيف */
+      --radius: 12px;                  /* نصف القطر للحدود */
+      --spacing: 1rem;                 /* مسافات داخلية وخارجية */
+      --transition: 0.3s;              /* سرعة الانتقال */
     }
-    /* إعادة تعيين القواعد الأساسية */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 16px; }
+    /* القواعد الأساسية */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     body {
-      font-family: 'Cairo', sans-serif;
-      direction: rtl;
-      background: var(--bg-color);
+      background: var(--bg);
       padding: var(--spacing);
-      color: var(--secondary-color);
-      line-height: 1.6;
+      color: var(--secondary);
+      font-family: 'Cairo', sans-serif;
     }
-    /* تأثير Glow عند التحويم على الأزرار */
-    button:hover {
-      box-shadow: 0 0 10px var(--primary-color), 0 4px 6px rgba(0,0,0,0.1);
+    /* نمط الحاوية الرئيسية */
+    .container {
+      max-width: 750px;
+      margin: 1.5rem auto;
+      background: var(--light);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      position: relative;
+      animation: fadeIn 0.5s ease-in;
+      transition: width 0.3s, height 0.3s, margin 0.3s, border-radius 0.3s;
     }
-    /* واجهة الترحيب (Splash Screen) */
-    #splash {
+    .header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing);
+      margin-bottom: 1.5rem;
+    }
+    /* زر الرجوع الجديد */
+    .back-btn {
+      background-color: var(--primary);
+      color: var(--light);
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .back-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+    .back-btn:hover {
+      background-color: var(--primary-hover);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: var(--spacing);
+      margin-bottom: 0.5rem;
+    }
+    .stat-card {
+      padding: 0.5rem;
+      background: var(--light);
+      border-radius: var(--radius);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--transition);
+      border: 2px solid rgba(40, 167, 69, 0.2);
+    }
+    .stat-card:hover {
+      transform: translateY(-3px);
+    }
+    .stat-title {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      color: var(--secondary);
+    }
+    .stat-value {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: var(--primary);
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+    }
+    .progress-container {
+      height: 6px;
+      background: #dee2e6;
+      border-radius: 5px;
+      margin: 1rem 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    /* لوحة التخصيص */
+    .customization-panel {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: space-between;
+      gap: var(--spacing);
+      margin-bottom: var(--spacing);
+      padding: 0.5rem;
+      background: var(--light);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 4px rgba(0,0,0,0.1);
+    }
+    /* تعديل تنسيق كل خيار ضمن لوحة التخصيص ليأخذ عرضاً متساوياً ومحاذاة وسط */
+    .customization-option {
+      flex: 1;
+      min-width: 80px;
+      text-align: center;
+    }
+    .customization-option label {
+      font-weight: bold;
+      color: var(--primary);
+      font-size: 0.9rem;
+    }
+    .customization-option select {
+      padding: 0.4rem;
+      border: 2px solid var(--primary);
+      border-radius: var(--radius);
+      background: var(--light);
+      color: var(--secondary);
+      font-size: 0.85rem;
+      width: 100%;
+    }
+    /* إعداد عرض الأرقام */
+    .numbers-list.list-view {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing);
+    }
+    .numbers-list.grid-view {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: var(--spacing);
+    }
+    /* إعداد حجم الخانات */
+    .card-size-extra-small .number-card {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+    }
+    .card-size-small .number-card {
+      padding: 0.65rem 0.85rem;
+      font-size: 0.85rem;
+    }
+    .card-size-medium .number-card {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.95rem;
+    }
+    .card-size-large .number-card {
+      padding: 1rem 1.5rem;
+      font-size: 1.05rem;
+    }
+    .card-size-extra-large .number-card {
+      padding: 1.25rem 2rem;
+      font-size: 1.1rem;
+    }
+    .number-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--light);
+      border-radius: var(--radius);
+      transition: transform var(--transition), box-shadow var(--transition);
+      border: 1px solid transparent;
+      opacity: 0;
+      animation: slideIn 0.5s forwards;
+    }
+    .number-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .number-info {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing);
+    }
+    .number-badge {
+      background: var(--primary);
+      color: var(--light);
+      padding: 0.3rem 0.4rem;
+      border-radius: 100px;
+      font-size: 0.9em;
+    }
+    /* إعداد الأزرار */
+    .action-btn {
+      padding: 0.45rem 0.65rem;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-weight: 600;
+      min-width: 110px;
+      justify-content: center;
+      background: var(--primary);
+      color: var(--light);
+      font-size: 0.9rem;
+    }
+    .action-btn:hover {
+      background: var(--primary-hover);
+    }
+    /* زر 3D */
+    .btn-3d {
+      background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+      border: none;
+      color: var(--light);
+      box-shadow: 0 10px 0 rgba(0,0,0,0.2), 0 8px 8px rgba(0,0,0,0.3);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+      transition: transform 0.5s ease, box-shadow 0.25s ease;
+    }
+    .btn-3d:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.2), 0 3px 5px rgba(0,0,0,0.3);
+    }
+    .btn-flat {
+      box-shadow: none;
+      text-shadow: none;
+    }
+    .btn-outlined {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+    .btn-outlined:hover {
+      background: var(--primary);
+      color: var(--light);
+    }
+    .btn-soft {
+      background: rgba(40,167,69,0.15);
+      color: var(--primary);
+      box-shadow: none;
+      border: none;
+    }
+    .btn-soft:hover {
+      background: rgba(40,167,69,0.25);
+    }
+    /* تصميم زر التذكير */
+    #manualReminderButton {
+      background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+      color: var(--light);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+      min-width: 120px;
+      margin: 1rem 0;
+      font-size: 1rem;
+    }
+    #manualReminderButton:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+    /* زر إعادة تعيين التقدم */
+    #resetProgressButton {
+      background: var(--btn-bg, transparent);
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      padding: 0.45rem 0.65rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background var(--transition);
+      margin-left: 0.5rem;
+      font-size: 0.9rem;
+    }
+    #resetProgressButton:hover {
+      background: var(--primary);
+      color: var(--light);
+    }
+    /* زر "مناسبة تلقائية للشاشة" */
+    #autoFitButton {
+      background: var(--btn-bg, transparent);
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      padding: 0.45rem 0.65rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background var(--transition);
+      margin-left: 0.5rem;
+      font-size: 0.9rem;
+    }
+    #autoFitButton:hover {
+      background: var(--primary);
+      color: var(--light);
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 0.75rem;
+      }
+      .number-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing);
+      }
+      .action-btn {
+        width: 100%;
+      }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    /* أنماط مودال التذكير */
+    .reminder-modal {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: 
-        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.2) 10%, transparent 40%),
-        radial-gradient(circle at 80% 70%, rgba(255,255,255,0.2) 10%, transparent 40%),
-        linear-gradient(135deg, #1abc9c, #16a085);
-      background-size: cover;
-      animation: gradientAnimation 15s ease infinite, fadeIn 1s;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .reminder-content {
+      background: var(--light);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+      max-width: 90%;
+      box-shadow: var(--shadow);
+    }
+    .reminder-content p {
+      margin: 1rem 0;
+      font-size: 1.5rem;
+      color: var(--secondary);
+    }
+    .reminder-content button {
+      background: var(--primary);
+      color: var(--light);
+      border: none;
+      padding: 0.65rem 1.2rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background var(--transition);
+      font-size: 0.9rem;
+    }
+    .reminder-content button:hover {
+      background: var(--primary-hover);
+    }
+    #manualButtons {
+      margin-top: 1rem;
+    }
+    /* أنماط الـ Sticky Stats (الهانات الصغيرة عند التمرير) */
+    #stickyStats {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: var(--light);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 0.5rem;
+      z-index: 1000;
+      display: none;
+    }
+    #stickyStats .sticky-stats-container {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+    #stickyStats .stat-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      color: #fff;
-      text-align: center;
     }
-    #splash h1 {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      animation: slideIn 1s;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
-    }
-    #splash p {
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
-      animation: slideIn 1.2s;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-    }
-    /* تمت إضافة aria-label للزر لضمان الوصولية */
-    #splash button {
-      background: linear-gradient(145deg, #ff8c00, #ff4500);
-      color: #fff;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      border-radius: 12px;
-      cursor: pointer;
-      box-shadow: 0 6px 0 #d63c00, 0 8px 15px rgba(0, 0, 0, 0.2);
-      transition: transform 0.1s, box-shadow 0.1s;
-    }
-    #splash button:hover {
-      transform: translateY(-2px);
-    }
-    #splash button:active {
-      transform: translateY(4px) scale(0.97);
-      box-shadow: 0 1px 0 #d63c00, inset 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-    /* تحسين أزرار الواجهة الرئيسية */
-    button {
-      background-color: var(--btn-bg);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      padding: 0.75rem 1rem;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background var(--transition-speed), transform 0.2s, box-shadow 0.2s;
-    }
-    button:active {
-      transform: translateY(2px) scale(0.98);
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-    }
-    .clear-btn { background-color: #f39c12; color: #fff; }
-    .clear-btn:hover { background-color: #e67e22; }
-    /* تحسين حقول الإدخال */
-    input[type="text"], textarea, input[type="file"], select {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      border: 1px solid var(--input-border);
-      border-radius: var(--radius);
-      background-color: var(--input-bg);
-      transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
-    }
-    input:focus, textarea:focus, select:focus { 
-      border-color: var(--primary-color); 
-      outline: none;
-      box-shadow: 0 0 8px rgba(26, 188, 156, 0.5);
-    }
-    #errorDisplay {
-      background: #fdecea;
-      border: 1px solid var(--error-color);
-      color: var(--error-color);
-      padding: 1rem;
-      border-radius: var(--radius);
-      margin-bottom: var(--spacing);
-      text-align: center;
-      display: none;
-    }
-    /* تمت إزالة خاصية عرض الأرقام المدخلة */
-    .action-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--spacing);
-      margin-top: var(--spacing);
-    }
-    .action-buttons button { flex: 1; min-width: 8rem; }
-    .file-upload { margin-top: var(--spacing); }
-    /* تصميم النافذة المنبثقة (Modal) */
-    #modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      animation: fadeIn 0.3s;
-    }
-    #modalContent {
-      background: var(--card-bg);
-      width: 90%;
-      max-width: 800px;
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--card-shadow);
-      animation: animate__animated animate__zoomIn;
-    }
-    .modal-header {
-      background-color: var(--primary-color);
-      padding: 1rem;
-      text-align: center;
-      position: relative;
-    }
-    .modal-header h3 { margin: 0; color: #fff; font-size: 1.5rem; }
-    /* إزالة الحدث المضمن من زر إغلاق المودال */
-    #modalClose {
-      position: absolute;
-      top: 0.5rem;
-      left: 1rem;
-      background: var(--error-color);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 2.5rem;
-      height: 2.5rem;
-      font-size: 1.5rem;
-      line-height: 1.2rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    #modalClose:hover { background: #c0392b; }
-    #modalBody {
-      padding: 1rem;
-      max-height: 60vh;
-      overflow-y: auto;
-      font-size: 1rem;
-    }
-    @keyframes gradientAnimation {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideIn { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @media (max-width: 480px) {
-      .container { padding: 1.5rem; }
-      h2 { font-size: 1.75rem; }
-      button, input, textarea, select { font-size: 0.9rem; }
-    }
-    .container {
-      background-color: var(--card-bg);
-    }
-    .tool-logo {
-      font-size: 3rem;
-      font-weight: bold;
-      text-align: center;
-      margin-top: 0.5rem;
-      margin-bottom: 1.5rem;
-      background: linear-gradient(90deg, #1abc9c, #16a085);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    }
-    #socialLinks {
-      margin-top: var(--spacing);
-      text-align: center;
-    }
-    #socialLinks a {
-      margin: 0 10px;
-      font-size: 2rem;
-      text-decoration: none;
-    }
-    #loader {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.4);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 3000;
-    }
-    .spinner {
-      border: 8px solid #f3f3f3;
-      border-top: 8px solid var(--primary-color);
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    /* أنماط قسم تحديد الرسائل حسب النطاق */
-    #messageSegmentsContainer {
-      margin-top: var(--spacing);
-    }
-    #messageSegmentsContainer h3 {
-      margin-bottom: 0.5rem;
-    }
-    #messageSegmentsContainer button {
-      margin-bottom: 1rem;
-    }
-    .segment {
-      border: 1px solid #ccc;
-      padding: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-    .segment label {
-      margin-right: 0.25rem;
-    }
-    .segment input {
-      margin-right: 0.5rem;
+    body.sticky-visible {
+      padding-top: 60px;
     }
   </style>
 </head>
 <body>
-  <!-- Loader Overlay -->
-  <div id="loader" role="alert" aria-live="assertive">
-    <div class="spinner"></div>
-  </div>
-  <!-- Lottie Animation Container -->
-  <div id="lottieContainer" style="display:none; position: fixed; top: 0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 4000; align-items: center; justify-content: center;">
-    <div id="lottieAnimation" style="width:200px; height:200px;"></div>
-  </div>
-  <!-- واجهة الترحيب -->
-  <div id="splash" class="animate__animated animate__fadeIn">
-    <h1>أهلاً وسهلاً!</h1>
-    <p>مرحباً بك في Lingua Stochos sender</p>
-    <!-- إزالة الحدث المضمن واستبداله بمعالج -->
-    <button id="startSplashBtn" aria-label="ابدأ التطبيق">ابدأ الآن</button>
-  </div>
-  <!-- الحاوية الرئيسية للأداة (مخفية في البداية) -->
-  <div class="container animate__animated animate__fadeIn" id="mainContainer" style="display: none;">
-    <!-- إضافة الشعار (الصورة) أعلى اسم الأداة -->
-    <div style="text-align:center;">
-      <img 
-        src="https://github.com/Linguastochos2/Sender1/blob/main/IMG_20250214_145035_585.jpg?raw=true" 
-        alt="LS Logo" 
-        style="width:80px;height:80px;margin-bottom:0.5rem;"
-      >
-    </div>
-    <h2 class="tool-logo">Lingua Stochos sender</h2>
-    <!-- منطقة عرض رسائل الخطأ -->
-    <div id="errorDisplay"></div>
-    <!-- اختيار الدولة مع بحث باستخدام Select2 -->
-    <label for="countrySelect">اختر الدولة:</label>
-    <select id="countrySelect" class="input-field">
-      <option value="">-- اختر الدولة --</option>
-      <option value="DZ" data-dial="+213">الجزائر</option>
-      <option value="BH" data-dial="+973">البحرين</option>
-      <option value="DJ" data-dial="+253">جيبوتي</option>
-      <option value="EG" data-dial="+20">مصر</option>
-      <option value="IQ" data-dial="+964">العراق</option>
-      <option value="JO" data-dial="+962">الأردن</option>
-      <option value="KW" data-dial="+965">الكويت</option>
-      <option value="LB" data-dial="+961">لبنان</option>
-      <option value="LY" data-dial="+218">ليبيا</option>
-      <option value="MR" data-dial="+222">موريتانيا</option>
-      <option value="MA" data-dial="+212">المغرب</option>
-      <option value="OM" data-dial="+968">عمان</option>
-      <option value="PS" data-dial="+970">فلسطين</option>
-      <option value="QA" data-dial="+974">قطر</option>
-      <option value="SA" data-dial="+966">السعودية</option>
-      <option value="SO" data-dial="+252">الصومال</option>
-      <option value="SD" data-dial="+249">السودان</option>
-      <option value="SY" data-dial="+963">سوريا</option>
-      <option value="TN" data-dial="+216">تونس</option>
-      <option value="AE" data-dial="+971">الإمارات</option>
-      <option value="YE" data-dial="+967">اليمن</option>
-    </select>
-    <!-- إدخال الأرقام يدويًا -->
-    <label for="numbers" style="font-size: 1.2rem; font-weight: bold; color: var(--primary-color);">
-      الأرقام التي تود مراسلتها:
-    </label>
-    <textarea id="numbers" placeholder="ادخل الأرقام هنا بنفسك أو الصق أرقاماً معدة سابقاً" class="input-field" rows="5" oninput="debounceFormatNumbers()"></textarea>
-    <!-- إدخال نص الرسالة الأساسي -->
-    <label for="message">نص الرسالة (افتراضي في حال عدم تحديد نطاقات):</label>
-    <textarea id="message" rows="3" placeholder="اكتب رسالتك هنا..." class="input-field"></textarea>
-    <!-- قسم تحديد الرسائل حسب النطاق -->
-    <div id="messageSegmentsContainer">
-      <h3>تحديد الرسائل حسب النطاق</h3>
-      <button type="button" id="addSegmentBtn">إضافة نطاق</button>
-      <div id="messageSegments"></div>
-    </div>
-    <!-- رفع ملف CSV أو Excel -->
-    <div class="file-upload">
-      <label for="fileInput">رفع ملف CSV أو Excel (اختياري):</label>
-      <input type="file" id="fileInput" class="file-input">
-    </div>
-    <!-- قائمة اختيار الأعمدة تظهر بعد رفع ملف Excel -->
-    <div id="columnSelectDiv"></div>
-    <!-- أزرار الإجراءات الرئيسية -->
-    <div class="action-buttons">
-      <button id="saveDraftBtn" aria-label="حفظ المسودة">حفظ المسودة</button>
-      <button id="validateNumbersBtn" aria-label="تحقق من صحة الأرقام">تحقق من صحة الأرقام</button>
-      <button id="showInvalidNumbersBtn" aria-label="عرض الأرقام الغير صالحة">عرض الأرقام الغير صالحة</button>
-      <!-- زر جديد للتحقق من اتصال الأرقام بالواتساب -->
-      <button id="checkWhatsAppBtn" aria-label="التحقق من اتصال واتساب">تحقق من واتساب</button>
-      <button id="startMessagingBtn" aria-label="البدء في المراسلة">البدء في المراسلة</button>
-      <button class="clear-btn" id="clearAllBtn" aria-label="مسح الكل">مسح الكل</button>
-    </div>
-    <div id="socialLinks">
-      <a href="https://www.facebook.com/LinguaStochos1" target="_blank" style="color: #3b5998;"><i class="fab fa-facebook"></i></a>
-      <a href="https://t.me/asmsal1" target="_blank" style="color: #0088cc;"><i class="fab fa-telegram"></i></a>
-      <a href="https://www.instagram.com/lstochos?igsh=MTZpYmZ5b2piYTQ1ag==" target="_blank" style="color: #C13584;"><i class="fab fa-instagram"></i></a>
-      <a href="https://youtube.com/@linguastochosofficialchannel?si=zyHs_J4yan6t5SVv" target="_blank" style="color: #FF0000;"><i class="fab fa-youtube"></i></a>
-    </div>
-  </div>
-  <!-- نافذة (Modal) للتقارير -->
-  <div id="modal">
-    <div id="modalContent">
-      <div class="modal-header">
-        <h3>معاينة</h3>
-        <button id="modalClose" aria-label="إغلاق المودال">×</button>
+  <!-- Sticky Stats Header -->
+  <div id="stickyStats">
+    <div class="sticky-stats-container">
+      <div class="stat-item">
+        <span class="stat-label">المجموع الكلي</span>
+        <span class="stat-value" id="stickyTotalCount">0</span>
       </div>
-      <div id="modalBody"></div>
+      <div class="stat-item">
+        <span class="stat-label">تم مراسلته</span>
+        <span class="stat-value" id="stickySuccessCount">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">المتبقي</span>
+        <span class="stat-value" id="stickyRemainingCount">0</span>
+      </div>
     </div>
   </div>
-  <!-- تضمين مكتبة libphonenumber للتحقق من صحة الأرقام -->
-  <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.9.48/bundle/libphonenumber-js.min.js"></script>
+  <div class="container">
+    <div class="header">
+      <button class="back-btn" id="backBtn" aria-label="الرجوع">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 3L4 8L10 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        رجوع
+      </button>
+      <h1>Lingua Stochos Sender</h1>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">المجموع الكلي</div>
+        <div class="stat-value" id="totalCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">تم مراسلته</div>
+        <div class="stat-value" id="successCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">المتبقي</div>
+        <div class="stat-value" id="remainingCount">0</div>
+      </div>
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar" id="progress"></div>
+    </div>
+    <div class="customization-panel">
+      <div class="customization-option">
+        <label for="viewModeSelect">العرض:</label>
+        <select id="viewModeSelect">
+          <option value="list-view">قائمة</option>
+          <option value="grid-view">شبكة</option>
+        </select>
+      </div>
+      <div class="customization-option">
+        <label for="cardSizeSelect">الحجم:</label>
+        <select id="cardSizeSelect">
+          <option value="card-size-extra-small">أصغر</option>
+          <option value="card-size-small">صغير</option>
+          <option value="card-size-medium" selected>متوسط</option>
+          <option value="card-size-large">كبير</option>
+          <option value="card-size-extra-large">أكبر</option>
+        </select>
+      </div>
+      <div class="customization-option">
+        <label for="buttonStyleSelect">النمط:</label>
+        <select id="buttonStyleSelect">
+          <option value="btn-3d" selected>3D</option>
+          <option value="btn-flat">مسطح</option>
+          <option value="btn-outlined">محدد</option>
+          <option value="btn-soft">ناعم</option>
+        </select>
+      </div>
+    </div>
+    <button id="manualReminderButton" class="action-btn btn-3d" aria-label="التذكير بالذكر">التذكير بالذكر</button>
+    <button id="resetProgressButton" class="action-btn btn-outlined" aria-label="نسيت التقدم">نسيت التقدم</button>
+    <button id="autoFitButton" class="action-btn btn-outlined" aria-label="مناسبة تلقائية للشاشة">مناسبة تلقائية للشاشة</button>
+    <div id="numbersList" class="numbers-list list-view card-size-medium"></div>
+  </div>
+  <div id="reminderModal" class="reminder-modal" style="display: none;">
+    <div class="reminder-content">
+      <p id="reminderMessage">♥ خذ راحة و<span id="randomPhrase"></span> ♥</p>
+      <p>لا بارك الله في عمل يلهيك عن طاعته</p>
+      <div id="manualButtons" style="display: none;">
+        <button id="returnButton" aria-label="الرجوع للعمل">الرجوع للعمل</button>
+      </div>
+    </div>
+  </div>
   <script>
-    // تغليف الكود داخل IIFE لتقليل التلوث في النطاق العالمي
     (function() {
-      // تخزين متغيرات DOM المستخدمة بشكل متكرر
-      const countrySelect = document.getElementById("countrySelect");
-      const numbersField = document.getElementById("numbers");
-      const messageField = document.getElementById("message");
-      const messageSegmentsContainer = document.getElementById("messageSegments");// متغيّر لتخزين الأرقام غير الصالحة بعد التحقق
-  let lastInvalidNumbers = [];
-  
-  // دوال مساعدة لإظهار وإخفاء اللوادر والأنيميشن
-  function showLoader() {
-    document.getElementById('loader').style.display = 'flex';
-  }
-  function hideLoader() {
-    document.getElementById('loader').style.display = 'none';
-  }
-  
-  function showLottieAnimation() {
-    const container = document.getElementById('lottieContainer');
-    container.style.display = "flex";
-    var animation = bodymovin.loadAnimation({
-      container: document.getElementById('lottieAnimation'),
-      renderer: 'svg',
-      loop: false,
-      autoplay: true,
-      path: 'https://assets7.lottiefiles.com/packages/lf20_x62chJ.json'
-    });
-    setTimeout(() => {
-      container.style.display = "none";
-      animation.destroy();
-    }, 3000);
-  }
-  
-  /* ===================== دوال المسودة ===================== */
-  function saveDraft() {
-    const numbersContent = numbersField.value;
-    const messageContent = messageField.value;
-    const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
-    localStorage.setItem("draftNumbers", numbersContent);
-    localStorage.setItem("draftMessage", messageContent);
-    localStorage.setItem("draftCountry", countrySelect.value);
-    localStorage.setItem("draftDialCode", dialCode);
-    Swal.fire({ icon: 'success', title: 'تم حفظ المسودة!' });
-    Toastify({ text: "تم حفظ المسودة بنجاح!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
-  }
-  
-  function loadDraft() {
-    const draftNumbers = localStorage.getItem("draftNumbers");
-    const draftMessage = localStorage.getItem("draftMessage");
-    const draftCountry = localStorage.getItem("draftCountry");
-    if (draftNumbers) {
-      numbersField.value = draftNumbers;
-      formatNumbers();
-    }
-    if (draftMessage) {
-      messageField.value = draftMessage;
-    }
-    if (draftCountry) {
-      countrySelect.value = draftCountry;
-      $('#countrySelect').trigger('change');
-    }
-  }
-  
-  /* ===================== دوال التنسيق وتقنية Debounce ===================== */
-  let debounceTimer;
-  window.debounceFormatNumbers = function() {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(formatNumbers, 300);
-  }
-  
-  function formatNumbers() {
-    const rawInput = numbersField.value.trim();
-    const uniqueNumbers = [...new Set(rawInput.split(/[\s,]+/).filter(num => num.trim().length > 0))];
-    numbersField.value = uniqueNumbers.join(" ");
-  }
-  
-  async function clearAll() {
-    const result = await Swal.fire({
-      icon: 'question',
-      title: 'مسح الكل',
-      text: 'هل أنت متأكد من مسح جميع البيانات المدخلة؟',
-      showCancelButton: true,
-      confirmButtonText: 'نعم',
-      cancelButtonText: 'لا'
-    });
-    if (!result.isConfirmed) return;
-    
-    // مسح كافة الحقول
-    numbersField.value = "";
-    messageField.value = "";
-    messageSegmentsContainer.innerHTML = "";
-    document.getElementById("fileInput").value = "";
-    document.getElementById("columnSelectDiv").innerHTML = "";
-    
-    updateMessageFieldVisibility();
-    formatNumbers();
-    
-    // إزالة البيانات المخزنة محلياً
-    localStorage.removeItem("draftNumbers");
-    localStorage.removeItem("draftMessage");
-    localStorage.removeItem("draftCountry");
-    localStorage.removeItem("draftDialCode");
-    localStorage.removeItem("numbers");
-    localStorage.removeItem("message");
-    localStorage.removeItem("segments");
-    localStorage.removeItem("countryCode");
-    
-    Toastify({ text: "تم مسح كل البيانات!", duration: 3000, gravity: "top", position: "center", style: { background: "#e74c3c" } }).showToast();
-  }
-  
-  /* ===================== دوال الزرين المفقودين ===================== */
-  /* تم إزالة زر المحاكاة */
-  
-  function showInvalidNumbers() {
-    if (!lastInvalidNumbers || lastInvalidNumbers.length === 0) {
-      openModal("<p style='color: var(--error-color);'>لا توجد أرقام غير صالحة أو لم يتم التحقق بعد.</p>");
-      return;
-    }
-    openModal(`
-      <h3>الأرقام غير الصالحة</h3>
-      <p id="invalidNumbersText">${lastInvalidNumbers.join(", ")}</p>
-      <button id="copyInvalidNumbersBtn" style="margin-top:10px;padding:0.5rem 1rem;background: var(--primary-color);color: #fff;border: none;border-radius: var(--radius);cursor: pointer;">نسخ الأرقام</button>
-    `);
-    document.getElementById("copyInvalidNumbersBtn").addEventListener("click", function() {
-       const text = document.getElementById("invalidNumbersText").innerText;
-       navigator.clipboard.writeText(text).then(function() {
-          Toastify({ text: "تم نسخ الأرقام!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
-       }, function(err) {
-          Toastify({ text: "فشل النسخ!", duration: 3000, gravity: "top", position: "center", style: { background: "#e74c3c" } }).showToast();
-       });
-    });
-  }
-  
-  // دالة جديدة للتحقق من "اتصال" الأرقام بالواتساب (محاكاة)
-  function checkWhatsAppConnection() {
-    let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
-    numbers = [...new Set(numbers)];
-    if (numbers.length === 0) {
-      openModal("<p style='color: var(--error-color);'>لم يتم إدخال أرقام.</p>");
-      return;
-    }
-    let countHas = 0, countNot = 0;
-    numbers.forEach(num => {
-      const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
-      let normalized = normalizePhoneNumber(num, dialCode, countrySelect.value);
-      let lastChar = normalized.trim().slice(-1);
-      if (!isNaN(lastChar)) {
-        // استخدام فحص زوجية آخر رقم لتحديد "اتصال واتساب" (زوجي = له حساب، فردي = ليس له)
-        if (parseInt(lastChar) % 2 === 0) {
-          countHas++;
-        } else {
-          countNot++;
-        }
-      } else {
-        countNot++;
+      const numbers = JSON.parse(localStorage.getItem('numbers')) || [];
+      const state = {
+        sent: 0,
+        processing: new Set(),
+        sentNumbers: new Set()
+      };
+      
+      // استعادة التقدم المحفوظ (إن وجد)
+      const savedSent = localStorage.getItem('sent');
+      if (savedSent !== null) {
+        state.sent = parseInt(savedSent, 10);
       }
-    });
-    let report = `<h3>تقرير التحقق من اتصال واتساب</h3>
-                  <p>إجمالي الأرقام: ${numbers.length}</p>
-                  <p>إجمالي الأرقام التي لها حسابات واتساب: ${countHas}</p>
-                  <p>إجمالي الأرقام التي ليس لها حسابات واتساب: ${countNot}</p>`;
-    openModal(report);
-  }
-  
-  /* ===================== دوال النافذة (Modal) ===================== */
-  function openModal(content) {
-    const modalBody = document.getElementById("modalBody");
-    const modal = document.getElementById("modal");
-    modalBody.innerHTML = content;
-    modal.style.display = "flex";
-  }
-  
-  function closeModal() {
-    document.getElementById("modalBody").innerHTML = "";
-    document.getElementById("modal").style.display = "none";
-  }
-  
-  window.addEventListener("click", function(e) {
-    const modal = document.getElementById("modal");
-    if (e.target === modal) { closeModal(); }
-  });
-  
-  /* ===================== دوال تحديد النطاقات ===================== */
-  function addSegment() {
-    const segmentDiv = document.createElement("div");
-    segmentDiv.classList.add("segment");
-    
-    // إنشاء عناصر النطاق
-    const rangeDiv = document.createElement("div");
-    rangeDiv.innerHTML = `
-      <label>من الرقم:</label>
-      <input type="number" class="segment-start" min="1" style="width: 80px;">
-      <label>إلى الرقم:</label>
-      <input type="number" class="segment-end" min="1" style="width: 80px;">
-    `;
-    
-    const textDiv = document.createElement("div");
-    textDiv.style.marginTop = "0.5rem";
-    const textLabel = document.createElement("label");
-    textLabel.textContent = "نص الرسالة:";
-    const textArea = document.createElement("textarea");
-    textArea.classList.add("segment-text", "input-field");
-    textArea.rows = 3;
-    textArea.placeholder = "أدخل نص الرسالة";
-    textArea.style.width = "100%";
-    textDiv.appendChild(textLabel);
-    textDiv.appendChild(textArea);
-    
-    // إنشاء زر الحذف بدون حدث inline
-    const removeBtn = document.createElement("button");
-    removeBtn.type = "button";
-    removeBtn.style.marginTop = "0.5rem";
-    removeBtn.style.background = "var(--error-color)";
-    removeBtn.style.color = "#fff";
-    removeBtn.style.border = "none";
-    removeBtn.style.padding = "0.25rem 0.5rem";
-    removeBtn.style.borderRadius = "var(--radius)";
-    removeBtn.textContent = "حذف النطاق";
-    removeBtn.addEventListener("click", function() {
-      removeSegment(removeBtn);
-    });
-    
-    segmentDiv.appendChild(rangeDiv);
-    segmentDiv.appendChild(textDiv);
-    segmentDiv.appendChild(removeBtn);
-    messageSegmentsContainer.appendChild(segmentDiv);
-    
-    updateMessageFieldVisibility();
-  }
-  
-  function removeSegment(btn) {
-    const segmentDiv = btn.parentElement;
-    segmentDiv.remove();
-    updateMessageFieldVisibility();
-  }
-  
-  function getMessageSegments() {
-    const segments = [];
-    const segmentDivs = document.querySelectorAll("#messageSegments .segment");
-    segmentDivs.forEach(seg => {
-      const start = seg.querySelector(".segment-start").value;
-      const end = seg.querySelector(".segment-end").value;
-      const text = seg.querySelector(".segment-text").value;
-      if(start && end && text) {
-        segments.push({ start: parseInt(start), end: parseInt(end), text: text });
+      const savedSentNumbers = localStorage.getItem('sentNumbers');
+      if (savedSentNumbers) {
+        state.sentNumbers = new Set(JSON.parse(savedSentNumbers));
       }
-    });
-    return segments;
-  }
-  
-  // دالة لتحديث عرض خانة نص الرسالة بناءً على وجود نطاقات
-  function updateMessageFieldVisibility() {
-    const segments = document.querySelectorAll("#messageSegments .segment");
-    if (segments.length > 0) {
-      messageField.style.display = "none";
-      const messageLabel = document.querySelector("label[for='message']");
-      if (messageLabel) messageLabel.style.display = "none";
-    } else {
-      messageField.style.display = "block";
-      const messageLabel = document.querySelector("label[for='message']");
-      if (messageLabel) messageLabel.style.display = "block";
-    }
-  }
-  
-  /* ===================== دوال التحقق ===================== */
-  function validateNumbers() {
-    let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
-    numbers = [...new Set(numbers)];
-    if (numbers.length === 0) {
-      openModal("<p style='color: var(--error-color);'>لم يتم إدخال أرقام.</p>");
-      return;
-    }
-    const region = countrySelect.value;
-    const validNumbers = numbers.filter(num => validatePhoneNumber(num, region));
-    const invalidNumbers = numbers.filter(num => !validatePhoneNumber(num, region));
-    
-    // حفظ الأرقام غير الصالحة في متغير عام
-    lastInvalidNumbers = invalidNumbers;
-    
-    let report = `<h3>تقرير التحقق من صحة الأرقام</h3>
-                  <p>إجمالي الأرقام: ${numbers.length}</p>
-                  <p>الأرقام الصالحة: ${validNumbers.length}</p>
-                  <p>الأرقام غير الصالحة: ${invalidNumbers.length}</p>`;
-    if (invalidNumbers.length > 0) {
-      report += `<p>الأرقام غير الصالحة: ${invalidNumbers.join(", ")}</p>`;
-    }
-    openModal(report);
-  }
-  
-  // دوال التحقق من صحة الأرقام مع تحسين التعليقات
-  function normalizePhoneNumber(number, dialCode, region) {
-    // إزالة الفراغات والواصلات
-    number = number.trim().replace(/[\s\-]/g, "");
-    if (number.startsWith("00")) {
-      number = "+" + number.substring(2);
-    }
-    if (number.startsWith("+")) {
-      if (region === "EG" && !number.startsWith("+20")) {
-        number = "+20" + number.substring(1);
+      
+      const elements = {
+        numbersList: document.getElementById('numbersList'),
+        progress: document.getElementById('progress'),
+        totalCount: document.getElementById('totalCount'),
+        successCount: document.getElementById('successCount'),
+        remainingCount: document.getElementById('remainingCount')
+      };
+      
+      elements.totalCount.textContent = numbers.length;
+      elements.successCount.textContent = state.sent;
+      elements.remainingCount.textContent = numbers.length - state.sent;
+      
+      function updateStickyStats() {
+        document.getElementById('stickyTotalCount').textContent = elements.totalCount.textContent;
+        document.getElementById('stickySuccessCount').textContent = elements.successCount.textContent;
+        document.getElementById('stickyRemainingCount').textContent = elements.remainingCount.textContent;
       }
-      return number;
-    }
-    if (number.startsWith("0")) {
-      return dialCode + number.substring(1);
-    }
-    let dialDigits = dialCode.replace("+", "");
-    if (number.startsWith(dialDigits)) {
-      return "+" + number;
-    }
-    if (region === "EG" && number.length === 10) {
-      return dialCode + number;
-    }
-    return dialCode + number;
-  }
-  
-  function validatePhoneNumber(number, region) {
-    const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
-    let normalized = normalizePhoneNumber(number, dialCode, region);
-    if (region === "EG") {
-      if (!/^\+20\d{10}$/.test(normalized)) { return false; }
-      let localPart = normalized.substring(3);
-      if (!/^(10|11|12|15)/.test(localPart)) { return false; }
-      return true;
-    }
-    try {
-      const phoneNumber = libphonenumber.parsePhoneNumberFromString(normalized, region);
-      return phoneNumber && phoneNumber.isValid();
-    } catch (error) {
-      return false;
-    }
-  }
-  
-  async function startMessaging() {
-    const region = countrySelect.value;
-    const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
-    if (!region) {
-      openModal("<p style='color: var(--error-color);'>يرجى اختيار الدولة.</p>");
-      return;
-    }
-    let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
-    numbers = [...new Set(numbers)];
-    const message = messageField.value.trim();
-    if (numbers.length === 0) {
-      openModal("<p style='color: var(--error-color);'>يرجى إدخال أرقام.</p>");
-      return;
-    }
-    if (!message && document.querySelectorAll("#messageSegments .segment").length === 0) {
-      const result = await Swal.fire({
-        icon: 'question',
-        title: 'لم يتم إدخال رسالة',
-        text: 'هل تريد المتابعة بدون رسالة؟',
-        showCancelButton: true,
-        confirmButtonText: 'نعم',
-        cancelButtonText: 'لا'
-      });
-      if (!result.isConfirmed) return;
-    }
-    
-    let validNumbers = numbers.filter(num => validatePhoneNumber(num, region));
-    if (validNumbers.length !== numbers.length) {
-      const result = await Swal.fire({
-        icon: 'warning',
-        title: 'بعض الأرقام غير صحيحة',
-        text: 'المتابعة بالأرقام الصالحة فقط؟',
-        showCancelButton: true,
-        confirmButtonText: 'نعم',
-        cancelButtonText: 'لا'
-      });
-      if (!result.isConfirmed) return;
-      numbers = validNumbers;
-      if (numbers.length === 0) {
-        openModal("<p style='color: var(--error-color);'>لا توجد أرقام صالحة بعد التحقق.</p>");
-        return;
+      
+      function formatNumber(n) {
+        const formatted = n.replace(/(\+\d{1,3})(\d{3})(\d{3})(\d{4})/, '$1 $2 $3 $4');
+        return formatted === n ? n : formatted;
       }
-    }
-    
-    numbers = numbers.map(num => num.startsWith("+") ? num : normalizePhoneNumber(num, dialCode, region));
-    localStorage.setItem("numbers", JSON.stringify(numbers));
-    
-    let segments = getMessageSegments();
-    if (segments.length > 0) {
-      localStorage.setItem("segments", JSON.stringify(segments));
-    } else {
-      localStorage.removeItem("segments");
-      localStorage.setItem("message", encodeURIComponent(message));
-    }
-    
-    closeModal();
-    showLottieAnimation();
-    Toastify({ text: "بدأت عملية المراسلة!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
-    
-    window.location.href = "send_messages.html";
-  }
-  
-  // معالجة رفع الملف مع دعم كل من ملفات CSV وExcel
-  function handleFile(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    showLoader();
-    const reader = new FileReader();
-    const fileName = file.name.toLowerCase();
-    if(fileName.endsWith(".csv")) {
-      reader.onload = function(event) {
-        try {
-          const csvData = event.target.result;
-          let workbook;
-          try {
-            workbook = XLSX.read(csvData, { type: 'string' });
-          } catch(error) {
-            hideLoader();
-            Swal.fire({ icon: 'error', title: 'خطأ في قراءة الملف!' });
+      
+      function createNumberCard(number, index) {
+        const card = document.createElement('div');
+        card.className = 'number-card';
+        card.style.setProperty('--i', index);
+        
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'number-info';
+        const badge = document.createElement('span');
+        badge.className = 'number-badge';
+        badge.textContent = `#${index + 1}`;
+        const numSpan = document.createElement('span');
+        numSpan.setAttribute('dir', 'ltr');
+        numSpan.textContent = formatNumber(number);
+        infoDiv.appendChild(badge);
+        infoDiv.appendChild(numSpan);
+        card.appendChild(infoDiv);
+        
+        const btn = document.createElement('button');
+        btn.className = 'action-btn whatsapp-btn';
+        btn.setAttribute('data-number', number);
+        btn.setAttribute('data-index', index);
+        btn.innerHTML = `
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          مراسلة
+        `;
+        btn.addEventListener('click', function() {
+          handleSend(number, index, btn);
+        });
+        card.appendChild(btn);
+        
+        return card;
+      }
+      
+      function renderNumbers() {
+        elements.numbersList.innerHTML = "";
+        numbers.forEach((number, index) => {
+          const card = createNumberCard(number, index);
+          elements.numbersList.appendChild(card);
+        });
+        const progressPercent = numbers.length > 0 ? (state.sent / numbers.length) * 100 : 0;
+        elements.progress.style.width = progressPercent + "%";
+        updateStickyStats();
+      }
+      
+      function sendMessage(number, index) {
+        return new Promise((resolve, reject) => {
+          let segments = JSON.parse(localStorage.getItem('segments') || "[]");
+          let message = "";
+          if (segments.length > 0) {
+            let numIndex = index + 1;
+            let foundSegment = segments.find(seg => numIndex >= seg.start && numIndex <= seg.end);
+            message = foundSegment ? foundSegment.text : "";
+          } else {
+            message = decodeURIComponent(localStorage.getItem('message') || '');
+          }
+          const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+          const win = window.open(url, '_blank');
+          if (!win) {
+            reject('تم حظر النوافذ المنبثقة.');
             return;
           }
-          processWorkbook(workbook);
-        } catch(error) {
-          hideLoader();
-          Swal.fire({ icon: 'error', title: 'حدث خطأ أثناء معالجة الملف.' });
-        }
-      }
-      reader.readAsText(file);
-    } else {
-      reader.onload = function(event) {
-        try {
-          const data = new Uint8Array(event.target.result);
-          let workbook;
-          try {
-            workbook = XLSX.read(data, { type: 'array' });
-          } catch (error) {
-            hideLoader();
-            Swal.fire({ icon: 'error', title: 'خطأ في قراءة الملف!' });
-            return;
-          }
-          processWorkbook(workbook);
-        } catch (error) {
-          hideLoader();
-          Swal.fire({ icon: 'error', title: 'حدث خطأ أثناء معالجة الملف.' });
-        }
-      }
-      reader.readAsArrayBuffer(file);
-    }
-  }
-  
-  // دالة لمعالجة الملف بعد قراءته سواء كان CSV أو Excel
-  function processWorkbook(workbook) {
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-    hideLoader();
-    if (jsonData.length === 0) {
-      Swal.fire({ icon: 'error', title: 'الملف فارغ!' });
-      return;
-    }
-    const headers = jsonData[0];
-    let columnSelectHtml = '<label for="columnSelect">اختر العمود الذي يحتوي على الأرقام:</label>';
-    columnSelectHtml += '<select id="columnSelect" class="input-field">';
-    columnSelectHtml += '<option value="">-- اختر العمود --</option>';
-    headers.forEach((header, index) => {
-      columnSelectHtml += `<option value="${index}">${header}</option>`;
-    });
-    columnSelectHtml += '</select>';
-    const fileUploadDiv = document.querySelector('.file-upload');
-    let columnSelectDiv = document.getElementById('columnSelectDiv');
-    if (!columnSelectDiv) {
-      columnSelectDiv = document.createElement('div');
-      columnSelectDiv.id = 'columnSelectDiv';
-      fileUploadDiv.appendChild(columnSelectDiv);
-    }
-    columnSelectDiv.innerHTML = columnSelectHtml;
-    window.excelData = jsonData;
-    // تعريف دالة handleColumnSelection إذا لم تكن معرفة مسبقًا
-    if(typeof handleColumnSelection !== 'function') {
-      window.handleColumnSelection = function(e) {
-        const selectedColumn = e.target.value;
-        if(selectedColumn === "") {
-          return;
-        }
-        const data = window.excelData;
-        const numbers = [];
-        for (let i = 1; i < data.length; i++) {
-          if(data[i][selectedColumn] !== undefined && data[i][selectedColumn] !== null) {
-            let cellValue = data[i][selectedColumn].toString().trim();
-            if(cellValue) {
-              numbers.push(cellValue);
+          const timer = setTimeout(() => {
+            if (win && !win.closed) {
+              win.close();
             }
+            reject('انتهى الوقت المحدد');
+          }, 15000);
+          const checkInterval = setInterval(() => {
+            if (win.closed) {
+              clearInterval(checkInterval);
+              clearTimeout(timer);
+              resolve();
+            }
+          }, 500);
+        });
+      }
+      
+      async function handleSend(number, index, btn) {
+        if (btn.disabled || state.processing.has(number)) return;
+        state.processing.add(number);
+        btn.disabled = true;
+        btn.innerHTML = btn.innerHTML.replace('مراسلة', 'جاري الإرسال...');
+        try {
+          await sendMessage(number, index);
+          updateStatus(true, btn);
+        } catch (error) {
+          updateStatus(false, btn);
+          console.error('فشل الإرسال:', error);
+        } finally {
+          state.processing.delete(number);
+        }
+      }
+      
+      function updateStatus(success, btn) {
+        if (success) {
+          if (!state.sentNumbers.has(btn.getAttribute('data-number'))) {
+            state.sentNumbers.add(btn.getAttribute('data-number'));
+            state.sent++;
           }
         }
-        document.getElementById('numbers').value = numbers.join(" ");
-        formatNumbers();
-        Toastify({ text: "تم استخراج الأرقام من الملف!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
+        elements.successCount.textContent = state.sent;
+        elements.remainingCount.textContent = numbers.length - state.sent;
+        const progressPercent = numbers.length > 0 ? (state.sent / numbers.length) * 100 : 0;
+        elements.progress.style.width = progressPercent + "%";
+        btn.classList.remove('whatsapp-btn');
+        if (success) {
+          btn.classList.add('sent-status', 'status-btn');
+          btn.innerHTML = 'مراسلة الرقم مرة أخرى';
+        } else {
+          btn.classList.add('remaining-status', 'status-btn');
+          const remaining = numbers.length - state.sent;
+          btn.innerHTML = `المتبقي: ${remaining}<br><small style="display:block;font-size:0.8em">انقر للمحاولة مجددًا</small>`;
+        }
+        btn.disabled = false;
+        btn.addEventListener('click', function() {
+          handleSend(btn.getAttribute('data-number'), parseInt(btn.getAttribute('data-index')), btn);
+        });
+        updateStickyStats();
+        // حفظ التقدم تلقائيًا
+        localStorage.setItem('sent', state.sent);
+        localStorage.setItem('sentNumbers', JSON.stringify(Array.from(state.sentNumbers)));
       }
-    }
-    document.getElementById("columnSelect").addEventListener("change", handleColumnSelection);
-  }
-  
-  document.getElementById("fileInput").addEventListener("change", handleFile, false);
-  
-  // تهيئة الواجهة عند تحميل الصفحة
-  document.addEventListener("DOMContentLoaded", function() {
-    $('#countrySelect').select2({
-      placeholder: "-- اختر الدولة --",
-      allowClear: true,
-      width: "100%",
-      dir: "rtl"
-    });
-    Waves.attach('button');
-    Waves.init();
-    
-    loadDraft();
-    
-    // إرفاق معالجات الأحداث للأزرار باستخدام addEventListener
-    document.getElementById("startSplashBtn").addEventListener("click", hideSplash);
-    document.getElementById("saveDraftBtn").addEventListener("click", saveDraft);
-    document.getElementById("validateNumbersBtn").addEventListener("click", validateNumbers);
-    document.getElementById("showInvalidNumbersBtn").addEventListener("click", showInvalidNumbers);
-    document.getElementById("checkWhatsAppBtn").addEventListener("click", checkWhatsAppConnection);
-    document.getElementById("startMessagingBtn").addEventListener("click", startMessaging);
-    document.getElementById("clearAllBtn").addEventListener("click", clearAll);
-    document.getElementById("modalClose").addEventListener("click", closeModal);
-    document.getElementById("addSegmentBtn").addEventListener("click", addSegment);
-  });
-  
-  // دالة لإخفاء شاشة الترحيب وعرض الحاوية الرئيسية
-  function hideSplash() {
-    const splash = document.getElementById('splash');
-    splash.style.opacity = 0;
-    setTimeout(() => {
-      splash.style.display = 'none';
-      document.getElementById('mainContainer').style.display = 'block';
-    }, 500);
-  }
-})();
-
+      
+      const reminderPhrases = ["احمد الله", "صلي على رسول الله", "كبر الله", "استغفر الله"];
+      function getRandomPhrase() {
+        const idx = Math.floor(Math.random() * reminderPhrases.length);
+        return reminderPhrases[idx];
+      }
+      
+      function showReminder(triggerType = "auto") {
+        const modal = document.getElementById("reminderModal");
+        const randomPhraseElement = document.getElementById("randomPhrase");
+        const manualButtons = document.getElementById("manualButtons");
+        randomPhraseElement.textContent = getRandomPhrase();
+        
+        if (triggerType === "manual") {
+          manualButtons.style.display = "block";
+        } else {
+          manualButtons.style.display = "none";
+          setTimeout(hideReminder, 30000);
+        }
+        
+        modal.style.display = "flex";
+      }
+      
+      function hideReminder() {
+        document.getElementById("reminderModal").style.display = "none";
+      }
+      
+      document.getElementById("manualReminderButton").addEventListener("click", function() {
+        showReminder("manual");
+      });
+      
+      document.getElementById("resetProgressButton").addEventListener("click", function() {
+        // إعادة تعيين التقدم وحذف البيانات المحفوظة
+        state.sent = 0;
+        state.sentNumbers = new Set();
+        localStorage.removeItem('sent');
+        localStorage.removeItem('sentNumbers');
+        elements.successCount.textContent = state.sent;
+        elements.remainingCount.textContent = numbers.length - state.sent;
+        elements.progress.style.width = "0%";
+        updateStickyStats();
+      });
+      
+      // زر "مناسبة تلقائية للشاشة"
+      document.getElementById("autoFitButton").addEventListener("click", function() {
+        const container = document.querySelector(".container");
+        // تعديل الحاوية لتناسب الشاشة بالكامل
+        container.style.width = "100vw";
+        container.style.height = "100vh";
+        container.style.margin = "0";
+        container.style.borderRadius = "0";
+      });
+      
+      document.getElementById("returnButton").addEventListener("click", hideReminder);
+      
+      document.getElementById("backBtn").addEventListener("click", function() {
+        history.back();
+      });
+      
+      renderNumbers();
+      
+      // تحديث العرض بناءً على خيارات التخصيص
+      function updateCustomization() {
+        const viewMode = document.getElementById('viewModeSelect').value;
+        elements.numbersList.classList.remove('list-view', 'grid-view');
+        elements.numbersList.classList.add(viewMode);
+        const sizeClass = document.getElementById('cardSizeSelect').value;
+        elements.numbersList.classList.remove('card-size-extra-small', 'card-size-small', 'card-size-medium', 'card-size-large', 'card-size-extra-large');
+        elements.numbersList.classList.add(sizeClass);
+        const btnStyle = document.getElementById('buttonStyleSelect').value;
+        const buttons = elements.numbersList.querySelectorAll('.action-btn');
+        buttons.forEach(btn => {
+          btn.classList.remove('btn-3d', 'btn-flat', 'btn-outlined', 'btn-soft');
+          btn.classList.add(btnStyle);
+        });
+      }
+      
+      document.getElementById('viewModeSelect').addEventListener('change', updateCustomization);
+      document.getElementById('cardSizeSelect').addEventListener('change', updateCustomization);
+      document.getElementById('buttonStyleSelect').addEventListener('change', updateCustomization);
+      
+      // إضافة مستمع لحدث التمرير لإظهار الـ Sticky Stats عند السحب للأسفل
+      const stickyStats = document.getElementById('stickyStats');
+      window.addEventListener('scroll', function(){
+        if(window.scrollY > 100) {
+          stickyStats.style.display = 'block';
+          document.body.classList.add('sticky-visible');
+          updateStickyStats();
+        } else {
+          stickyStats.style.display = 'none';
+          document.body.classList.remove('sticky-visible');
+        }
+      });
+      
+      // عرض تذكير تلقائي كل 10 دقائق
+      setInterval(function() {
+        showReminder("auto");
+      }, 600000);
+    })();
   </script>
 </body>
 </html>
