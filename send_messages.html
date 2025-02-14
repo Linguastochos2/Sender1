@@ -47,7 +47,7 @@
       gap: var(--spacing);
       margin-bottom: 2rem;
     }
-    /* زر الرجوع بتصميم 3D أكثر واقعية */
+    /* زر الرجوع بدون حدث inline */
     .back-btn {
       background: linear-gradient(145deg, var(--primary), var(--primary-hover));
       color: var(--light);
@@ -125,7 +125,7 @@
       background: linear-gradient(90deg, var(--primary), var(--primary-hover));
       transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    /* لوحة التخصيص مع ترتيب الخيارات في صف واحد */
+    /* لوحة التخصيص */
     .customization-panel {
       display: flex;
       flex-wrap: nowrap;
@@ -236,7 +236,7 @@
     .action-btn:hover {
       background: var(--primary-hover);
     }
-    /* زر 3D بتأثير واقعي مُحسَّن */
+    /* زر 3D */
     .btn-3d {
       background: linear-gradient(90deg, var(--primary), var(--primary-hover));
       border: none;
@@ -253,7 +253,6 @@
       box-shadow: none;
       text-shadow: none;
     }
-    /* خيارات نمط الأزرار الجديدة */
     .btn-outlined {
       background: transparent;
       border: 2px solid var(--primary);
@@ -272,7 +271,7 @@
     .btn-soft:hover {
       background: rgba(26, 188, 156, 0.3);
     }
-    /* تصميم زر التذكير بالذكر بشكل مميز */
+    /* تصميم زر التذكير */
     #manualReminderButton {
       background: linear-gradient(90deg, #7D2252, #7D2252);
       color: #fff;
@@ -310,7 +309,7 @@
       from { opacity: 0; transform: translateX(30px); }
       to { opacity: 1; transform: translateX(0); }
     }
-    /* ======================= أنماط مودال التذكير ======================= */
+    /* أنماط مودال التذكير */
     .reminder-modal {
       position: fixed;
       top: 0;
@@ -356,7 +355,8 @@
 <body>
   <div class="container">
     <div class="header">
-      <button class="back-btn" onclick="history.back()">←</button>
+      <!-- إزالة onclick ووضع معرف لتعيين معالج الحدث -->
+      <button class="back-btn" id="backBtn" aria-label="الرجوع">←</button>
       <h1>Lingua Stochos Sender</h1>
     </div>
     
@@ -409,222 +409,275 @@
       </div>
     </div>
     
-    <!-- زر التذكير بالذكر بتصميم مميز -->
-    <button id="manualReminderButton" class="action-btn btn-3d">التذكير بالذكر</button>
+    <!-- زر التذكير -->
+    <button id="manualReminderButton" class="action-btn btn-3d" aria-label="التذكير بالذكر">التذكير بالذكر</button>
     
     <!-- قائمة عرض الأرقام -->
     <div id="numbersList" class="numbers-list list-view card-size-medium"></div>
   </div>
   
-  <!-- ======================= مودال التذكير ======================= -->
+  <!-- مودال التذكير -->
   <div id="reminderModal" class="reminder-modal" style="display: none;">
     <div class="reminder-content">
       <p id="reminderMessage">♥ خذ راحة و<span id="randomPhrase"></span> ♥</p>
       <p>لا بارك الله في عمل يلهيك عن طاعته</p>
       <!-- زر الرجوع يظهر فقط عند الاستدعاء اليدوي -->
       <div id="manualButtons" style="display: none;">
-        <button id="returnButton">الرجوع للعمل</button>
+        <button id="returnButton" aria-label="الرجوع للعمل">الرجوع للعمل</button>
       </div>
     </div>
   </div>
   
   <script>
-    // --- كود المراسلة والإحصائيات ---
-    const numbers = JSON.parse(localStorage.getItem('numbers')) || [];
-    let state = {
-      sent: 0,
-      processing: new Set(),
-      sentNumbers: new Set()
-    };
-    
-    const elements = {
-      numbersList: document.getElementById('numbersList'),
-      progress: document.getElementById('progress'),
-      totalCount: document.getElementById('totalCount'),
-      successCount: document.getElementById('successCount'),
-      remainingCount: document.getElementById('remainingCount')
-    };
-    
-    // تحديث الإحصائيات الأولية
-    elements.totalCount.textContent = numbers.length;
-    elements.successCount.textContent = state.sent;
-    elements.remainingCount.textContent = numbers.length - state.sent;
-    
-    // تعديل دالة إنشاء بطاقة الرقم لتشمل تمرير رقم الترتيب
-    function createNumberCard(number, index) {
-      const card = document.createElement('div');
-      card.className = 'number-card';
-      card.style.setProperty('--i', index);
-      card.innerHTML = `
-        <div class="number-info">
-          <span class="number-badge">#${index + 1}</span>
-          <span dir="ltr">${formatNumber(number)}</span>
-        </div>
-        <button class="action-btn whatsapp-btn" data-number="${number}" data-index="${index}" onclick="handleSend('${number}', ${index}, this)">
+    // تغليف الكود داخل IIFE لتقليل التلوث في النطاق العام
+    (function() {
+      // استرجاع البيانات من localStorage وإنشاء الحالة
+      const numbers = JSON.parse(localStorage.getItem('numbers')) || [];
+      const state = {
+        sent: 0,
+        processing: new Set(),
+        sentNumbers: new Set()
+      };
+      
+      // تخزين عناصر DOM المستخدمة
+      const elements = {
+        numbersList: document.getElementById('numbersList'),
+        progress: document.getElementById('progress'),
+        totalCount: document.getElementById('totalCount'),
+        successCount: document.getElementById('successCount'),
+        remainingCount: document.getElementById('remainingCount')
+      };
+      
+      // تحديث الإحصائيات الأولية
+      elements.totalCount.textContent = numbers.length;
+      elements.successCount.textContent = state.sent;
+      elements.remainingCount.textContent = numbers.length - state.sent;
+      
+      /**
+       * تنسيق الرقم باستخدام تعبير نمطي بسيط.
+       * إذا لم ينجح التنسيق يبقى الرقم كما هو.
+       */
+      function formatNumber(n) {
+        const formatted = n.replace(/(\+\d{1,3})(\d{3})(\d{3})(\d{4})/, '$1 $2 $3 $4');
+        return formatted === n ? n : formatted;
+      }
+      
+      /**
+       * إنشاء بطاقة لرقم محدد.
+       * يتم إنشاء العناصر باستخدام DOM API وإرفاق معالج للحدث عبر addEventListener.
+       */
+      function createNumberCard(number, index) {
+        const card = document.createElement('div');
+        card.className = 'number-card';
+        card.style.setProperty('--i', index);
+        
+        // إنشاء قسم المعلومات
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'number-info';
+        const badge = document.createElement('span');
+        badge.className = 'number-badge';
+        badge.textContent = `#${index + 1}`;
+        const numSpan = document.createElement('span');
+        numSpan.setAttribute('dir', 'ltr');
+        numSpan.textContent = formatNumber(number);
+        infoDiv.appendChild(badge);
+        infoDiv.appendChild(numSpan);
+        card.appendChild(infoDiv);
+        
+        // إنشاء زر "مراسلة" وإرفاق الحدث
+        const btn = document.createElement('button');
+        btn.className = 'action-btn whatsapp-btn';
+        btn.setAttribute('data-number', number);
+        btn.setAttribute('data-index', index);
+        btn.innerHTML = `
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
           </svg>
           مراسلة
-        </button>
-      `;
-      return card;
-    }
-    
-    function formatNumber(n) {
-      const formatted = n.replace(/(\+\d{1,3})(\d{3})(\d{3})(\d{4})/, '$1 $2 $3 $4');
-      return formatted === n ? n : formatted;
-    }
-    
-    async function handleSend(number, index, btn) {
-      if (btn.disabled || state.processing.has(number)) return;
-      state.processing.add(number);
-      btn.disabled = true;
-      btn.innerHTML = btn.innerHTML.replace('مراسلة', 'جاري الإرسال...');
-      try {
-        await sendMessage(number, index);
-        updateStatus(true, btn);
-      } catch (error) {
-        updateStatus(false, btn);
-        console.error('فشل الإرسال:', error);
-      } finally {
-        state.processing.delete(number);
+        `;
+        btn.addEventListener('click', function() {
+          handleSend(number, index, btn);
+        });
+        card.appendChild(btn);
+        
+        return card;
       }
-    }
-    
-    function sendMessage(number, index) {
-      return new Promise((resolve, reject) => {
-        let segments = JSON.parse(localStorage.getItem('segments') || "[]");
-        let message = "";
-        if (segments.length > 0) {
-          let numIndex = index + 1;
-          let foundSegment = segments.find(seg => numIndex >= seg.start && numIndex <= seg.end);
-          message = foundSegment ? foundSegment.text : "";
+      
+      /**
+       * عرض كافة الأرقام على الشاشة.
+       */
+      function renderNumbers() {
+        elements.numbersList.innerHTML = "";
+        numbers.forEach((number, index) => {
+          const card = createNumberCard(number, index);
+          elements.numbersList.appendChild(card);
+        });
+        // تحديث الشريط التقدمي
+        elements.progress.style.width = numbers.length > 0 ? (state.sent / numbers.length) * 100 + "%" : "0%";
+      }
+      
+      /**
+       * دالة إرسال الرسالة عبر WhatsApp.
+       * تعتمد على فتح نافذة جديدة ومتابعة إغلاقها للتحقق من نجاح العملية.
+       */
+      function sendMessage(number, index) {
+        return new Promise((resolve, reject) => {
+          let segments = JSON.parse(localStorage.getItem('segments') || "[]");
+          let message = "";
+          if (segments.length > 0) {
+            let numIndex = index + 1;
+            let foundSegment = segments.find(seg => numIndex >= seg.start && numIndex <= seg.end);
+            message = foundSegment ? foundSegment.text : "";
+          } else {
+            message = decodeURIComponent(localStorage.getItem('message') || '');
+          }
+          const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+          const win = window.open(url, '_blank');
+          if (!win) {
+            reject('تم حظر النوافذ المنبثقة.');
+            return;
+          }
+          const timer = setTimeout(() => {
+            if (win && !win.closed) {
+              win.close();
+            }
+            reject('انتهى الوقت المحدد');
+          }, 15000);
+          const checkInterval = setInterval(() => {
+            if (win.closed) {
+              clearInterval(checkInterval);
+              clearTimeout(timer);
+              resolve();
+            }
+          }, 500);
+        });
+      }
+      
+      /**
+       * دالة التعامل مع إرسال الرسالة لرقم محدد.
+       * تُحدّث حالة العنصر والإحصائيات بناءً على النتيجة.
+       */
+      async function handleSend(number, index, btn) {
+        if (btn.disabled || state.processing.has(number)) return;
+        state.processing.add(number);
+        btn.disabled = true;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = btn.innerHTML.replace('مراسلة', 'جاري الإرسال...');
+        try {
+          await sendMessage(number, index);
+          updateStatus(true, btn);
+        } catch (error) {
+          updateStatus(false, btn);
+          console.error('فشل الإرسال:', error);
+          // يمكن عرض إشعار للمستخدم هنا في حال فشل العملية
+        } finally {
+          state.processing.delete(number);
+        }
+      }
+      
+      /**
+       * تحديث الإحصائيات والواجهة بناءً على نجاح أو فشل الإرسال.
+       */
+      function updateStatus(success, btn) {
+        if (success) {
+          if (!state.sentNumbers.has(btn.getAttribute('data-number'))) {
+            state.sentNumbers.add(btn.getAttribute('data-number'));
+            state.sent++;
+          }
+        }
+        elements.successCount.textContent = state.sent;
+        elements.remainingCount.textContent = numbers.length - state.sent;
+        const progressPercent = numbers.length > 0 ? (state.sent / numbers.length) * 100 : 0;
+        elements.progress.style.width = progressPercent + "%";
+        btn.classList.remove('whatsapp-btn');
+        if (success) {
+          btn.classList.add('sent-status', 'status-btn');
+          btn.innerHTML = 'مراسلة الرقم مرة أخرى';
         } else {
-          message = decodeURIComponent(localStorage.getItem('message') || '');
+          btn.classList.add('remaining-status', 'status-btn');
+          const remaining = numbers.length - state.sent;
+          btn.innerHTML = `المتبقي: ${remaining}<br><small style="display:block;font-size:0.8em">انقر للمحاولة مجددًا</small>`;
         }
-        const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
-        const win = window.open(url, '_blank');
-        if (!win) {
-          reject('تم حظر النوافذ المنبثقة.');
-          return;
-        }
-        const timer = setTimeout(() => {
-          if (win && !win.closed) {
-            win.close();
-          }
-          reject('انتهى الوقت المحدد');
-        }, 15000);
-        const checkInterval = setInterval(() => {
-          if (win.closed) {
-            clearInterval(checkInterval);
-            clearTimeout(timer);
-            resolve();
-          }
-        }, 500);
-      });
-    }
-    
-    function updateStatus(success, btn) {
-      if (success) {
-        if (!state.sentNumbers.has(btn.dataset.number)) {
-          state.sentNumbers.add(btn.dataset.number);
-          state.sent++;
-        }
-      }
-      elements.successCount.textContent = state.sent;
-      elements.remainingCount.textContent = numbers.length - state.sent;
-      const progressPercent = numbers.length > 0 ? (state.sent / numbers.length) * 100 : 0;
-      elements.progress.style.width = `${progressPercent}%`;
-      btn.classList.remove('whatsapp-btn');
-      if (success) {
-        btn.classList.add('sent-status', 'status-btn');
-        btn.innerHTML = 'مراسلة الرقم مرة أخرى';
-      } else {
-        btn.classList.add('remaining-status', 'status-btn');
-        const remaining = numbers.length - state.sent;
-        btn.innerHTML = `المتبقي: ${remaining}<br><small style="display:block;font-size:0.8em">انقر للمحاولة مجددًا</small>`;
-      }
-      btn.disabled = false;
-      btn.onclick = () => handleSend(btn.dataset.number, parseInt(btn.dataset.index), btn);
-    }
-    
-    // التعامل مع خيارات التخصيص
-    const viewModeSelect = document.getElementById('viewModeSelect');
-    const cardSizeSelect = document.getElementById('cardSizeSelect');
-    const buttonStyleSelect = document.getElementById('buttonStyleSelect');
-    
-    function updateCustomization() {
-      const viewMode = viewModeSelect.value;
-      elements.numbersList.classList.remove('list-view', 'grid-view');
-      elements.numbersList.classList.add(viewMode);
-      const sizeClass = cardSizeSelect.value;
-      elements.numbersList.classList.remove('card-size-extra-small', 'card-size-small', 'card-size-medium', 'card-size-large', 'card-size-extra-large');
-      elements.numbersList.classList.add(sizeClass);
-      const btnStyle = buttonStyleSelect.value;
-      const buttons = elements.numbersList.querySelectorAll('.action-btn');
-      buttons.forEach(btn => {
-        btn.classList.remove('btn-3d', 'btn-flat', 'btn-outlined', 'btn-soft');
-        btn.classList.add(btnStyle);
-      });
-    }
-    
-    viewModeSelect.addEventListener('change', updateCustomization);
-    cardSizeSelect.addEventListener('change', updateCustomization);
-    buttonStyleSelect.addEventListener('change', updateCustomization);
-    
-    updateCustomization();
-    
-    function renderNumbers() {
-      elements.numbersList.innerHTML = "";
-      numbers.forEach((number, index) => {
-        const card = createNumberCard(number, index);
-        elements.numbersList.appendChild(card);
-      });
-    }
-    
-    elements.progress.style.width = `${numbers.length > 0 ? (state.sent / numbers.length) * 100 : 0}%`;
-    
-    /* ======================= كود مودال التذكير ======================= */
-    const reminderPhrases = ["احمد الله", "صلي على رسول الله", "كبر الله", "استغفر الله"];
-    function getRandomPhrase() {
-      const idx = Math.floor(Math.random() * reminderPhrases.length);
-      return reminderPhrases[idx];
-    }
-    
-    function showReminder(triggerType = "auto") {
-      const modal = document.getElementById("reminderModal");
-      const randomPhraseElement = document.getElementById("randomPhrase");
-      const manualButtons = document.getElementById("manualButtons");
-      randomPhraseElement.textContent = getRandomPhrase();
-      
-      if (triggerType === "manual") {
-        manualButtons.style.display = "block";
-      } else {
-        manualButtons.style.display = "none";
-        setTimeout(hideReminder, 30000);
+        btn.disabled = false;
+        // إعادة تعيين معالج الحدث للنقر لاحقاً
+        btn.addEventListener('click', function() {
+          handleSend(btn.getAttribute('data-number'), parseInt(btn.getAttribute('data-index')), btn);
+        });
       }
       
-      modal.style.display = "flex";
-    }
-    
-    function hideReminder() {
-      const modal = document.getElementById("reminderModal");
-      modal.style.display = "none";
-    }
-    
-    setInterval(function() {
-      showReminder("auto");
-    }, 600000);
-    
-    document.getElementById("manualReminderButton").addEventListener("click", function() {
-      showReminder("manual");
-    });
-    
-    document.getElementById("returnButton").addEventListener("click", function() {
-      hideReminder();
-    });
-    
-    renderNumbers();
+      /**
+       * التعامل مع خيارات التخصيص لتغيير طريقة العرض وحجم البطاقات ونمط الأزرار.
+       */
+      function updateCustomization() {
+        const viewMode = document.getElementById('viewModeSelect').value;
+        elements.numbersList.classList.remove('list-view', 'grid-view');
+        elements.numbersList.classList.add(viewMode);
+        const sizeClass = document.getElementById('cardSizeSelect').value;
+        elements.numbersList.classList.remove('card-size-extra-small', 'card-size-small', 'card-size-medium', 'card-size-large', 'card-size-extra-large');
+        elements.numbersList.classList.add(sizeClass);
+        const btnStyle = document.getElementById('buttonStyleSelect').value;
+        const buttons = elements.numbersList.querySelectorAll('.action-btn');
+        buttons.forEach(btn => {
+          btn.classList.remove('btn-3d', 'btn-flat', 'btn-outlined', 'btn-soft');
+          btn.classList.add(btnStyle);
+        });
+      }
+      
+      // إرفاق معالجات التغيير لخيارات التخصيص
+      document.getElementById('viewModeSelect').addEventListener('change', updateCustomization);
+      document.getElementById('cardSizeSelect').addEventListener('change', updateCustomization);
+      document.getElementById('buttonStyleSelect').addEventListener('change', updateCustomization);
+      
+      /**
+       * دوال التذكير: عرض وإخفاء مودال التذكير مع عبارة عشوائية.
+       */
+      const reminderPhrases = ["احمد الله", "صلي على رسول الله", "كبر الله", "استغفر الله"];
+      function getRandomPhrase() {
+        const idx = Math.floor(Math.random() * reminderPhrases.length);
+        return reminderPhrases[idx];
+      }
+      
+      function showReminder(triggerType = "auto") {
+        const modal = document.getElementById("reminderModal");
+        const randomPhraseElement = document.getElementById("randomPhrase");
+        const manualButtons = document.getElementById("manualButtons");
+        randomPhraseElement.textContent = getRandomPhrase();
+        
+        if (triggerType === "manual") {
+          manualButtons.style.display = "block";
+        } else {
+          manualButtons.style.display = "none";
+          setTimeout(hideReminder, 30000);
+        }
+        
+        modal.style.display = "flex";
+      }
+      
+      function hideReminder() {
+        document.getElementById("reminderModal").style.display = "none";
+      }
+      
+      // التذكير التلقائي كل 10 دقائق
+      setInterval(function() {
+        showReminder("auto");
+      }, 600000);
+      
+      document.getElementById("manualReminderButton").addEventListener("click", function() {
+        showReminder("manual");
+      });
+      
+      document.getElementById("returnButton").addEventListener("click", hideReminder);
+      
+      /**
+       * إرفاق معالج زر الرجوع.
+       */
+      document.getElementById("backBtn").addEventListener("click", function() {
+        history.back();
+      });
+      
+      // عرض البطاقات عند تحميل الصفحة
+      renderNumbers();
+    })();
   </script>
 </body>
 </html>
