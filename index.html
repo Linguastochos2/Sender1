@@ -117,6 +117,7 @@
       animation: slideIn 1.2s;
       text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
     }
+    /* تمت إضافة aria-label للزر لضمان الوصولية */
     #splash button {
       background: linear-gradient(145deg, #ff8c00, #ff4500);
       color: #fff;
@@ -216,6 +217,7 @@
       position: relative;
     }
     .modal-header h3 { margin: 0; color: #fff; font-size: 1.5rem; }
+    /* إزالة الحدث المضمن من زر إغلاق المودال */
     #modalClose {
       position: absolute;
       top: 0.5rem;
@@ -319,7 +321,7 @@
 </head>
 <body>
   <!-- Loader Overlay -->
-  <div id="loader">
+  <div id="loader" role="alert" aria-live="assertive">
     <div class="spinner"></div>
   </div>
   
@@ -332,7 +334,8 @@
   <div id="splash" class="animate__animated animate__fadeIn">
     <h1>أهلاً وسهلاً!</h1>
     <p>مرحباً بك في Lingua Stochos sender</p>
-    <button onclick="hideSplash()">ابدأ الآن</button>
+    <!-- إزالة الحدث المضمن واستبداله بمعالج -->
+    <button id="startSplashBtn" aria-label="ابدأ التطبيق">ابدأ الآن</button>
   </div>
   
   <!-- الحاوية الرئيسية للأداة (مخفية في البداية) -->
@@ -392,7 +395,7 @@
     <!-- قسم تحديد الرسائل حسب النطاق -->
     <div id="messageSegmentsContainer">
       <h3>تحديد الرسائل حسب النطاق</h3>
-      <button type="button" onclick="addSegment()">إضافة نطاق</button>
+      <button type="button" id="addSegmentBtn">إضافة نطاق</button>
       <div id="messageSegments"></div>
     </div>
     
@@ -407,12 +410,12 @@
     
     <!-- أزرار الإجراءات الرئيسية -->
     <div class="action-buttons">
-      <button onclick="saveDraft()">حفظ المسودة</button>
-      <button onclick="simulateSend()">محاكاة الإرسال</button>
-      <button onclick="validateNumbers()">تحقق من صحة الأرقام</button>
-      <button onclick="showInvalidNumbers()">عرض الأرقام الغير صالحة</button>
-      <button onclick="startMessaging()">البدء في المراسلة</button>
-      <button class="clear-btn" onclick="clearAll()">مسح الكل</button>
+      <button id="saveDraftBtn" aria-label="حفظ المسودة">حفظ المسودة</button>
+      <button id="simulateSendBtn" aria-label="محاكاة الإرسال">محاكاة الإرسال</button>
+      <button id="validateNumbersBtn" aria-label="تحقق من صحة الأرقام">تحقق من صحة الأرقام</button>
+      <button id="showInvalidNumbersBtn" aria-label="عرض الأرقام الغير صالحة">عرض الأرقام الغير صالحة</button>
+      <button id="startMessagingBtn" aria-label="البدء في المراسلة">البدء في المراسلة</button>
+      <button class="clear-btn" id="clearAllBtn" aria-label="مسح الكل">مسح الكل</button>
     </div>
     
     <div id="socialLinks">
@@ -428,7 +431,7 @@
     <div id="modalContent">
       <div class="modal-header">
         <h3>معاينة</h3>
-        <button id="modalClose" onclick="closeModal()">×</button>
+        <button id="modalClose" aria-label="إغلاق المودال">×</button>
       </div>
       <div id="modalBody"></div>
     </div>
@@ -438,470 +441,475 @@
   <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.9.48/bundle/libphonenumber-js.min.js"></script>
   
   <script>
-    // متغيّر لتخزين الأرقام غير الصالحة بعد التحقق
-    let lastInvalidNumbers = [];
-    
-    // تهيئة الواجهة عند تحميل الصفحة
-    document.addEventListener("DOMContentLoaded", function() {
-      $('#countrySelect').select2({
-        placeholder: "-- اختر الدولة --",
-        allowClear: true,
-        width: "100%",
-        dir: "rtl"
-      });
-      Waves.attach('button');
-      Waves.init();
-      
-      loadDraft();
-    });
-    
-    /* ===================== Loader ===================== */
-    function showLoader() {
-      document.getElementById('loader').style.display = 'flex';
-    }
-    function hideLoader() {
-      document.getElementById('loader').style.display = 'none';
-    }
-    
-    /* ===================== Lottie Animation ===================== */
-    function showLottieAnimation() {
-      const container = document.getElementById('lottieContainer');
-      container.style.display = "flex";
-      var animation = bodymovin.loadAnimation({
-        container: document.getElementById('lottieAnimation'),
-        renderer: 'svg',
-        loop: false,
-        autoplay: true,
-        path: 'https://assets7.lottiefiles.com/packages/lf20_x62chJ.json'
-      });
-      setTimeout(() => {
-        container.style.display = "none";
-        animation.destroy();
-      }, 3000);
-    }
-    
-    /* ===================== دوال المسودة ===================== */
-    function saveDraft() {
-      const numbersContent = document.getElementById("numbers").value;
-      const messageContent = document.getElementById("message").value;
+    // تغليف الكود داخل IIFE لتقليل التلوث في النطاق العالمي
+    (function() {
+      // تخزين متغيرات DOM المستخدمة بشكل متكرر
       const countrySelect = document.getElementById("countrySelect");
-      const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
-      localStorage.setItem("draftNumbers", numbersContent);
-      localStorage.setItem("draftMessage", messageContent);
-      localStorage.setItem("draftCountry", countrySelect.value);
-      localStorage.setItem("draftDialCode", dialCode);
-      Swal.fire({ icon: 'success', title: 'تم حفظ المسودة!' });
-      Toastify({ text: "تم حفظ المسودة بنجاح!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
-    }
-    
-    function loadDraft() {
-      const draftNumbers = localStorage.getItem("draftNumbers");
-      const draftMessage = localStorage.getItem("draftMessage");
-      const draftCountry = localStorage.getItem("draftCountry");
-      if (draftNumbers) {
-        document.getElementById("numbers").value = draftNumbers;
+      const numbersField = document.getElementById("numbers");
+      const messageField = document.getElementById("message");
+      const messageSegmentsContainer = document.getElementById("messageSegments");
+      
+      // متغيّر لتخزين الأرقام غير الصالحة بعد التحقق
+      let lastInvalidNumbers = [];
+      
+      // دوال مساعدة لإظهار وإخفاء اللوادر والأنيميشن
+      function showLoader() {
+        document.getElementById('loader').style.display = 'flex';
+      }
+      function hideLoader() {
+        document.getElementById('loader').style.display = 'none';
+      }
+      
+      function showLottieAnimation() {
+        const container = document.getElementById('lottieContainer');
+        container.style.display = "flex";
+        var animation = bodymovin.loadAnimation({
+          container: document.getElementById('lottieAnimation'),
+          renderer: 'svg',
+          loop: false,
+          autoplay: true,
+          path: 'https://assets7.lottiefiles.com/packages/lf20_x62chJ.json'
+        });
+        setTimeout(() => {
+          container.style.display = "none";
+          animation.destroy();
+        }, 3000);
+      }
+      
+      /* ===================== دوال المسودة ===================== */
+      function saveDraft() {
+        const numbersContent = numbersField.value;
+        const messageContent = messageField.value;
+        const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
+        localStorage.setItem("draftNumbers", numbersContent);
+        localStorage.setItem("draftMessage", messageContent);
+        localStorage.setItem("draftCountry", countrySelect.value);
+        localStorage.setItem("draftDialCode", dialCode);
+        Swal.fire({ icon: 'success', title: 'تم حفظ المسودة!' });
+        Toastify({ text: "تم حفظ المسودة بنجاح!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
+      }
+      
+      function loadDraft() {
+        const draftNumbers = localStorage.getItem("draftNumbers");
+        const draftMessage = localStorage.getItem("draftMessage");
+        const draftCountry = localStorage.getItem("draftCountry");
+        if (draftNumbers) {
+          numbersField.value = draftNumbers;
+          formatNumbers();
+        }
+        if (draftMessage) {
+          messageField.value = draftMessage;
+        }
+        if (draftCountry) {
+          countrySelect.value = draftCountry;
+          $('#countrySelect').trigger('change');
+        }
+      }
+      
+      /* ===================== دوال التنسيق وتقنية Debounce ===================== */
+      let debounceTimer;
+      window.debounceFormatNumbers = function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(formatNumbers, 300);
+      }
+      
+      function formatNumbers() {
+        const rawInput = numbersField.value.trim();
+        const uniqueNumbers = [...new Set(rawInput.split(/[\s,]+/).filter(num => num.trim().length > 0))];
+        numbersField.value = uniqueNumbers.join(" ");
+      }
+      
+      async function clearAll() {
+        const result = await Swal.fire({
+          icon: 'question',
+          title: 'مسح الكل',
+          text: 'هل أنت متأكد من مسح جميع البيانات المدخلة؟',
+          showCancelButton: true,
+          confirmButtonText: 'نعم',
+          cancelButtonText: 'لا'
+        });
+        if (!result.isConfirmed) return;
+        
+        // مسح كافة الحقول
+        numbersField.value = "";
+        messageField.value = "";
+        messageSegmentsContainer.innerHTML = "";
+        document.getElementById("fileInput").value = "";
+        document.getElementById("columnSelectDiv").innerHTML = "";
+        
+        updateMessageFieldVisibility();
         formatNumbers();
+        
+        // إزالة البيانات المخزنة محلياً
+        localStorage.removeItem("draftNumbers");
+        localStorage.removeItem("draftMessage");
+        localStorage.removeItem("draftCountry");
+        localStorage.removeItem("draftDialCode");
+        localStorage.removeItem("numbers");
+        localStorage.removeItem("message");
+        localStorage.removeItem("segments");
+        localStorage.removeItem("countryCode");
+        
+        Toastify({ text: "تم مسح كل البيانات!", duration: 3000, gravity: "top", position: "center", style: { background: "#e74c3c" } }).showToast();
       }
-      if (draftMessage) {
-        document.getElementById("message").value = draftMessage;
+      
+      /* ===================== دوال الزرين المفقودين ===================== */
+      function simulateSend() {
+        const region = countrySelect.value;
+        if (!region) {
+          openModal("<p style='color: var(--error-color);'>يرجى اختيار الدولة قبل المحاكاة.</p>");
+          return;
+        }
+        let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
+        numbers = [...new Set(numbers)];
+        if (numbers.length === 0) {
+          openModal("<p style='color: var(--error-color);'>لا توجد أرقام لمحاكاة الإرسال.</p>");
+          return;
+        }
+        
+        // عرض محتوى الرسالة بناء على النطاقات أو الرسالة العامة
+        let segments = getMessageSegments();
+        let previewContent = "";
+        if (segments.length > 0) {
+          previewContent = segments.map(seg => `من ${seg.start} إلى ${seg.end}: ${seg.text}`).join("<br>");
+        } else {
+          const message = messageField.value.trim();
+          previewContent = message || "(لا توجد رسالة)";
+        }
+        
+        openModal(`
+          <h3>محاكاة الإرسال</h3>
+          <p><strong>عدد الأرقام:</strong> ${numbers.length}</p>
+          <p><strong>المحتوى:</strong><br>${previewContent}</p>
+        `);
       }
-      if (draftCountry) {
-        document.getElementById("countrySelect").value = draftCountry;
-        $('#countrySelect').trigger('change');
+      
+      function showInvalidNumbers() {
+        if (!lastInvalidNumbers || lastInvalidNumbers.length === 0) {
+          openModal("<p style='color: var(--error-color);'>لا توجد أرقام غير صالحة أو لم يتم التحقق بعد.</p>");
+          return;
+        }
+        openModal(`<h3>الأرقام غير الصالحة</h3><p>${lastInvalidNumbers.join(", ")}</p>`);
       }
-    }
-    
-    /* ===================== دوال التنسيق وتقنية Debounce ===================== */
-    let debounceTimer;
-    function debounceFormatNumbers() {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(formatNumbers, 300);
-    }
-    
-    function formatNumbers() {
-      const numbersField = document.getElementById("numbers");
-      const rawInput = numbersField.value.trim();
-      const uniqueNumbers = [...new Set(rawInput.split(/[\s,]+/).filter(num => num.trim().length > 0))];
-      numbersField.value = uniqueNumbers.join(" ");
-    }
-    
-    async function clearAll() {
-      const result = await Swal.fire({
-        icon: 'question',
-        title: 'مسح الكل',
-        text: 'هل أنت متأكد من مسح جميع البيانات المدخلة؟',
-        showCancelButton: true,
-        confirmButtonText: 'نعم',
-        cancelButtonText: 'لا'
+      
+      /* ===================== دوال النافذة (Modal) ===================== */
+      function openModal(content) {
+        const modalBody = document.getElementById("modalBody");
+        const modal = document.getElementById("modal");
+        modalBody.innerHTML = content;
+        modal.style.display = "flex";
+      }
+      
+      function closeModal() {
+        document.getElementById("modalBody").innerHTML = "";
+        document.getElementById("modal").style.display = "none";
+      }
+      
+      window.addEventListener("click", function(e) {
+        const modal = document.getElementById("modal");
+        if (e.target === modal) { closeModal(); }
       });
-      if (!result.isConfirmed) return;
       
-      // مسح كافة الحقول
-      document.getElementById("numbers").value = "";
-      document.getElementById("message").value = "";
-      document.getElementById("messageSegments").innerHTML = "";
-      document.getElementById("fileInput").value = "";
-      document.getElementById("columnSelectDiv").innerHTML = "";
-      
-      updateMessageFieldVisibility();
-      formatNumbers();
-      
-      // إزالة البيانات المخزنة محلياً
-      localStorage.removeItem("draftNumbers");
-      localStorage.removeItem("draftMessage");
-      localStorage.removeItem("draftCountry");
-      localStorage.removeItem("draftDialCode");
-      localStorage.removeItem("numbers");
-      localStorage.removeItem("message");
-      localStorage.removeItem("segments");
-      localStorage.removeItem("countryCode");
-      
-      Toastify({ text: "تم مسح كل البيانات!", duration: 3000, gravity: "top", position: "center", style: { background: "#e74c3c" } }).showToast();
-    }
-    
-    /* ===================== دوال الزرين المفقودين ===================== */
-    // دالة لمحاكاة الإرسال
-    function simulateSend() {
-      const countrySelect = document.getElementById("countrySelect");
-      const region = countrySelect.value;
-      if (!region) {
-        openModal("<p style='color: var(--error-color);'>يرجى اختيار الدولة قبل المحاكاة.</p>");
-        return;
-      }
-      const numbersField = document.getElementById("numbers");
-      let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
-      numbers = [...new Set(numbers)];
-      if (numbers.length === 0) {
-        openModal("<p style='color: var(--error-color);'>لا توجد أرقام لمحاكاة الإرسال.</p>");
-        return;
-      }
-      
-      // عرض محتوى الرسالة بناء على النطاقات أو الرسالة العامة
-      let segments = getMessageSegments();
-      let previewContent = "";
-      if (segments.length > 0) {
-        // تم تحديد نطاقات
-        previewContent = segments.map(seg => `من ${seg.start} إلى ${seg.end}: ${seg.text}`).join("<br>");
-      } else {
-        // استخدام نص الرسالة الرئيسي
-        const message = document.getElementById("message").value.trim();
-        previewContent = message || "(لا توجد رسالة)";
-      }
-      
-      openModal(`
-        <h3>محاكاة الإرسال</h3>
-        <p><strong>عدد الأرقام:</strong> ${numbers.length}</p>
-        <p><strong>المحتوى:</strong><br>${previewContent}</p>
-      `);
-    }
-    
-    // دالة لعرض الأرقام غير الصالحة
-    function showInvalidNumbers() {
-      if (!lastInvalidNumbers || lastInvalidNumbers.length === 0) {
-        openModal("<p style='color: var(--error-color);'>لا توجد أرقام غير صالحة أو لم يتم التحقق بعد.</p>");
-        return;
-      }
-      openModal(`<h3>الأرقام غير الصالحة</h3><p>${lastInvalidNumbers.join(", ")}</p>`);
-    }
-    
-    /* ===================== دوال النافذة (Modal) ===================== */
-    function openModal(content) {
-      const modalBody = document.getElementById("modalBody");
-      const modal = document.getElementById("modal");
-      modalBody.innerHTML = content;
-      modal.style.display = "flex";
-    }
-    
-    function closeModal() {
-      document.getElementById("modalBody").innerHTML = "";
-      document.getElementById("modal").style.display = "none";
-    }
-    
-    window.addEventListener("click", function(e) {
-      const modal = document.getElementById("modal");
-      if (e.target === modal) { closeModal(); }
-    });
-    
-    /* ===================== دوال تحديد النطاقات ===================== */
-    function addSegment() {
-      const container = document.getElementById("messageSegments");
-      const segmentDiv = document.createElement("div");
-      segmentDiv.classList.add("segment");
-      segmentDiv.innerHTML = `
-        <div>
+      /* ===================== دوال تحديد النطاقات ===================== */
+      function addSegment() {
+        const segmentDiv = document.createElement("div");
+        segmentDiv.classList.add("segment");
+        
+        // إنشاء عناصر النطاق
+        const rangeDiv = document.createElement("div");
+        rangeDiv.innerHTML = `
           <label>من الرقم:</label>
           <input type="number" class="segment-start" min="1" style="width: 80px;">
           <label>إلى الرقم:</label>
           <input type="number" class="segment-end" min="1" style="width: 80px;">
-        </div>
-        <div style="margin-top: 0.5rem;">
-          <label>نص الرسالة:</label>
-          <textarea class="segment-text input-field" rows="3" placeholder="أدخل نص الرسالة" style="width: 100%;"></textarea>
-        </div>
-        <button type="button" onclick="removeSegment(this)" style="margin-top: 0.5rem; background: var(--error-color); color: #fff; border: none; padding: 0.25rem 0.5rem; border-radius: var(--radius);">حذف النطاق</button>
-      `;
-      container.appendChild(segmentDiv);
-      updateMessageFieldVisibility();
-    }
-    
-    function removeSegment(btn) {
-      const segmentDiv = btn.parentElement;
-      segmentDiv.remove();
-      updateMessageFieldVisibility();
-    }
-    
-    function getMessageSegments() {
-      const segments = [];
-      const segmentDivs = document.querySelectorAll("#messageSegments .segment");
-      segmentDivs.forEach(seg => {
-        const start = seg.querySelector(".segment-start").value;
-        const end = seg.querySelector(".segment-end").value;
-        const text = seg.querySelector(".segment-text").value;
-        if(start && end && text) {
-          segments.push({ start: parseInt(start), end: parseInt(end), text: text });
-        }
-      });
-      return segments;
-    }
-    
-    // دالة لتحديث عرض خانة نص الرسالة بناءً على وجود نطاقات
-    function updateMessageFieldVisibility() {
-      const segments = document.querySelectorAll("#messageSegments .segment");
-      const messageField = document.getElementById("message");
-      const messageLabel = document.querySelector("label[for='message']");
-      if (segments.length > 0) {
-        messageField.style.display = "none";
-        if (messageLabel) messageLabel.style.display = "none";
-      } else {
-        messageField.style.display = "block";
-        if (messageLabel) messageLabel.style.display = "block";
+        `;
+        
+        const textDiv = document.createElement("div");
+        textDiv.style.marginTop = "0.5rem";
+        const textLabel = document.createElement("label");
+        textLabel.textContent = "نص الرسالة:";
+        const textArea = document.createElement("textarea");
+        textArea.classList.add("segment-text", "input-field");
+        textArea.rows = 3;
+        textArea.placeholder = "أدخل نص الرسالة";
+        textArea.style.width = "100%";
+        textDiv.appendChild(textLabel);
+        textDiv.appendChild(textArea);
+        
+        // إنشاء زر الحذف بدون حدث inline
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.style.marginTop = "0.5rem";
+        removeBtn.style.background = "var(--error-color)";
+        removeBtn.style.color = "#fff";
+        removeBtn.style.border = "none";
+        removeBtn.style.padding = "0.25rem 0.5rem";
+        removeBtn.style.borderRadius = "var(--radius)";
+        removeBtn.textContent = "حذف النطاق";
+        removeBtn.addEventListener("click", function() {
+          removeSegment(removeBtn);
+        });
+        
+        segmentDiv.appendChild(rangeDiv);
+        segmentDiv.appendChild(textDiv);
+        segmentDiv.appendChild(removeBtn);
+        messageSegmentsContainer.appendChild(segmentDiv);
+        
+        updateMessageFieldVisibility();
       }
-    }
-    
-    /* ===================== دوال التحقق ===================== */
-    function validateNumbers() {
-      const numbersField = document.getElementById("numbers");
-      let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
-      numbers = [...new Set(numbers)];
-      if (numbers.length === 0) {
-        openModal("<p style='color: var(--error-color);'>لم يتم إدخال أرقام.</p>");
-        return;
-      }
-      const countrySelect = document.getElementById("countrySelect");
-      const region = countrySelect.value;
-      const validNumbers = numbers.filter(num => validatePhoneNumber(num, region));
-      const invalidNumbers = numbers.filter(num => !validatePhoneNumber(num, region));
       
-      // حفظ الأرقام غير الصالحة في متغير عام
-      lastInvalidNumbers = invalidNumbers;
+      function removeSegment(btn) {
+        const segmentDiv = btn.parentElement;
+        segmentDiv.remove();
+        updateMessageFieldVisibility();
+      }
       
-      let report = `<h3>تقرير التحقق من صحة الأرقام</h3>
-                    <p>إجمالي الأرقام: ${numbers.length}</p>
-                    <p>الأرقام الصالحة: ${validNumbers.length}</p>
-                    <p>الأرقام غير الصالحة: ${invalidNumbers.length}</p>`;
-      if (invalidNumbers.length > 0) {
-        report += `<p>الأرقام غير الصالحة: ${invalidNumbers.join(", ")}</p>`;
+      function getMessageSegments() {
+        const segments = [];
+        const segmentDivs = document.querySelectorAll("#messageSegments .segment");
+        segmentDivs.forEach(seg => {
+          const start = seg.querySelector(".segment-start").value;
+          const end = seg.querySelector(".segment-end").value;
+          const text = seg.querySelector(".segment-text").value;
+          if(start && end && text) {
+            segments.push({ start: parseInt(start), end: parseInt(end), text: text });
+          }
+        });
+        return segments;
       }
-      openModal(report);
-    }
-    
-    function normalizePhoneNumber(number, dialCode, region) {
-      number = number.trim().replace(/[\s\-]/g, "");
-      if (number.startsWith("00")) {
-        number = "+" + number.substring(2);
-      }
-      if (number.startsWith("+")) {
-        if (region === "EG" && !number.startsWith("+20")) {
-          number = "+20" + number.substring(1);
+      
+      // دالة لتحديث عرض خانة نص الرسالة بناءً على وجود نطاقات
+      function updateMessageFieldVisibility() {
+        const segments = document.querySelectorAll("#messageSegments .segment");
+        if (segments.length > 0) {
+          messageField.style.display = "none";
+          const messageLabel = document.querySelector("label[for='message']");
+          if (messageLabel) messageLabel.style.display = "none";
+        } else {
+          messageField.style.display = "block";
+          const messageLabel = document.querySelector("label[for='message']");
+          if (messageLabel) messageLabel.style.display = "block";
         }
-        return number;
       }
-      if (number.startsWith("0")) {
-        return dialCode + number.substring(1);
+      
+      /* ===================== دوال التحقق ===================== */
+      function validateNumbers() {
+        let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
+        numbers = [...new Set(numbers)];
+        if (numbers.length === 0) {
+          openModal("<p style='color: var(--error-color);'>لم يتم إدخال أرقام.</p>");
+          return;
+        }
+        const region = countrySelect.value;
+        const validNumbers = numbers.filter(num => validatePhoneNumber(num, region));
+        const invalidNumbers = numbers.filter(num => !validatePhoneNumber(num, region));
+        
+        // حفظ الأرقام غير الصالحة في متغير عام
+        lastInvalidNumbers = invalidNumbers;
+        
+        let report = `<h3>تقرير التحقق من صحة الأرقام</h3>
+                      <p>إجمالي الأرقام: ${numbers.length}</p>
+                      <p>الأرقام الصالحة: ${validNumbers.length}</p>
+                      <p>الأرقام غير الصالحة: ${invalidNumbers.length}</p>`;
+        if (invalidNumbers.length > 0) {
+          report += `<p>الأرقام غير الصالحة: ${invalidNumbers.join(", ")}</p>`;
+        }
+        openModal(report);
       }
-      let dialDigits = dialCode.replace("+", "");
-      if (number.startsWith(dialDigits)) {
-        return "+" + number;
-      }
-      if (region === "EG" && number.length === 10) {
+      
+      // دوال التحقق من صحة الأرقام مع تحسين التعليقات
+      function normalizePhoneNumber(number, dialCode, region) {
+        // إزالة الفراغات والواصلات
+        number = number.trim().replace(/[\s\-]/g, "");
+        if (number.startsWith("00")) {
+          number = "+" + number.substring(2);
+        }
+        if (number.startsWith("+")) {
+          if (region === "EG" && !number.startsWith("+20")) {
+            number = "+20" + number.substring(1);
+          }
+          return number;
+        }
+        if (number.startsWith("0")) {
+          return dialCode + number.substring(1);
+        }
+        let dialDigits = dialCode.replace("+", "");
+        if (number.startsWith(dialDigits)) {
+          return "+" + number;
+        }
+        if (region === "EG" && number.length === 10) {
+          return dialCode + number;
+        }
         return dialCode + number;
       }
-      return dialCode + number;
-    }
-    
-    function validatePhoneNumber(number, region) {
-      const countrySelect = document.getElementById("countrySelect");
-      const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
-      let normalized = normalizePhoneNumber(number, dialCode, region);
-      if (region === "EG") {
-        if (!/^\+20\d{10}$/.test(normalized)) { return false; }
-        let localPart = normalized.substring(3);
-        if (!/^(10|11|12|15)/.test(localPart)) { return false; }
-        return true;
-      }
-      try {
-        const phoneNumber = libphonenumber.parsePhoneNumberFromString(normalized, region);
-        return phoneNumber && phoneNumber.isValid();
-      } catch (error) {
-        return false;
-      }
-    }
-    
-    async function startMessaging() {
-      const countrySelect = document.getElementById("countrySelect");
-      const region = countrySelect.value;
-      const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
-      if (!region) {
-        openModal("<p style='color: var(--error-color);'>يرجى اختيار الدولة.</p>");
-        return;
-      }
-      const numbersField = document.getElementById("numbers");
-      let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
-      numbers = [...new Set(numbers)];
-      const message = document.getElementById("message").value.trim();
-      if (numbers.length === 0) {
-        openModal("<p style='color: var(--error-color);'>يرجى إدخال أرقام.</p>");
-        return;
-      }
-      if (!message && document.querySelectorAll("#messageSegments .segment").length === 0) {
-        const result = await Swal.fire({
-          icon: 'question',
-          title: 'لم يتم إدخال رسالة',
-          text: 'هل تريد المتابعة بدون رسالة؟',
-          showCancelButton: true,
-          confirmButtonText: 'نعم',
-          cancelButtonText: 'لا'
-        });
-        if (!result.isConfirmed) return;
+      
+      function validatePhoneNumber(number, region) {
+        const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
+        let normalized = normalizePhoneNumber(number, dialCode, region);
+        if (region === "EG") {
+          if (!/^\+20\d{10}$/.test(normalized)) { return false; }
+          let localPart = normalized.substring(3);
+          if (!/^(10|11|12|15)/.test(localPart)) { return false; }
+          return true;
+        }
+        try {
+          const phoneNumber = libphonenumber.parsePhoneNumberFromString(normalized, region);
+          return phoneNumber && phoneNumber.isValid();
+        } catch (error) {
+          return false;
+        }
       }
       
-      // التحقق من صحة الأرقام قبل البدء
-      let validNumbers = numbers.filter(num => validatePhoneNumber(num, region));
-      if (validNumbers.length !== numbers.length) {
-        const result = await Swal.fire({
-          icon: 'warning',
-          title: 'بعض الأرقام غير صحيحة',
-          text: 'المتابعة بالأرقام الصالحة فقط؟',
-          showCancelButton: true,
-          confirmButtonText: 'نعم',
-          cancelButtonText: 'لا'
-        });
-        if (!result.isConfirmed) return;
-        numbers = validNumbers;
+      async function startMessaging() {
+        const region = countrySelect.value;
+        const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
+        if (!region) {
+          openModal("<p style='color: var(--error-color);'>يرجى اختيار الدولة.</p>");
+          return;
+        }
+        let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
+        numbers = [...new Set(numbers)];
+        const message = messageField.value.trim();
         if (numbers.length === 0) {
-          openModal("<p style='color: var(--error-color);'>لا توجد أرقام صالحة بعد التحقق.</p>");
+          openModal("<p style='color: var(--error-color);'>يرجى إدخال أرقام.</p>");
           return;
         }
-      }
-      
-      // تطبيع الأرقام بإضافة رمز الدولة
-      numbers = numbers.map(num => num.startsWith("+") ? num : normalizePhoneNumber(num, dialCode, region));
-      localStorage.setItem("numbers", JSON.stringify(numbers));
-      localStorage.setItem("countryCode", dialCode);
-      
-      // إذا تم تحديد نطاقات، يتم حفظها؛ وإلا يتم حفظ الرسالة الافتراضية
-      let segments = getMessageSegments();
-      if (segments.length > 0) {
-        localStorage.setItem("segments", JSON.stringify(segments));
-      } else {
-        localStorage.removeItem("segments");
-        localStorage.setItem("message", encodeURIComponent(message));
-      }
-      
-      closeModal();
-      showLottieAnimation();
-      Toastify({ text: "بدأت عملية المراسلة!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
-      
-      // الانتقال للصفحة الثانية (send_messages.html) التي يجب أن تقرأ نفس البيانات من LocalStorage وتطبق المنطق
-      window.location.href = "send_messages.html";
-    }
-    
-    // متغيرات الحالة (في حال تم إرسال الرسائل من نفس الصفحة)
-    const numbers = JSON.parse(localStorage.getItem('numbers')) || [];
-    let state = {
-      sent: 0,
-      processing: new Set(),
-      sentNumbers: new Set()
-    };
-    const elements = {
-      numbersList: document.getElementById('numbersList'),
-      progress: document.getElementById('progress'),
-      totalCount: document.getElementById('totalCount'),
-      successCount: document.getElementById('successCount'),
-      remainingCount: document.getElementById('remainingCount')
-    };
-    
-    function handleFile(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      showLoader();
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        const data = new Uint8Array(event.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        hideLoader();
-        if (jsonData.length === 0) {
-          Swal.fire({ icon: 'error', title: 'الملف فارغ!' });
-          return;
+        if (!message && document.querySelectorAll("#messageSegments .segment").length === 0) {
+          const result = await Swal.fire({
+            icon: 'question',
+            title: 'لم يتم إدخال رسالة',
+            text: 'هل تريد المتابعة بدون رسالة؟',
+            showCancelButton: true,
+            confirmButtonText: 'نعم',
+            cancelButtonText: 'لا'
+          });
+          if (!result.isConfirmed) return;
         }
-        const headers = jsonData[0];
-        let columnSelectHtml = '<label for="columnSelect">اختر العمود الذي يحتوي على الأرقام:</label>';
-        columnSelectHtml += '<select id="columnSelect" class="input-field">';
-        columnSelectHtml += '<option value="">-- اختر العمود --</option>';
-        headers.forEach((header, index) => {
-          columnSelectHtml += `<option value="${index}">${header}</option>`;
+        
+        let validNumbers = numbers.filter(num => validatePhoneNumber(num, region));
+        if (validNumbers.length !== numbers.length) {
+          const result = await Swal.fire({
+            icon: 'warning',
+            title: 'بعض الأرقام غير صحيحة',
+            text: 'المتابعة بالأرقام الصالحة فقط؟',
+            showCancelButton: true,
+            confirmButtonText: 'نعم',
+            cancelButtonText: 'لا'
+          });
+          if (!result.isConfirmed) return;
+          numbers = validNumbers;
+          if (numbers.length === 0) {
+            openModal("<p style='color: var(--error-color);'>لا توجد أرقام صالحة بعد التحقق.</p>");
+            return;
+          }
+        }
+        
+        numbers = numbers.map(num => num.startsWith("+") ? num : normalizePhoneNumber(num, dialCode, region));
+        localStorage.setItem("numbers", JSON.stringify(numbers));
+        
+        let segments = getMessageSegments();
+        if (segments.length > 0) {
+          localStorage.setItem("segments", JSON.stringify(segments));
+        } else {
+          localStorage.removeItem("segments");
+          localStorage.setItem("message", encodeURIComponent(message));
+        }
+        
+        closeModal();
+        showLottieAnimation();
+        Toastify({ text: "بدأت عملية المراسلة!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
+        
+        window.location.href = "send_messages.html";
+      }
+      
+      // تهيئة الواجهة عند تحميل الصفحة
+      document.addEventListener("DOMContentLoaded", function() {
+        $('#countrySelect').select2({
+          placeholder: "-- اختر الدولة --",
+          allowClear: true,
+          width: "100%",
+          dir: "rtl"
         });
-        columnSelectHtml += '</select>';
-        const fileUploadDiv = document.querySelector('.file-upload');
-        let columnSelectDiv = document.getElementById('columnSelectDiv');
-        if (!columnSelectDiv) {
-          columnSelectDiv = document.createElement('div');
-          columnSelectDiv.id = 'columnSelectDiv';
-          fileUploadDiv.appendChild(columnSelectDiv);
-        }
-        columnSelectDiv.innerHTML = columnSelectHtml;
-        window.excelData = jsonData;
-        document.getElementById("columnSelect").addEventListener("change", handleColumnSelection);
-      };
-      reader.readAsArrayBuffer(file);
-    }
-    
-    document.getElementById("fileInput").addEventListener("change", handleFile, false);
-    
-    function handleColumnSelection() {
-      const select = document.getElementById("columnSelect");
-      const colIndex = select.value;
-      if (colIndex === "") return;
-      const data = window.excelData;
-      if (!data || data.length < 2) {
-        Swal.fire({ icon: 'error', title: 'لا توجد بيانات كافية في الملف.' });
-        return;
+        Waves.attach('button');
+        Waves.init();
+        
+        loadDraft();
+        
+        // إرفاق معالجات الأحداث للأزرار باستخدام addEventListener
+        document.getElementById("startSplashBtn").addEventListener("click", hideSplash);
+        document.getElementById("saveDraftBtn").addEventListener("click", saveDraft);
+        document.getElementById("simulateSendBtn").addEventListener("click", simulateSend);
+        document.getElementById("validateNumbersBtn").addEventListener("click", validateNumbers);
+        document.getElementById("showInvalidNumbersBtn").addEventListener("click", showInvalidNumbers);
+        document.getElementById("startMessagingBtn").addEventListener("click", startMessaging);
+        document.getElementById("clearAllBtn").addEventListener("click", clearAll);
+        document.getElementById("modalClose").addEventListener("click", closeModal);
+        document.getElementById("addSegmentBtn").addEventListener("click", addSegment);
+      });
+      
+      // دالة لإخفاء شاشة الترحيب وعرض الحاوية الرئيسية
+      function hideSplash() {
+        const splash = document.getElementById('splash');
+        splash.style.opacity = 0;
+        setTimeout(() => {
+          splash.style.display = 'none';
+          document.getElementById('mainContainer').style.display = 'block';
+        }, 500);
       }
-      const phoneNumbers = [];
-      const index = parseInt(colIndex);
-      for (let i = 1; i < data.length; i++) {
-        const row = data[i];
-        if (row[index] != null && row[index].toString().trim() !== "") {
-          phoneNumbers.push(row[index].toString().trim());
-        }
+      
+      // دالة لمعالجة رفع الملف مع إضافة معالجة للأخطاء
+      function handleFile(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        showLoader();
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          try {
+            const data = new Uint8Array(event.target.result);
+            let workbook;
+            try {
+              workbook = XLSX.read(data, { type: 'array' });
+            } catch (error) {
+              hideLoader();
+              Swal.fire({ icon: 'error', title: 'خطأ في قراءة الملف!' });
+              return;
+            }
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+            hideLoader();
+            if (jsonData.length === 0) {
+              Swal.fire({ icon: 'error', title: 'الملف فارغ!' });
+              return;
+            }
+            const headers = jsonData[0];
+            let columnSelectHtml = '<label for="columnSelect">اختر العمود الذي يحتوي على الأرقام:</label>';
+            columnSelectHtml += '<select id="columnSelect" class="input-field">';
+            columnSelectHtml += '<option value="">-- اختر العمود --</option>';
+            headers.forEach((header, index) => {
+              columnSelectHtml += `<option value="${index}">${header}</option>`;
+            });
+            columnSelectHtml += '</select>';
+            const fileUploadDiv = document.querySelector('.file-upload');
+            let columnSelectDiv = document.getElementById('columnSelectDiv');
+            if (!columnSelectDiv) {
+              columnSelectDiv = document.createElement('div');
+              columnSelectDiv.id = 'columnSelectDiv';
+              fileUploadDiv.appendChild(columnSelectDiv);
+            }
+            columnSelectDiv.innerHTML = columnSelectHtml;
+            window.excelData = jsonData;
+            document.getElementById("columnSelect").addEventListener("change", handleColumnSelection);
+          } catch (error) {
+            hideLoader();
+            Swal.fire({ icon: 'error', title: 'حدث خطأ أثناء معالجة الملف.' });
+          }
+        };
+        reader.readAsArrayBuffer(file);
       }
-      const numbersField = document.getElementById("numbers");
-      numbersField.value = phoneNumbers.join(" ");
-      formatNumbers();
-    }
-    
-    function hideSplash() {
-      const splash = document.getElementById('splash');
-      splash.style.opacity = 0;
-      setTimeout(() => {
-        splash.style.display = 'none';
-        const mainContainer = document.getElementById('mainContainer');
-        mainContainer.style.display = 'block';
-      }, 500);
-    }
+      
+      document.getElementById("fileInput").addEventListener("change", handleFile, false);
+    })();
   </script>
 </body>
 </html>
