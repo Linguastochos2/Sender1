@@ -42,6 +42,17 @@
       position: relative;
       animation: fadeIn 0.5s ease-in;
     }
+    /* نمط الوضع التلقائي (auto-fit) لملائمة الشاشة */
+    .auto-fit {
+      max-width: 100% !important;
+      width: 100% !important;
+      height: 100vh;
+      margin: 0;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 0.5rem;
+      overflow-y: auto;
+    }
     .header {
       display: flex;
       align-items: center;
@@ -304,6 +315,22 @@
       background: var(--primary);
       color: var(--light);
     }
+    /* زر مناسبة تلقائية للشاشة */
+    #autoFitButton {
+      background: var(--btn-bg, transparent);
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      padding: 0.45rem 0.65rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background var(--transition);
+      margin-left: 0.5rem;
+      font-size: 0.9rem;
+    }
+    #autoFitButton:hover {
+      background: var(--primary);
+      color: var(--light);
+    }
     @media (max-width: 768px) {
       .container {
         padding: 0.75rem;
@@ -465,6 +492,7 @@
     </div>
     <button id="manualReminderButton" class="action-btn btn-3d" aria-label="التذكير بالذكر">التذكير بالذكر</button>
     <button id="resetProgressButton" class="action-btn btn-outlined" aria-label="نسيت التقدم">نسيت التقدم</button>
+    <button id="autoFitButton" class="action-btn btn-outlined" aria-label="مناسبة تلقائية للشاشة">مناسبة تلقائية للشاشة</button>
     <div id="numbersList" class="numbers-list list-view card-size-medium"></div>
   </div>
   <div id="reminderModal" class="reminder-modal" style="display: none;">
@@ -681,6 +709,12 @@
     elements.remainingCount.textContent = numbers.length - state.sent;
     elements.progress.style.width = "0%";
     updateStickyStats();
+  });
+  
+  document.getElementById("autoFitButton").addEventListener("click", function() {
+    // تبديل وضع "auto-fit" على الحاوية لتناسب الشاشة
+    const container = document.querySelector('.container');
+    container.classList.toggle('auto-fit');
   });
   
   document.getElementById("returnButton").addEventListener("click", hideReminder);
