@@ -42,17 +42,6 @@
       position: relative;
       animation: fadeIn 0.5s ease-in;
     }
-    /* نمط الوضع التلقائي (auto-fit) لملائمة الشاشة */
-    .auto-fit {
-      max-width: 100% !important;
-      width: 100% !important;
-      height: 100vh;
-      margin: 0;
-      border-radius: 0;
-      box-shadow: none;
-      padding: 0.5rem;
-      overflow-y: auto;
-    }
     .header {
       display: flex;
       align-items: center;
@@ -140,7 +129,7 @@
     /* لوحة التخصيص */
     .customization-panel {
       display: flex;
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
       justify-content: space-between;
       gap: var(--spacing);
       margin-bottom: var(--spacing);
@@ -150,6 +139,8 @@
       box-shadow: 0 8px 4px rgba(0,0,0,0.1);
     }
     .customization-option {
+      flex: 1 1 30%;
+      min-width: 150px;
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -712,9 +703,11 @@
   });
   
   document.getElementById("autoFitButton").addEventListener("click", function() {
-    // تبديل وضع "auto-fit" على الحاوية لتناسب الشاشة
+    // ضبط أبعاد الحاوية لتناسب شاشة المستخدم
     const container = document.querySelector('.container');
-    container.classList.toggle('auto-fit');
+    container.style.width = window.innerWidth + "px";
+    container.style.height = window.innerHeight + "px";
+    container.style.margin = "0";
   });
   
   document.getElementById("returnButton").addEventListener("click", hideReminder);
