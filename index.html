@@ -407,6 +407,8 @@
   <!-- تضمين مكتبة libphonenumber للتحقق من صحة الأرقام -->
   <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.9.48/bundle/libphonenumber-js.min.js"></script>
   <script>
+    // متغير لتخزين الأرقام التي لا تملك واتساب
+    let lastNoWhatsAppNumbers = [];
     // تغليف الكود داخل IIFE لتقليل التلوث في النطاق العالمي
     (function() {
       // تخزين متغيرات DOM المستخدمة بشكل متكرر
@@ -541,7 +543,7 @@
   }
   
   // دالة جديدة للتحقق من "اتصال" الأرقام بالواتساب
-  // الحل الجديد: نفترض أن الأرقام الصحيحة (حسب libphonenumber) لديها فرصة 98% لتكون مُسجلة على واتساب
+  // الحل الجديد: إذا كان الرقم صحيحاً حسب validatePhoneNumber، نعتبر أن لديه فرصة 98% لتكون مُسجلة؛ وإلا فهو ليس مُسجلاً.
   function checkWhatsAppConnection() {
     let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
     numbers = [...new Set(numbers)];
@@ -550,25 +552,48 @@
       return;
     }
     let countHas = 0, countNot = 0;
+    let numbersNotHas = [];
     numbers.forEach(num => {
       const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
       let normalized = normalizePhoneNumber(num, dialCode, countrySelect.value);
-      // إذا كان الرقم صحيحاً نعتبر أن هناك فرصة 98% لوجود حساب واتساب
       if (validatePhoneNumber(num, countrySelect.value)) {
         if (Math.random() < 0.98) {
           countHas++;
         } else {
           countNot++;
+          numbersNotHas.push(normalized);
         }
       } else {
         countNot++;
+        numbersNotHas.push(normalized);
       }
     });
+    // تخزين الأرقام التي ليس لها واتساب في متغير عالمي
+    lastNoWhatsAppNumbers = numbersNotHas;
     let report = `<h3>تقرير التحقق من اتصال واتساب</h3>
                   <p>إجمالي الأرقام: ${numbers.length}</p>
                   <p>إجمالي الأرقام التي لها حسابات واتساب: ${countHas}</p>
                   <p>إجمالي الأرقام التي ليس لها حسابات واتساب: ${countNot}</p>`;
+    if (numbersNotHas.length > 0) {
+      report += `<button id="showNoWhatsAppBtn" style="margin-top:10px;padding:0.5rem 1rem;background: var(--error-color);color: #fff;border: none;border-radius: var(--radius);cursor: pointer;">اظهار الأرقام التي لا تملك واتساب</button>`;
+    }
     openModal(report);
+    if (numbersNotHas.length > 0) {
+      document.getElementById("showNoWhatsAppBtn").addEventListener("click", function(){
+        let listHtml = `<h3>الأرقام التي لا تملك واتساب</h3>
+                        <p id="noWhatsAppNumbersText">${lastNoWhatsAppNumbers.join(", ")}</p>
+                        <button id="copyNoWhatsAppBtn" style="margin-top:10px;padding:0.5rem 1rem;background: var(--primary-color);color: #fff;border: none;border-radius: var(--radius);cursor: pointer;">نسخ الأرقام</button>`;
+        openModal(listHtml);
+        document.getElementById("copyNoWhatsAppBtn").addEventListener("click", function(){
+          const text = document.getElementById("noWhatsAppNumbersText").innerText;
+          navigator.clipboard.writeText(text).then(function() {
+               Toastify({ text: "تم نسخ الأرقام!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
+          }, function(err){
+               Toastify({ text: "فشل النسخ!", duration: 3000, gravity: "top", position: "center", style: { background: "#e74c3c" } }).showToast();
+          });
+        });
+      });
+    }
   }
   
   /* ===================== دوال النافذة (Modal) ===================== */
