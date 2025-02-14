@@ -288,6 +288,24 @@
       transform: scale(1.05);
       box-shadow: 0 6px 12px rgba(0,0,0,0.3);
     }
+    /* تصميم زر بدء المراسلة الذاتية */
+    #startAutoMessagingButton {
+      background: linear-gradient(90deg, #007bff, #0056b3);
+      color: var(--light);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+      min-width: 160px;
+      margin: 1rem 0;
+      font-size: 1rem;
+    }
+    #startAutoMessagingButton:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
     @media (max-width: 768px) {
       .container {
         padding: 0.75rem;
@@ -447,6 +465,8 @@
         </select>
       </div>
     </div>
+    <!-- زر بدء المراسلة الذاتية -->
+    <button id="startAutoMessagingButton" class="action-btn btn-3d" aria-label="بدء المراسلة الذاتية">بدء المراسلة الذاتية</button>
     <button id="manualReminderButton" class="action-btn btn-3d" aria-label="التذكير بالذكر">التذكير بالذكر</button>
     <div id="numbersList" class="numbers-list list-view card-size-medium"></div>
   </div>
@@ -472,7 +492,10 @@
       const savedSent = localStorage.getItem('sentCount');
       if (savedSent) { state.sent = JSON.parse(savedSent); }
       const savedSentNumbers = localStorage.getItem('sentNumbers');
-      if (savedSentNumbers) { state.sentNumbers = new Set(JSON.parse(savedSentNumbers)); }const elements = {
+      if (savedSentNumbers) { state.sentNumbers = new Set(JSON.parse(savedSentNumbers)); }// متغير لتحديد ما إذا كان وضع المراسلة الذاتية شغالاً
+  let autoMessagingRunning = false;
+  
+  const elements = {
     numbersList: document.getElementById('numbersList'),
     progress: document.getElementById('progress'),
     totalCount: document.getElementById('totalCount'),
@@ -529,7 +552,10 @@
       btn.innerHTML = 'مراسلة الرقم مرة أخرى';
     }
     btn.addEventListener('click', function() {
-      handleSend(number, index, btn);
+      // في حالة تشغيل الأتمتة يتم تجاهل الإجراء اليدوي
+      if (!autoMessagingRunning) {
+        handleSend(number, index, btn);
+      }
     });
     card.appendChild(btn);
     
@@ -587,19 +613,21 @@
     btn.innerHTML = btn.innerHTML.replace('مراسلة', 'جاري الإرسال...');
     try {
       await sendMessage(number, index);
-      updateStatus(true, btn);
+      // تحديث الحالة في الوضع اليدوي باستخدام الزر
+      updateStatus(null, number, index, true, btn);
     } catch (error) {
-      updateStatus(false, btn);
+      updateStatus(null, number, index, false, btn);
       console.error('فشل الإرسال:', error);
     } finally {
       state.processing.delete(number);
     }
   }
   
-  function updateStatus(success, btn) {
+  // دالة لتحديث الحالة؛ إذا كان الزر غير موجود فهذا يعني أن العملية جارية في الوضع الآلي
+  function updateStatus(dummy, number, index, success, btn) {
     if (success) {
-      if (!state.sentNumbers.has(btn.getAttribute('data-number'))) {
-        state.sentNumbers.add(btn.getAttribute('data-number'));
+      if (!state.sentNumbers.has(number)) {
+        state.sentNumbers.add(number);
         state.sent++;
       }
     }
@@ -607,23 +635,47 @@
     elements.remainingCount.textContent = numbers.length - state.sent;
     const progressPercent = numbers.length > 0 ? (state.sent / numbers.length) * 100 : 0;
     elements.progress.style.width = progressPercent + "%";
-    btn.classList.remove('whatsapp-btn');
-    if (success) {
-      btn.classList.add('sent-status', 'status-btn');
-      btn.innerHTML = 'مراسلة الرقم مرة أخرى';
-    } else {
-      btn.classList.add('remaining-status', 'status-btn');
-      const remaining = numbers.length - state.sent;
-      btn.innerHTML = `المتبقي: ${remaining}<br><small style="display:block;font-size:0.8em">انقر للمحاولة مجددًا</small>`;
-    }
-    btn.disabled = false;
-    btn.addEventListener('click', function() {
-      handleSend(btn.getAttribute('data-number'), parseInt(btn.getAttribute('data-index')), btn);
-    });
     updateStickyStats();
     // حفظ التقدم تلقائيًا في التخزين المحلي
     localStorage.setItem('sentCount', JSON.stringify(state.sent));
     localStorage.setItem('sentNumbers', JSON.stringify([...state.sentNumbers]));
+    // في الوضع اليدوي يتم تحديث واجهة الرقم المعني
+    if (btn) {
+      btn.classList.remove('whatsapp-btn');
+      if (success) {
+        btn.classList.add('sent-status', 'status-btn');
+        btn.innerHTML = 'مراسلة الرقم مرة أخرى';
+      } else {
+        btn.classList.add('remaining-status', 'status-btn');
+        const remaining = numbers.length - state.sent;
+        btn.innerHTML = `المتبقي: ${remaining}<br><small style="display:block;font-size:0.8em">انقر للمحاولة مجددًا</small>`;
+      }
+      btn.disabled = false;
+      btn.addEventListener('click', function() {
+        handleSend(btn.getAttribute('data-number'), parseInt(btn.getAttribute('data-index')), btn);
+      });
+    } else {
+      // في الوضع الآلي نقوم بإعادة عرض القائمة لتحديث حالة الأزرار
+      renderNumbers();
+    }
+  }
+  
+  // دالة لتحديث الحالة في وضع المراسلة الذاتية (دون الحاجة لزر)
+  function updateStatusAuto(number, index, success) {
+    if (success) {
+      if (!state.sentNumbers.has(number)) {
+        state.sentNumbers.add(number);
+        state.sent++;
+      }
+    }
+    elements.successCount.textContent = state.sent;
+    elements.remainingCount.textContent = numbers.length - state.sent;
+    const progressPercent = numbers.length > 0 ? (state.sent / numbers.length) * 100 : 0;
+    elements.progress.style.width = progressPercent + "%";
+    updateStickyStats();
+    localStorage.setItem('sentCount', JSON.stringify(state.sent));
+    localStorage.setItem('sentNumbers', JSON.stringify([...state.sentNumbers]));
+    renderNumbers();
   }
   
   const reminderPhrases = ["احمد الله", "صلي على رسول الله", "كبر الله", "استغفر الله"];
@@ -701,6 +753,51 @@
   setInterval(function() {
     showReminder("auto");
   }, 600000);
+  
+  // دالة بدء المراسلة الذاتية
+  async function startAutoMessaging() {
+    autoMessagingRunning = true;
+    const autoBtn = document.getElementById('startAutoMessagingButton');
+    autoBtn.disabled = true;
+    // اجعل زر بدء المراسلة الذاتية يظهر رسالة تأكيد تطلب إذن التحكم الذاتي
+    const { value: permission } = await Swal.fire({
+      title: 'إذن التحكم الذاتي',
+      text: 'هل تسمح للأداة بالتحكم الذاتي لبدء المراسلة تلقائيًا؟',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'نعم، ابدأ',
+      cancelButtonText: 'لا'
+    });
+    if (!permission) {
+      autoMessagingRunning = false;
+      autoBtn.disabled = false;
+      return;
+    }
+    // البدء في المراسلة التتابعية للأرقام التي لم يتم مراسلتها بعد
+    for (let i = 0; i < numbers.length; i++) {
+      const number = numbers[i];
+      if (state.sentNumbers.has(number)) continue;
+      try {
+        await sendMessage(number, i);
+        updateStatusAuto(number, i, true);
+      } catch (error) {
+        console.error('فشل الإرسال للرقم', number, error);
+        updateStatusAuto(number, i, false);
+      }
+      // تأخير بسيط بين الرسائل (مثلاً 2 ثانية)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+    Swal.fire({ icon: 'success', title: 'انتهت المراسلة الذاتية!' });
+    autoMessagingRunning = false;
+    autoBtn.disabled = false;
+  }
+  
+  document.getElementById('startAutoMessagingButton').addEventListener('click', function() {
+    // إذا كانت المراسلة الذاتية غير قيد التشغيل
+    if (!autoMessagingRunning) {
+      startAutoMessaging();
+    }
+  });
 })();
 
   </script>
