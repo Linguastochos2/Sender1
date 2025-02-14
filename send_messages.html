@@ -461,12 +461,18 @@
   </div>
   <script>
     (function() {
+      // استرجاع قائمة الأرقام من التخزين المحلي
       const numbers = JSON.parse(localStorage.getItem('numbers')) || [];
+      // تعريف حالة التقدم مع تحميل البيانات المحفوظة إن وجدت
       const state = {
         sent: 0,
         processing: new Set(),
         sentNumbers: new Set()
-      };const elements = {
+      };
+      const savedSent = localStorage.getItem('sentCount');
+      if (savedSent) { state.sent = JSON.parse(savedSent); }
+      const savedSentNumbers = localStorage.getItem('sentNumbers');
+      if (savedSentNumbers) { state.sentNumbers = new Set(JSON.parse(savedSentNumbers)); }const elements = {
     numbersList: document.getElementById('numbersList'),
     progress: document.getElementById('progress'),
     totalCount: document.getElementById('totalCount'),
@@ -516,6 +522,12 @@
       </svg>
       مراسلة
     `;
+    // إذا كان الرقم قد تم إرساله مسبقًا نقوم بتحديث الزر وفقاً لذلك
+    if (state.sentNumbers.has(number)) {
+      btn.classList.remove('whatsapp-btn');
+      btn.classList.add('sent-status', 'status-btn');
+      btn.innerHTML = 'مراسلة الرقم مرة أخرى';
+    }
     btn.addEventListener('click', function() {
       handleSend(number, index, btn);
     });
@@ -609,6 +621,9 @@
       handleSend(btn.getAttribute('data-number'), parseInt(btn.getAttribute('data-index')), btn);
     });
     updateStickyStats();
+    // حفظ التقدم تلقائيًا في التخزين المحلي
+    localStorage.setItem('sentCount', JSON.stringify(state.sent));
+    localStorage.setItem('sentNumbers', JSON.stringify([...state.sentNumbers]));
   }
   
   const reminderPhrases = ["احمد الله", "صلي على رسول الله", "كبر الله", "استغفر الله"];
@@ -690,4 +705,4 @@
 
   </script>
 </body>
-  </html>
+</html>
