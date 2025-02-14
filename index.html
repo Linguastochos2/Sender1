@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lingua Stochos Sender</title>
+  <title>أداة المراسلة الشاملة</title>
   
   <!-- جلب خط Cairo للواجهة العربية -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
@@ -328,13 +328,13 @@
   <!-- واجهة الترحيب -->
   <div id="splash" class="animate__animated animate__fadeIn">
     <h1>أهلاً وسهلاً!</h1>
-    <p>مرحباً بك في أداة Lingua Stochos Sender الذكية</p>
+    <p>مرحباً بك في أداة المراسلة الشاملة</p>
     <button onclick="hideSplash()">ابدأ الآن</button>
   </div>
   
   <!-- الحاوية الرئيسية للأداة (مخفية في البداية) -->
   <div class="container animate__animated animate__fadeIn" id="mainContainer" style="display: none;">
-    <h2 class="tool-logo">Lingua Stochos Sender</h2>
+    <h2 class="tool-logo">أداة المراسلة الشاملة</h2>
     
     <!-- منطقة عرض رسائل الخطأ -->
     <div id="errorDisplay"></div>
@@ -513,14 +513,34 @@
       const result = await Swal.fire({
         icon: 'question',
         title: 'مسح الكل',
-        text: 'هل أنت متأكد من مسح كل الأرقام؟',
+        text: 'هل أنت متأكد من مسح جميع البيانات المدخلة؟',
         showCancelButton: true,
         confirmButtonText: 'نعم',
         cancelButtonText: 'لا'
       });
       if (!result.isConfirmed) return;
+      
+      // مسح كافة الحقول
       document.getElementById("numbers").value = "";
+      document.getElementById("message").value = "";
+      document.getElementById("messageSegments").innerHTML = "";
+      document.getElementById("fileInput").value = "";
+      document.getElementById("columnSelectDiv").innerHTML = "";
+      
+      updateMessageFieldVisibility();
       formatNumbers();
+      
+      // إزالة البيانات المخزنة محلياً
+      localStorage.removeItem("draftNumbers");
+      localStorage.removeItem("draftMessage");
+      localStorage.removeItem("draftCountry");
+      localStorage.removeItem("draftDialCode");
+      localStorage.removeItem("numbers");
+      localStorage.removeItem("message");
+      localStorage.removeItem("segments");
+      localStorage.removeItem("countryCode");
+      
+      Toastify({ text: "تم مسح كل البيانات!", duration: 3000, gravity: "top", position: "center", style: { background: "#e74c3c" } }).showToast();
     }
     
     /* ===================== دوال النافذة (Modal) ===================== */
@@ -555,16 +575,18 @@
         </div>
         <div style="margin-top: 0.5rem;">
           <label>نص الرسالة:</label>
-          <input type="text" class="segment-text" placeholder="أدخل نص الرسالة" style="width: 100%;">
+          <textarea class="segment-text input-field" rows="3" placeholder="أدخل نص الرسالة" style="width: 100%;"></textarea>
         </div>
         <button type="button" onclick="removeSegment(this)" style="margin-top: 0.5rem; background: var(--error-color); color: #fff; border: none; padding: 0.25rem 0.5rem; border-radius: var(--radius);">حذف النطاق</button>
       `;
       container.appendChild(segmentDiv);
+      updateMessageFieldVisibility();
     }
     
     function removeSegment(btn) {
       const segmentDiv = btn.parentElement;
       segmentDiv.remove();
+      updateMessageFieldVisibility();
     }
     
     function getMessageSegments() {
@@ -579,6 +601,20 @@
         }
       });
       return segments;
+    }
+    
+    // دالة لتحديث عرض خانة نص الرسالة بناءً على وجود نطاقات
+    function updateMessageFieldVisibility() {
+      const segments = document.querySelectorAll("#messageSegments .segment");
+      const messageField = document.getElementById("message");
+      const messageLabel = document.querySelector("label[for='message']");
+      if (segments.length > 0) {
+        messageField.style.display = "none";
+        if (messageLabel) messageLabel.style.display = "none";
+      } else {
+        messageField.style.display = "block";
+        if (messageLabel) messageLabel.style.display = "block";
+      }
     }
     
     /* ===================== دوال التحقق ===================== */
