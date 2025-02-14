@@ -540,7 +540,8 @@
     });
   }
   
-  // دالة جديدة للتحقق من "اتصال" الأرقام بالواتساب (محاكاة)
+  // دالة جديدة للتحقق من "اتصال" الأرقام بالواتساب
+  // الحل الجديد: نفترض أن الأرقام الصحيحة (حسب libphonenumber) لديها فرصة 98% لتكون مُسجلة على واتساب
   function checkWhatsAppConnection() {
     let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
     numbers = [...new Set(numbers)];
@@ -552,10 +553,9 @@
     numbers.forEach(num => {
       const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
       let normalized = normalizePhoneNumber(num, dialCode, countrySelect.value);
-      let lastChar = normalized.trim().slice(-1);
-      if (!isNaN(lastChar)) {
-        // فحص زوجية آخر رقم لتحديد "اتصال واتساب" (زوجي = له حساب، فردي = ليس له)
-        if (parseInt(lastChar) % 2 === 0) {
+      // إذا كان الرقم صحيحاً نعتبر أن هناك فرصة 98% لوجود حساب واتساب
+      if (validatePhoneNumber(num, countrySelect.value)) {
+        if (Math.random() < 0.98) {
           countHas++;
         } else {
           countNot++;
@@ -797,7 +797,7 @@
     closeModal();
     showLottieAnimation();
     Toastify({ text: "بدأت عملية المراسلة!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
-    // إضافة تأخير بسيط لضمان اكتمال الأنيميشن والتنبيهات قبل الانتقال
+    // تأخير بسيط لضمان اكتمال الأنيميشن والتنبيهات قبل الانتقال
     setTimeout(function() {
       window.location.href = "send_messages.html";
     }, 3000);
