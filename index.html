@@ -383,7 +383,6 @@
       <button id="saveDraftBtn" aria-label="حفظ المسودة">حفظ المسودة</button>
       <button id="validateNumbersBtn" aria-label="تحقق من صحة الأرقام">تحقق من صحة الأرقام</button>
       <button id="showInvalidNumbersBtn" aria-label="عرض الأرقام الغير صالحة">عرض الأرقام الغير صالحة</button>
-      <button id="checkWhatsAppBtn" aria-label="التحقق من اتصال واتساب">تحقق من واتساب</button>
       <button id="startMessagingBtn" aria-label="البدء في المراسلة">البدء في المراسلة</button>
       <button class="clear-btn" id="clearAllBtn" aria-label="مسح الكل">مسح الكل</button>
     </div>
@@ -407,8 +406,6 @@
   <!-- تضمين مكتبة libphonenumber للتحقق من صحة الأرقام -->
   <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.9.48/bundle/libphonenumber-js.min.js"></script>
   <script>
-    // متغير لتخزين الأرقام التي لا تملك واتساب
-    let lastNoWhatsAppNumbers = [];
     // تغليف الكود داخل IIFE لتقليل التلوث في النطاق العالمي
     (function() {
       // تخزين متغيرات DOM المستخدمة بشكل متكرر
@@ -540,160 +537,6 @@
           Toastify({ text: "فشل النسخ!", duration: 3000, gravity: "top", position: "center", style: { background: "#e74c3c" } }).showToast();
        });
     });
-  }
-  
-  // دالة جديدة للتحقق من "اتصال" الأرقام بالواتساب
-  // الحل الجديد: إذا كان الرقم صحيحاً حسب validatePhoneNumber، نعتبر أن لديه فرصة 98% لتكون مُسجلة؛ وإلا فهو ليس مُسجلاً.
-  function checkWhatsAppConnection() {
-    let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
-    numbers = [...new Set(numbers)];
-    if (numbers.length === 0) {
-      openModal("<p style='color: var(--error-color);'>لم يتم إدخال أرقام.</p>");
-      return;
-    }
-    let countHas = 0, countNot = 0;
-    let numbersNotHas = [];
-    numbers.forEach(num => {
-      const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
-      let normalized = normalizePhoneNumber(num, dialCode, countrySelect.value);
-      if (validatePhoneNumber(num, countrySelect.value)) {
-        if (Math.random() < 0.98) {
-          countHas++;
-        } else {
-          countNot++;
-          numbersNotHas.push(normalized);
-        }
-      } else {
-        countNot++;
-        numbersNotHas.push(normalized);
-      }
-    });
-    // تخزين الأرقام التي ليس لها واتساب في متغير عالمي
-    lastNoWhatsAppNumbers = numbersNotHas;
-    let report = `<h3>تقرير التحقق من اتصال واتساب</h3>
-                  <p>إجمالي الأرقام: ${numbers.length}</p>
-                  <p>إجمالي الأرقام التي لها حسابات واتساب: ${countHas}</p>
-                  <p>إجمالي الأرقام التي ليس لها حسابات واتساب: ${countNot}</p>`;
-    if (numbersNotHas.length > 0) {
-      report += `<button id="showNoWhatsAppBtn" style="margin-top:10px;padding:0.5rem 1rem;background: var(--error-color);color: #fff;border: none;border-radius: var(--radius);cursor: pointer;">اظهار الأرقام التي لا تملك واتساب</button>`;
-    }
-    openModal(report);
-    if (numbersNotHas.length > 0) {
-      document.getElementById("showNoWhatsAppBtn").addEventListener("click", function(){
-        let listHtml = `<h3>الأرقام التي لا تملك واتساب</h3>
-                        <p id="noWhatsAppNumbersText">${lastNoWhatsAppNumbers.join(", ")}</p>
-                        <button id="copyNoWhatsAppBtn" style="margin-top:10px;padding:0.5rem 1rem;background: var(--primary-color);color: #fff;border: none;border-radius: var(--radius);cursor: pointer;">نسخ الأرقام</button>`;
-        openModal(listHtml);
-        document.getElementById("copyNoWhatsAppBtn").addEventListener("click", function(){
-          const text = document.getElementById("noWhatsAppNumbersText").innerText;
-          navigator.clipboard.writeText(text).then(function() {
-               Toastify({ text: "تم نسخ الأرقام!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
-          }, function(err){
-               Toastify({ text: "فشل النسخ!", duration: 3000, gravity: "top", position: "center", style: { background: "#e74c3c" } }).showToast();
-          });
-        });
-      });
-    }
-  }
-  
-  /* ===================== دوال النافذة (Modal) ===================== */
-  function openModal(content) {
-    const modalBody = document.getElementById("modalBody");
-    const modal = document.getElementById("modal");
-    modalBody.innerHTML = content;
-    modal.style.display = "flex";
-  }
-  
-  function closeModal() {
-    document.getElementById("modalBody").innerHTML = "";
-    document.getElementById("modal").style.display = "none";
-  }
-  
-  window.addEventListener("click", function(e) {
-    const modal = document.getElementById("modal");
-    if (e.target === modal) { closeModal(); }
-  });
-  
-  /* ===================== دوال تحديد النطاقات ===================== */
-  function addSegment() {
-    const segmentDiv = document.createElement("div");
-    segmentDiv.classList.add("segment");
-    
-    // إنشاء عناصر النطاق
-    const rangeDiv = document.createElement("div");
-    rangeDiv.innerHTML = `
-      <label>من الرقم:</label>
-      <input type="number" class="segment-start" min="1" style="width: 80px;">
-      <label>إلى الرقم:</label>
-      <input type="number" class="segment-end" min="1" style="width: 80px;">
-    `;
-    
-    const textDiv = document.createElement("div");
-    textDiv.style.marginTop = "0.5rem";
-    const textLabel = document.createElement("label");
-    textLabel.textContent = "نص الرسالة:";
-    const textArea = document.createElement("textarea");
-    textArea.classList.add("segment-text", "input-field");
-    textArea.rows = 3;
-    textArea.placeholder = "أدخل نص الرسالة";
-    textArea.style.width = "100%";
-    textDiv.appendChild(textLabel);
-    textDiv.appendChild(textArea);
-    
-    // إنشاء زر الحذف بدون حدث inline
-    const removeBtn = document.createElement("button");
-    removeBtn.type = "button";
-    removeBtn.style.marginTop = "0.5rem";
-    removeBtn.style.background = "var(--error-color)";
-    removeBtn.style.color = "#fff";
-    removeBtn.style.border = "none";
-    removeBtn.style.padding = "0.25rem 0.5rem";
-    removeBtn.style.borderRadius = "var(--radius)";
-    removeBtn.textContent = "حذف النطاق";
-    removeBtn.addEventListener("click", function() {
-      removeSegment(removeBtn);
-    });
-    
-    segmentDiv.appendChild(rangeDiv);
-    segmentDiv.appendChild(textDiv);
-    segmentDiv.appendChild(removeBtn);
-    messageSegmentsContainer.appendChild(segmentDiv);
-    
-    updateMessageFieldVisibility();
-  }
-  
-  function removeSegment(btn) {
-    const segmentDiv = btn.parentElement;
-    segmentDiv.remove();
-    updateMessageFieldVisibility();
-  }
-  
-  function getMessageSegments() {
-    const segments = [];
-    const segmentDivs = document.querySelectorAll("#messageSegments .segment");
-    segmentDivs.forEach(seg => {
-      const start = seg.querySelector(".segment-start").value;
-      const end = seg.querySelector(".segment-end").value;
-      const text = seg.querySelector(".segment-text").value;
-      if(start && end && text) {
-        segments.push({ start: parseInt(start), end: parseInt(end), text: text });
-      }
-    });
-    return segments;
-  }
-  
-  // دالة لتحديث عرض خانة نص الرسالة بناءً على وجود نطاقات
-  function updateMessageFieldVisibility() {
-    const segments = document.querySelectorAll("#messageSegments .segment");
-    if (segments.length > 0) {
-      messageField.style.display = "none";
-      const messageLabel = document.querySelector("label[for='message']");
-      if (messageLabel) messageLabel.style.display = "none";
-    } else {
-      messageField.style.display = "block";
-      const messageLabel = document.querySelector("label[for='message']");
-      if (messageLabel) messageLabel.style.display = "block";
-    }
   }
   
   /* ===================== دوال التحقق ===================== */
@@ -965,7 +808,6 @@
     document.getElementById("saveDraftBtn").addEventListener("click", saveDraft);
     document.getElementById("validateNumbersBtn").addEventListener("click", validateNumbers);
     document.getElementById("showInvalidNumbersBtn").addEventListener("click", showInvalidNumbers);
-    document.getElementById("checkWhatsAppBtn").addEventListener("click", checkWhatsAppConnection);
     document.getElementById("startMessagingBtn").addEventListener("click", startMessaging);
     document.getElementById("clearAllBtn").addEventListener("click", clearAll);
     document.getElementById("modalClose").addEventListener("click", closeModal);
@@ -986,4 +828,4 @@
 
   </script>
 </body>
-</html>
+</html> 
