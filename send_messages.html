@@ -50,32 +50,27 @@
       gap: var(--spacing);
       margin-bottom: 1.5rem;
     }
-    /* زر الرجوع */
+    /* زر الرجوع الجديد */
     .back-btn {
-      background: linear-gradient(145deg, var(--primary), var(--primary-hover));
+      background-color: var(--primary);
       color: var(--light);
-      padding: 0.65rem;
+      padding: 0.5rem 1rem;
       border: none;
-      border-radius: 50%;
+      border-radius: 4px;
       cursor: pointer;
-      box-shadow: 3px 3px 6px rgba(0,0,0,0.2), -3px -3px 6px rgba(255,255,255,0.3);
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: background-color 0.3s ease;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .back-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
     }
     .back-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 5px 5px 10px rgba(0,0,0,0.3), -5px -5px 10px rgba(255,255,255,0.4);
-    }
-    .back-btn:active {
-      transform: translateY(1px);
-      box-shadow: 2px 2px 4px rgba(0,0,0,0.2), -2px -2px 4px rgba(255,255,255,0.3);
-    }
-    .header h1 {
-      font-size: 2rem;
-      font-weight: bold;
-      background: linear-gradient(90deg, var(--primary), var(--primary-hover));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: 0.5px;
+      background-color: var(--primary-hover);
     }
     .stats-grid {
       display: grid;
@@ -435,7 +430,12 @@
   </div>
   <div class="container">
     <div class="header">
-      <button class="back-btn" id="backBtn" aria-label="الرجوع">←</button>
+      <button class="back-btn" id="backBtn" aria-label="الرجوع">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 3L4 8L10 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        رجوع
+      </button>
       <h1>Lingua Stochos Sender</h1>
     </div>
     <div class="stats-grid">
