@@ -797,8 +797,10 @@
     closeModal();
     showLottieAnimation();
     Toastify({ text: "بدأت عملية المراسلة!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
-    
-    window.location.href = "send_messages.html";
+    // إضافة تأخير بسيط لضمان اكتمال الأنيميشن والتنبيهات قبل الانتقال
+    setTimeout(function() {
+      window.location.href = "send_messages.html";
+    }, 3000);
   }
   
   /* ===================== دوال رفع الملف وتحليل Excel/CSV ===================== */
