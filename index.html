@@ -2,38 +2,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lingua Stochos sender</title>  
-  <!-- إضافة الصورة كأيقونة للصفحة (Favicon) -->  
-  <link rel="icon" type="image/jpeg" href="https://github.com/Linguastochos2/Sender1/blob/main/IMG_20250214_145035_585.jpg?raw=true">  
-  <!-- جلب خط Cairo للواجهة العربية -->  
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">  
-  <!-- إضافة Font Awesome للأيقونات -->  
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-p/gnXOUq+gxxYlyDH0CFkQj3s8Q6Jd2MVV6FbC+LaoQwtLwPx+eUd8ZZ/CElibWhr1q/MPRiO6xZl3P2Z5A2pg==" crossorigin="anonymous" referrerpolicy="no-referrer" />  
-  <!-- Bootstrap CSS لتحسين التصميم والاستجابة -->  
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">  
-  <!-- مكتبة Toastify لإظهار إشعارات Toast -->  
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">  
-  <!-- Waves CSS لتأثير Ripple -->  
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-waves/0.7.6/waves.min.css">  
-  <!-- Animate.css لتأثيرات الحركة -->  
+  <title>Lingua Stochos sender</title>
+  <!-- إضافة الصورة كأيقونة للصفحة (Favicon) -->
+  <link rel="icon" type="image/jpeg" href="https://github.com/Linguastochos2/Sender1/blob/main/IMG_20250214_145035_585.jpg?raw=true">
+  <!-- جلب خط Cairo للواجهة العربية -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+  <!-- إضافة Font Awesome للأيقونات -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-p/gnXOUq+gxxYlyDH0CFkQj3s8Q6Jd2MVV6FbC+LaoQwtLwPx+eUd8ZZ/CElibWhr1q/MPRiO6xZl3P2Z5A2pg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Bootstrap CSS لتحسين التصميم والاستجابة -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- مكتبة Toastify لإظهار إشعارات Toast -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <!-- Waves CSS لتأثير Ripple -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-waves/0.7.6/waves.min.css">
+  <!-- Animate.css لتأثيرات الحركة -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-  <!-- تضمين مكتبة jQuery (ضرورية لـ Select2) -->  
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  
-  <!-- Select2 لتحسين قائمة الدول -->  
+  <!-- تضمين مكتبة jQuery (ضرورية لـ Select2) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Select2 لتحسين قائمة الدول -->
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>  
-  <!-- XLSX لمعالجة ملفات Excel -->  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>  
-  <!-- SweetAlert2 لتحسين التنبيهات -->  
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>  
-  <!-- Axios للتعامل مع طلبات HTTP (للتطوير المستقبلي) -->  
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>  
-  <!-- Toastify JS -->  
-  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>  
-  <!-- Waves JS -->  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/node-waves/0.7.6/waves.min.js"></script>  
-  <!-- Lottie لتأثيرات الرسوم المتحركة -->  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.4/lottie.min.js"></script>  
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <!-- XLSX لمعالجة ملفات Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- SweetAlert2 لتحسين التنبيهات -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Axios للتعامل مع طلبات HTTP (للتطوير المستقبلي) -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <!-- Toastify JS -->
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <!-- Waves JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/node-waves/0.7.6/waves.min.js"></script>
+  <!-- Lottie لتأثيرات الرسوم المتحركة -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.4/lottie.min.js"></script>
   <style>
     /* متغيرات الألوان والإعدادات العامة */
     :root {
@@ -383,7 +383,6 @@
       <button id="saveDraftBtn" aria-label="حفظ المسودة">حفظ المسودة</button>
       <button id="validateNumbersBtn" aria-label="تحقق من صحة الأرقام">تحقق من صحة الأرقام</button>
       <button id="showInvalidNumbersBtn" aria-label="عرض الأرقام الغير صالحة">عرض الأرقام الغير صالحة</button>
-      <!-- زر جديد للتحقق من اتصال الأرقام بالواتساب -->
       <button id="checkWhatsAppBtn" aria-label="التحقق من اتصال واتساب">تحقق من واتساب</button>
       <button id="startMessagingBtn" aria-label="البدء في المراسلة">البدء في المراسلة</button>
       <button class="clear-btn" id="clearAllBtn" aria-label="مسح الكل">مسح الكل</button>
@@ -555,7 +554,7 @@
       let normalized = normalizePhoneNumber(num, dialCode, countrySelect.value);
       let lastChar = normalized.trim().slice(-1);
       if (!isNaN(lastChar)) {
-        // استخدام فحص زوجية آخر رقم لتحديد "اتصال واتساب" (زوجي = له حساب، فردي = ليس له)
+        // فحص زوجية آخر رقم لتحديد "اتصال واتساب" (زوجي = له حساب، فردي = ليس له)
         if (parseInt(lastChar) % 2 === 0) {
           countHas++;
         } else {
@@ -802,6 +801,125 @@
     window.location.href = "send_messages.html";
   }
   
+  /* ===================== دوال رفع الملف وتحليل Excel/CSV ===================== */
+  function handleFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    showLoader();
+    const fileName = file.name.toLowerCase();
+    const reader = new FileReader();
+    if (fileName.endsWith('.csv')) {
+      // قراءة ملف CSV كنص
+      reader.onload = function(event) {
+        try {
+          const csvText = event.target.result;
+          const workbook = XLSX.read(csvText, { type: 'string' });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          hideLoader();
+          if (jsonData.length === 0) {
+            Swal.fire({ icon: 'error', title: 'الملف فارغ!' });
+            return;
+          }
+          window.excelData = jsonData;
+          const headers = jsonData[0];
+          let columnSelectHtml = '<label for="columnSelect">اختر العمود الذي يحتوي على الأرقام:</label>';
+          columnSelectHtml += '<select id="columnSelect" class="input-field">';
+          columnSelectHtml += '<option value="">-- اختر العمود --</option>';
+          headers.forEach((header, index) => {
+            columnSelectHtml += `<option value="${index}">${header}</option>`;
+          });
+          columnSelectHtml += '</select>';
+          const fileUploadDiv = document.querySelector('.file-upload');
+          let columnSelectDiv = document.getElementById('columnSelectDiv');
+          if (!columnSelectDiv) {
+            columnSelectDiv = document.createElement('div');
+            columnSelectDiv.id = 'columnSelectDiv';
+            fileUploadDiv.appendChild(columnSelectDiv);
+          }
+          columnSelectDiv.innerHTML = columnSelectHtml;
+          document.getElementById("columnSelect").addEventListener("change", handleColumnSelection);
+        } catch (error) {
+          hideLoader();
+          Swal.fire({ icon: 'error', title: 'حدث خطأ أثناء معالجة الملف.' });
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      // افتراضاً ملف Excel
+      reader.onload = function(event) {
+        try {
+          const data = new Uint8Array(event.target.result);
+          let workbook;
+          try {
+            workbook = XLSX.read(data, { type: 'array' });
+          } catch (error) {
+            hideLoader();
+            Swal.fire({ icon: 'error', title: 'خطأ في قراءة الملف!' });
+            return;
+          }
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          hideLoader();
+          if (jsonData.length === 0) {
+            Swal.fire({ icon: 'error', title: 'الملف فارغ!' });
+            return;
+          }
+          window.excelData = jsonData;
+          const headers = jsonData[0];
+          let columnSelectHtml = '<label for="columnSelect">اختر العمود الذي يحتوي على الأرقام:</label>';
+          columnSelectHtml += '<select id="columnSelect" class="input-field">';
+          columnSelectHtml += '<option value="">-- اختر العمود --</option>';
+          headers.forEach((header, index) => {
+            columnSelectHtml += `<option value="${index}">${header}</option>`;
+          });
+          columnSelectHtml += '</select>';
+          const fileUploadDiv = document.querySelector('.file-upload');
+          let columnSelectDiv = document.getElementById('columnSelectDiv');
+          if (!columnSelectDiv) {
+            columnSelectDiv = document.createElement('div');
+            columnSelectDiv.id = 'columnSelectDiv';
+            fileUploadDiv.appendChild(columnSelectDiv);
+          }
+          columnSelectDiv.innerHTML = columnSelectHtml;
+          document.getElementById("columnSelect").addEventListener("change", handleColumnSelection);
+        } catch (error) {
+          hideLoader();
+          Swal.fire({ icon: 'error', title: 'حدث خطأ أثناء معالجة الملف.' });
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  }
+  
+  // دالة استخراج الأرقام من العمود المختار بعد تنظيفها من أي أحرف غير رقمية (مع الحفاظ على علامة + إذا كانت موجودة)
+  function handleColumnSelection(e) {
+    const colIndex = parseInt(e.target.value);
+    if (isNaN(colIndex)) return;
+    let extractedNumbers = [];
+    // يبدأ من الصف الثاني لتجاوز رؤوس الأعمدة
+    for (let i = 1; i < window.excelData.length; i++) {
+      let row = window.excelData[i];
+      if (row && row[colIndex] !== undefined) {
+        let cellValue = String(row[colIndex]).trim();
+        // تنظيف القيمة: الاحتفاظ بعلامة + إذا كانت في البداية، وباقي الأرقام فقط
+        let cleaned = "";
+        if (cellValue[0] === '+') {
+          cleaned = '+' + cellValue.slice(1).replace(/\D/g, '');
+        } else {
+          cleaned = cellValue.replace(/\D/g, '');
+        }
+        if (cleaned.length > 0) {
+          extractedNumbers.push(cleaned);
+        }
+      }
+    }
+    numbersField.value = extractedNumbers.join(" ");
+    Toastify({ text: `تم استخراج ${extractedNumbers.length} رقم`, duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
+  }
+  
   // تهيئة الواجهة عند تحميل الصفحة
   document.addEventListener("DOMContentLoaded", function() {
     $('#countrySelect').select2({
@@ -825,6 +943,7 @@
     document.getElementById("clearAllBtn").addEventListener("click", clearAll);
     document.getElementById("modalClose").addEventListener("click", closeModal);
     document.getElementById("addSegmentBtn").addEventListener("click", addSegment);
+    document.getElementById("fileInput").addEventListener("change", handleFile, false);
   });
   
   // دالة لإخفاء شاشة الترحيب وعرض الحاوية الرئيسية
@@ -836,59 +955,6 @@
       document.getElementById('mainContainer').style.display = 'block';
     }, 500);
   }
-  
-  // دالة لمعالجة رفع الملف مع إضافة معالجة للأخطاء
-  function handleFile(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    showLoader();
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      try {
-        const data = new Uint8Array(event.target.result);
-        let workbook;
-        try {
-          workbook = XLSX.read(data, { type: 'array' });
-        } catch (error) {
-          hideLoader();
-          Swal.fire({ icon: 'error', title: 'خطأ في قراءة الملف!' });
-          return;
-        }
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        hideLoader();
-        if (jsonData.length === 0) {
-          Swal.fire({ icon: 'error', title: 'الملف فارغ!' });
-          return;
-        }
-        const headers = jsonData[0];
-        let columnSelectHtml = '<label for="columnSelect">اختر العمود الذي يحتوي على الأرقام:</label>';
-        columnSelectHtml += '<select id="columnSelect" class="input-field">';
-        columnSelectHtml += '<option value="">-- اختر العمود --</option>';
-        headers.forEach((header, index) => {
-          columnSelectHtml += `<option value="${index}">${header}</option>`;
-        });
-        columnSelectHtml += '</select>';
-        const fileUploadDiv = document.querySelector('.file-upload');
-        let columnSelectDiv = document.getElementById('columnSelectDiv');
-        if (!columnSelectDiv) {
-          columnSelectDiv = document.createElement('div');
-          columnSelectDiv.id = 'columnSelectDiv';
-          fileUploadDiv.appendChild(columnSelectDiv);
-        }
-        columnSelectDiv.innerHTML = columnSelectHtml;
-        window.excelData = jsonData;
-        document.getElementById("columnSelect").addEventListener("change", handleColumnSelection);
-      } catch (error) {
-        hideLoader();
-        Swal.fire({ icon: 'error', title: 'حدث خطأ أثناء معالجة الملف.' });
-      }
-    };
-    reader.readAsArrayBuffer(file);
-  }
-  
-  document.getElementById("fileInput").addEventListener("change", handleFile, false);
 })();
 
   </script>
