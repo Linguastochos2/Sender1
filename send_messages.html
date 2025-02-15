@@ -625,22 +625,27 @@
       }
       
       async function handleSend(number, index, btn) {
-        if (btn.disabled || state.processing.has(number)) return;
-        state.processing.add(number);
-        btn.disabled = true;
-        // تغيير لون الزر فور الضغط لتمييز الحالة
-        btn.style.backgroundColor = "var(--primary-hover)";
-        btn.innerHTML = btn.innerHTML.replace('مراسلة', 'جاري الإرسال...');
-        try {
-          await sendMessage(number, index);
-          updateStatus(true, btn);
-        } catch (error) {
-          updateStatus(false, btn);
-          console.error('فشل الإرسال:', error);
-        } finally {
-          state.processing.delete(number);
-        }
-      }
+    if (btn.disabled || state.processing.has(number)) return;
+
+    // تغيير لون الزر فور الضغط
+    btn.style.backgroundColor = "#FFD700"; // لون ذهبي كإشارة للإرسال
+    btn.style.color = "#000"; // تغيير النص إلى أسود ليكون واضحاً
+    btn.style.border = "1px solid #FFD700";
+
+    state.processing.add(number);
+    btn.disabled = true;
+    btn.innerHTML = btn.innerHTML.replace('مراسلة', 'جاري الإرسال...');
+
+    try {
+        await sendMessage(number, index);
+        updateStatus(true, btn);
+    } catch (error) {
+        updateStatus(false, btn);
+        console.error('فشل الإرسال:', error);
+    } finally {
+        state.processing.delete(number);
+    }
+}
       
       function updateStatus(success, btn) {
         if (success) {
