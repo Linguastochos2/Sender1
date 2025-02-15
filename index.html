@@ -1,6 +1,5 @@
-
-
-<!DOCTYPE html><html lang="ar">
+<!DOCTYPE html>
+<html lang="ar">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -89,6 +88,8 @@
       z-index: 2000;
       color: #fff;
       text-align: center;
+      /* تحسين مظهر شاشة الترحيب */
+      backdrop-filter: brightness(0.95);
     }
     #splash h1 {
       font-size: 3rem;
@@ -171,8 +172,15 @@
       margin-top: var(--spacing);
     }
     .action-buttons button { flex: 1; min-width: 8rem; }
-    .file-upload { margin-top: var(--spacing); }
-    /* تصميم النافذة المنبثقة (Modal) */
+    .file-upload { 
+      margin-top: var(--spacing);
+      /* تحسين مظهر رفع الملف */
+      border: 2px dashed var(--input-border);
+      padding: 1rem;
+      border-radius: var(--radius);
+      background: var(--input-bg);
+    }
+    /* تصميم النافذة المنبثقة (Modal) للتقارير */
     #modal {
       position: fixed;
       top: 0;
@@ -185,6 +193,8 @@
       justify-content: center;
       z-index: 1000;
       animation: fadeIn 0.3s;
+      /* إضافة تأثير التمويه للخلفية */
+      backdrop-filter: blur(5px);
     }
     #modalContent {
       background: var(--card-bg);
@@ -259,6 +269,10 @@
       margin: 0 10px;
       font-size: 2rem;
       text-decoration: none;
+      transition: transform 0.2s;
+    }
+    #socialLinks a:hover {
+      transform: scale(1.1);
     }
     #loader {
       position: fixed;
@@ -301,6 +315,29 @@
     }
     .segment input {
       margin-right: 0.5rem;
+    }
+    /* تحسين تباعد الحقول والعناصر لتعزيز تجربة المستخدم */
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+    .input-field {
+      margin-bottom: 1rem;
+    }
+    .segment div {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    /* تحسين مظهر الحاوية الرئيسية */
+    #mainContainer {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      box-shadow: var(--card-shadow);
     }
   </style>
 </head>
@@ -382,7 +419,7 @@
     <div id="columnSelectDiv"></div>
     <!-- أزرار الإجراءات الرئيسية -->
     <div class="action-buttons">
-      <button id="saveDraftBtn" aria-label="حفظ المسودة">حفظ المسودة</button>
+      <button id="saveDraftBtn" aria-label="حفظ التقدم">حفظ التقدم</button>
       <button id="validateNumbersBtn" aria-label="تحقق من صحة الأرقام">تحقق من صحة الأرقام</button>
       <button id="showInvalidNumbersBtn" aria-label="عرض الأرقام الغير صالحة">عرض الأرقام الغير صالحة</button>
       <button id="checkWhatsAppBtn" aria-label="التحقق من اتصال واتساب">تحقق من واتساب</button>
@@ -451,8 +488,8 @@
     localStorage.setItem("draftMessage", messageContent);
     localStorage.setItem("draftCountry", countrySelect.value);
     localStorage.setItem("draftDialCode", dialCode);
-    Swal.fire({ icon: 'success', title: 'تم حفظ المسودة!' });
-    Toastify({ text: "تم حفظ المسودة بنجاح!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
+    Swal.fire({ icon: 'success', title: 'تم حفظ التقدم!' });
+    Toastify({ text: "تم حفظ التقدمبنجاح!", duration: 3000, gravity: "top", position: "center", style: { background: "#1abc9c" } }).showToast();
   }
   
   function loadDraft() {
@@ -958,7 +995,6 @@
     }, 500);
   }
 })();
-
   </script>
 </body>
-</html>
+  </html>
