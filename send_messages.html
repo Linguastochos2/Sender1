@@ -11,16 +11,16 @@
   <style>
     /* تعريف المتغيرات الجديدة للألوان والأبعاد */
     :root {
-      --primary: #1abc9c;
-      --primary-hover: #16a085;
-      --secondary: #2c3e50;
-      --error: #dc3545;
-      --bg: #f8f9fa;
-      --light: #ffffff;
-      --shadow: 0 4px 8px rgba(0,0,0,0.1);
-      --radius: 12px;
-      --spacing: 1rem;
-      --transition: 0.3s;
+      --primary: #1abc9c;             /* أخضر */
+      --primary-hover: #16a085;         /* أخضر أغمق عند التحويم */
+      --secondary: #2c3e50;             /* رمادي داكن */
+      --error: #dc3545;                 /* أحمر */
+      --bg: #f8f9fa;                    /* خلفية فاتحة */
+      --light: #ffffff;                 /* أبيض */
+      --shadow: 0 4px 8px rgba(0,0,0,0.1); /* ظل خفيف */
+      --radius: 12px;                   /* نصف القطر للحدود */
+      --spacing: 1rem;                  /* مسافات داخلية وخارجية */
+      --transition: 0.3s;               /* سرعة الانتقال */
     }
     /* القواعد الأساسية */
     * {
@@ -35,9 +35,9 @@
       font-family: 'Cairo', sans-serif;
       line-height: 1.6;
     }
-    /* نمط الحاوية الرئيسية - تم تعديل max-width لتكون 800px ومحاذاتها وتباعدها كما في الكود الأول */
+    /* نمط الحاوية الرئيسية */
     .container {
-      max-width: 800px;
+      max-width: 750px;
       margin: 2rem auto;
       background: var(--light);
       border-radius: var(--radius);
@@ -246,13 +246,17 @@
       background: linear-gradient(90deg, var(--primary), var(--primary-hover));
       border: none;
       color: var(--light);
-      box-shadow: 0 10px 0 rgba(0,0,0,0.2), 0 8px 8px rgba(0,0,0,0.3);
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-      transition: transform 0.5s ease, box-shadow 0.25s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn-3d:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(0,0,0,0.3);
     }
     .btn-3d:active {
-      transform: translateY(4px);
-      box-shadow: 0 1px 0 rgba(0,0,0,0.2), 0 3px 5px rgba(0,0,0,0.3);
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     /* زر مسطح */
     .btn-flat {
@@ -310,22 +314,6 @@
       font-size: 0.9rem;
     }
     #resetProgressButton:hover {
-      background: var(--primary);
-      color: var(--light);
-    }
-    /* زر مناسبة تلقائية للشاشة */
-    #autoFitButton {
-      background: transparent;
-      border: 2px solid var(--primary);
-      color: var(--primary);
-      padding: 0.45rem 0.65rem;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: background var(--transition);
-      margin-left: 0.5rem;
-      font-size: 0.9rem;
-    }
-    #autoFitButton:hover {
       background: var(--primary);
       color: var(--light);
     }
@@ -403,10 +391,9 @@
     #manualButtons {
       margin-top: 1rem;
     }
-    /* استعلامات الوسائط لضبط التصميم على الأجهزة الصغيرة */
     @media (max-width: 768px) {
       .container {
-        padding: 1.5rem;
+        padding: 0.75rem;
       }
       .number-card {
         flex-direction: column;
@@ -415,14 +402,6 @@
       }
       .action-btn {
         width: 100%;
-      }
-    }
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 1.75rem;
-      }
-      button, input, textarea, select {
-        font-size: 0.9rem;
       }
     }
     @keyframes fadeIn {
@@ -510,7 +489,6 @@
     </div>
     <button id="manualReminderButton" class="action-btn btn-3d" aria-label="التذكير بالذكر">التذكير بالذكر</button>
     <button id="resetProgressButton" class="action-btn btn-outlined" aria-label="نسيان التقدم">نسيان التقدم</button>
-    <button id="autoFitButton" class="action-btn btn-outlined" aria-label="مناسبة تلقائية للشاشة">مناسبة تلقائية للشاشة</button>
     <div id="numbersList" class="numbers-list list-view card-size-medium"></div>
   </div>
   <div id="reminderModal" class="reminder-modal" style="display: none;">
@@ -752,14 +730,6 @@
         });
       });
       
-      document.getElementById("autoFitButton").addEventListener("click", function() {
-        const container = document.querySelector(".container");
-        container.style.width = "100vw";
-        container.style.height = "100vh";
-        container.style.margin = "0";
-        container.style.borderRadius = "0";
-      });
-      
       document.getElementById("returnButton").addEventListener("click", hideReminder);
       
       document.getElementById("backBtn").addEventListener("click", function() {
@@ -809,4 +779,4 @@
     })();
   </script>
 </body>
-        </html>
+</html>
