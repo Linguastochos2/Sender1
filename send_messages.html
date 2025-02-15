@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,7 @@
     /* تعريف المتغيرات الجديدة للألوان والأبعاد */
     :root {
       --primary: #1abc9c;             /* أخضر */
-      --primary-hover: #16a085;         /* أخضر أغمق عند التحويم */
+      --primary-hover: #FBB117;         /* أخضر أغمق عند التحويم */
       --secondary: #2c3e50;             /* رمادي داكن */
       --error: #dc3545;                 /* أحمر */
       --bg: #f8f9fa;                   /* خلفية فاتحة */
@@ -410,22 +410,12 @@
     body.sticky-visible {
       padding-top: 60px;
     }
-    /* ===================== القواعد الجديدة لتغيير لون زر المراسلة ===================== */
-    .sent-status,
-    .sent-status:hover,
-    .sent-status:active,
-    .sent-status:focus {
-      background-color: #4CAF50 !important;  /* اللون الجديد للأرقام المرسلة */
-      border: none !important;
+    /* قاعدة جديدة لتغيير لون الزر بعد إرساله (بغض النظر عن النمط) */
+    .action-btn.sent-status {
+      background-color: #6c757d !important;
+      border-color: #6c757d !important;
       color: #fff !important;
-    }
-    .remaining-status,
-    .remaining-status:hover,
-    .remaining-status:active,
-    .remaining-status:focus {
-      background-color: #F44336 !important;  /* لون بديل في حال الفشل/إعادة المحاولة */
-      border: none !important;
-      color: #fff !important;
+      box-shadow: none !important;
     }
   </style>
 </head>
@@ -644,7 +634,6 @@
     if (btn.disabled || state.processing.has(number)) return;
     state.processing.add(number);
     btn.disabled = true;
-    // تغيير اللون فور الضغط (لتأثير فوري) – سيتم استبداله بالقواعد الجديدة عند updateStatus
     btn.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-hover').trim();
     btn.innerHTML = btn.innerHTML.replace('مراسلة', 'جاري الإرسال...');
     try {
@@ -678,8 +667,6 @@
       const remaining = numbers.length - state.sent;
       btn.innerHTML = `المتبقي: ${remaining}<br><small style="display:block;font-size:0.8em">انقر للمحاولة مجددًا</small>`;
     }
-    // إزالة أي تعديل لون مدمج حتى تطبق قواعد CSS الجديدة
-    btn.style.backgroundColor = "";
     btn.disabled = false;
     btn.addEventListener('click', function() {
       handleSend(btn.getAttribute('data-number'), parseInt(btn.getAttribute('data-index')), btn);
