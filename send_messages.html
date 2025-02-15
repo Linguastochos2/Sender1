@@ -6,6 +6,8 @@
   <title>المرسل الذكي</title>
   <!-- إضافة خط Cairo للواجهة العربية -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+  <!-- تضمين مكتبة SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     /* تعريف المتغيرات الجديدة للألوان والأبعاد */
     :root {
@@ -638,6 +640,13 @@
         } catch (error) {
           updateStatus(false, btn);
           console.error('فشل الإرسال:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'فشل الإرسال',
+            text: error,
+            timer: 2000,
+            showConfirmButton: false
+          });
         } finally {
           state.processing.delete(number);
         }
@@ -702,14 +711,25 @@
         showReminder("manual");
       });
       
-      // تعديل زر "نسيان التقدم" ليحذف كل البيانات ويعيد تحميل الصفحة من البداية
+      // استخدام SweetAlert للتأكيد قبل حذف كل البيانات وإعادة تحميل الصفحة
       document.getElementById("resetProgressButton").addEventListener("click", function() {
-        localStorage.removeItem('numbers');
-        localStorage.removeItem('sent');
-        localStorage.removeItem('sentNumbers');
-        localStorage.removeItem('segments');
-        localStorage.removeItem('message');
-        location.reload();
+        Swal.fire({
+          title: 'هل أنت متأكد؟',
+          text: 'هل أنت متأكد من أنك تريد حذف كل التقدم؟ سيتم حذف كل البيانات ولن تتمكن من استرجاعها.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'نعم، احذف كل شيء!',
+          cancelButtonText: 'إلغاء'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            localStorage.removeItem('numbers');
+            localStorage.removeItem('sent');
+            localStorage.removeItem('sentNumbers');
+            localStorage.removeItem('segments');
+            localStorage.removeItem('message');
+            location.reload();
+          }
+        });
       });
       
       document.getElementById("autoFitButton").addEventListener("click", function() {
