@@ -241,23 +241,6 @@
     .action-btn:hover {
       background: var(--primary-hover);
     }
-    /* زر 3D */
-    .btn-3d {
-      background: linear-gradient(90deg, var(--primary), var(--primary-hover));
-      border: none;
-      color: var(--light);
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .btn-3d:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 8px rgba(0,0,0,0.3);
-    }
-    .btn-3d:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
     /* زر مسطح */
     .btn-flat {
       box-shadow: none;
@@ -283,23 +266,22 @@
     .btn-soft:hover {
       background: rgba(40,167,69,0.25);
     }
-    /* زر التذكير اليدوي */
+    /* زر التذكير اليدوي (المُحدث ليستخدم النمط المسطح) */
     #manualReminderButton {
-      background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+      background: var(--primary);
       color: var(--light);
       border: none;
       padding: 0.75rem 1.5rem;
       border-radius: 50px;
       cursor: pointer;
       transition: transform var(--transition), box-shadow var(--transition);
-      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+      box-shadow: none;
       min-width: 120px;
       margin: 1rem 0;
       font-size: 1rem;
     }
     #manualReminderButton:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+      background: var(--primary-hover);
     }
     /* زر إعادة تعيين التقدم */
     #resetProgressButton {
@@ -346,7 +328,7 @@
     }
     /* حالة إرسال الرقم بنجاح */
     .sent-status {
-      background-color: #F87431 !important;
+      background-color: #7E2217 !important;
     }
     /* أنماط مودال التذكير */
     .reminder-modal {
@@ -480,14 +462,13 @@
       <div class="customization-option">
         <label for="buttonStyleSelect">النمط:</label>
         <select id="buttonStyleSelect">
-          <option value="btn-3d" selected>3D</option>
-          <option value="btn-flat">مسطح</option>
+          <option value="btn-flat" selected>مسطح</option>
           <option value="btn-outlined">محدد</option>
           <option value="btn-soft">ناعم</option>
         </select>
       </div>
     </div>
-    <button id="manualReminderButton" class="action-btn btn-3d" aria-label="التذكير بالذكر">التذكير بالذكر</button>
+    <button id="manualReminderButton" class="action-btn btn-flat" aria-label="التذكير بالذكر">التذكير بالذكر</button>
     <button id="resetProgressButton" class="action-btn btn-outlined" aria-label="نسيان التقدم">نسيان التقدم</button>
     <div id="numbersList" class="numbers-list list-view card-size-medium"></div>
   </div>
@@ -749,7 +730,7 @@
         const btnStyle = document.getElementById('buttonStyleSelect').value;
         const buttons = elements.numbersList.querySelectorAll('.action-btn');
         buttons.forEach(btn => {
-          btn.classList.remove('btn-3d', 'btn-flat', 'btn-outlined', 'btn-soft');
+          btn.classList.remove('btn-flat', 'btn-outlined', 'btn-soft');
           btn.classList.add(btnStyle);
         });
       }
@@ -758,7 +739,7 @@
       document.getElementById('cardSizeSelect').addEventListener('change', updateCustomization);
       document.getElementById('buttonStyleSelect').addEventListener('change', updateCustomization);
       
-      // استدعاء updateCustomization عند تحميل الصفحة لتطبيق النمط الافتراضي (3D)
+      // استدعاء updateCustomization عند تحميل الصفحة لتطبيق النمط الافتراضي (مسطح)
       updateCustomization();
       
       const stickyStats = document.getElementById('stickyStats');
