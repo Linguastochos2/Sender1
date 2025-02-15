@@ -247,10 +247,12 @@
       transform: translateY(4px);
       box-shadow: 0 1px 0 rgba(0,0,0,0.2), 0 3px 5px rgba(0,0,0,0.3);
     }
+    /* زر مسطح */
     .btn-flat {
       box-shadow: none;
       text-shadow: none;
     }
+    /* زر محدد */
     .btn-outlined {
       background: transparent;
       border: 2px solid var(--primary);
@@ -260,6 +262,7 @@
       background: var(--primary);
       color: var(--light);
     }
+    /* زر ناعم */
     .btn-soft {
       background: rgba(40,167,69,0.15);
       color: var(--primary);
@@ -569,7 +572,6 @@
         btn.addEventListener('click', function() {
           handleSend(number, index, btn);
         });
-        // حفظ حالة الأزرار: إذا تم مراسلة الرقم مسبقاً
         if (state.sentNumbers.has(number)) {
             btn.classList.remove('whatsapp-btn');
             btn.classList.add('sent-status', 'status-btn');
@@ -628,7 +630,6 @@
         if (btn.disabled || state.processing.has(number)) return;
         state.processing.add(number);
         btn.disabled = true;
-        // تغيير لون الزر بالكامل فور الضغط باستخدام القيمة المحسوبة من --primary-hover
         btn.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-hover').trim();
         btn.innerHTML = btn.innerHTML.replace('مراسلة', 'جاري الإرسال...');
         try {
@@ -667,7 +668,6 @@
           handleSend(btn.getAttribute('data-number'), parseInt(btn.getAttribute('data-index')), btn);
         });
         updateStickyStats();
-        // حفظ التقدم بما في ذلك الأرقام المرسلة وحالة الأزرار
         localStorage.setItem('sent', state.sent);
         localStorage.setItem('sentNumbers', JSON.stringify(Array.from(state.sentNumbers)));
       }
@@ -703,7 +703,6 @@
       });
       
       document.getElementById("resetProgressButton").addEventListener("click", function() {
-        // إعادة تعيين التقدم وحذف البيانات المحفوظة
         state.sent = 0;
         state.sentNumbers = new Set();
         localStorage.removeItem('sent');
@@ -714,10 +713,8 @@
         updateStickyStats();
       });
       
-      // زر "مناسبة تلقائية للشاشة"
       document.getElementById("autoFitButton").addEventListener("click", function() {
         const container = document.querySelector(".container");
-        // تعديل الحاوية لتناسب الشاشة بالكامل
         container.style.width = "100vw";
         container.style.height = "100vh";
         container.style.margin = "0";
@@ -752,7 +749,9 @@
       document.getElementById('cardSizeSelect').addEventListener('change', updateCustomization);
       document.getElementById('buttonStyleSelect').addEventListener('change', updateCustomization);
       
-      // إضافة مستمع لحدث التمرير لإظهار الـ Sticky Stats عند السحب للأسفل
+      // استدعاء updateCustomization عند تحميل الصفحة لتطبيق النمط الافتراضي (3D)
+      updateCustomization();
+      
       const stickyStats = document.getElementById('stickyStats');
       window.addEventListener('scroll', function(){
         if(window.scrollY > 100) {
@@ -765,7 +764,6 @@
         }
       });
       
-      // عرض تذكير تلقائي كل 10 دقائق
       setInterval(function() {
         showReminder("auto");
       }, 600000);
