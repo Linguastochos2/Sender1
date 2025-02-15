@@ -484,7 +484,7 @@
       </div>
     </div>
     <button id="manualReminderButton" class="action-btn btn-3d" aria-label="التذكير بالذكر">التذكير بالذكر</button>
-    <button id="resetProgressButton" class="action-btn btn-outlined" aria-label="نسيت التقدم">نسيت التقدم</button>
+    <button id="resetProgressButton" class="action-btn btn-outlined" aria-label="نسيان التقدم">نسيان التقدم</button>
     <button id="autoFitButton" class="action-btn btn-outlined" aria-label="مناسبة تلقائية للشاشة">مناسبة تلقائية للشاشة</button>
     <div id="numbersList" class="numbers-list list-view card-size-medium"></div>
   </div>
@@ -569,6 +569,12 @@
         btn.addEventListener('click', function() {
           handleSend(number, index, btn);
         });
+        // حفظ حالة الأزرار: إذا تم مراسلة الرقم مسبقاً
+        if (state.sentNumbers.has(number)) {
+            btn.classList.remove('whatsapp-btn');
+            btn.classList.add('sent-status', 'status-btn');
+            btn.innerHTML = 'مراسلة الرقم مرة أخرى';
+        }
         card.appendChild(btn);
         
         return card;
@@ -622,6 +628,8 @@
         if (btn.disabled || state.processing.has(number)) return;
         state.processing.add(number);
         btn.disabled = true;
+        // تغيير لون الزر فور الضغط لتمييز الحالة
+        btn.style.backgroundColor = "var(--primary-hover)";
         btn.innerHTML = btn.innerHTML.replace('مراسلة', 'جاري الإرسال...');
         try {
           await sendMessage(number, index);
@@ -659,7 +667,7 @@
           handleSend(btn.getAttribute('data-number'), parseInt(btn.getAttribute('data-index')), btn);
         });
         updateStickyStats();
-        // حفظ التقدم تلقائيًا
+        // حفظ التقدم بما في ذلك الأرقام المرسلة وحالة الأزرار
         localStorage.setItem('sent', state.sent);
         localStorage.setItem('sentNumbers', JSON.stringify(Array.from(state.sentNumbers)));
       }
