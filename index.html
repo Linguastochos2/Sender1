@@ -577,7 +577,7 @@
         updateMessageFieldVisibility();
         formatNumbers();
         
-        // إزالة البيانات المخزنة محلياً
+        // إزالة البيانات المخزنة محلياً (يشمل ذلك بيانات الصفحة الأولى والثانية)
         localStorage.removeItem("draftNumbers");
         localStorage.removeItem("draftMessage");
         localStorage.removeItem("draftCountry");
@@ -588,6 +588,8 @@
         localStorage.removeItem("countryCode");
         localStorage.removeItem("excelData");
         localStorage.removeItem("selectedColumn");
+        localStorage.removeItem("sent");
+        localStorage.removeItem("sentNumbers");
         
         Toastify({ text: "تم مسح كل البيانات!", duration: 3000, gravity: "top", position: "center", style: { background: "#e74c3c" } }).showToast();
       }
