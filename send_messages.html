@@ -372,7 +372,7 @@
     #manualButtons {
       margin-top: 1rem;
     }
-    /* أنماط مودال الاحتفال الجديد مع تأثير الألعاب النارية */
+    /* أنماط المودال الاحتفالي الجديد */
     .celebration-modal {
       position: fixed;
       top: 0;
@@ -385,19 +385,16 @@
       justify-content: center;
       z-index: 10000;
       backdrop-filter: blur(5px);
-      overflow: hidden;
     }
     .celebration-content {
-      background: transparent;
+      background: var(--light);
       padding: 2rem;
       border-radius: var(--radius);
       text-align: center;
       animation: fadeIn 0.5s;
-      position: relative;
-      z-index: 10;
     }
     .celebration-content p {
-      font-size: 2rem;
+      font-size: 1.5rem;
       font-weight: bold;
       color: var(--primary);
       margin-bottom: 1rem;
@@ -524,15 +521,13 @@
       </div>
     </div>
   </div>
-  <!-- مودال الاحتفال الجديد مع تأثير الألعاب النارية -->
+  <!-- مودال الاحتفال الجديد -->
   <div id="celebrationModal" class="celebration-modal" style="display: none;">
     <div class="celebration-content">
-      <p id="celebrationMessage">أخيرا خلصت😅</p>
+      <p id="celebrationMessage">مبروك! لقد أنهيت المراسلة بنجاح!</p>
       <button id="closeCelebrationBtn" class="action-btn" aria-label="إغلاق الاحتفال">إغلاق</button>
     </div>
   </div>
-  <!-- تضمين مكتبة FireworksJS لتأثير الألعاب النارية -->
-  <script src="https://cdn.jsdelivr.net/npm/fireworks-js@2.7.0/dist/fireworks.js"></script>
   <script>
     (function() {
       const numbers = JSON.parse(localStorage.getItem('numbers')) || [];
@@ -541,8 +536,7 @@
         processing: new Set(),
         sentNumbers: new Set()
       };
-      let celebrationShown = false;
-      let celebrationFireworks; // لتخزين كائن الألعاب النارية// استعادة التقدم المحفوظ (إن وجد)
+      let celebrationShown = false; // متغير لتفادي تكرار عرض الاحتفال// استعادة التقدم المحفوظ (إن وجد)
   const savedSent = localStorage.getItem('sent');
   if (savedSent !== null) {
     state.sent = parseInt(savedSent, 10);
@@ -596,6 +590,7 @@
     btn.className = 'action-btn whatsapp-btn';
     btn.setAttribute('data-number', number);
     btn.setAttribute('data-index', index);
+    // عند وجود الرقم في حالة الإرسال، يتم تغيير النص
     if (state.sentNumbers.has(number)) {
       btn.classList.remove('whatsapp-btn');
       btn.classList.add('sent-status', 'status-btn');
@@ -610,6 +605,7 @@
   
   function renderNumbers() {
     elements.numbersList.innerHTML = "";
+    // استخدام DocumentFragment لتحسين الأداء عند التعامل مع أعداد كبيرة من العناصر
     const fragment = document.createDocumentFragment();
     numbers.forEach((number, index) => {
       const card = createNumberCard(number, index);
@@ -720,12 +716,14 @@
     const randomPhraseElement = document.getElementById("randomPhrase");
     const manualButtons = document.getElementById("manualButtons");
     randomPhraseElement.textContent = getRandomPhrase();
+    
     if (triggerType === "manual") {
       manualButtons.style.display = "block";
     } else {
       manualButtons.style.display = "none";
       setTimeout(hideReminder, 30000);
     }
+    
     modal.style.display = "flex";
   }
   
@@ -737,6 +735,7 @@
     showReminder("manual");
   });
   
+  // استخدام SweetAlert للتأكيد قبل حذف كل البيانات وإعادة تحميل الصفحة
   document.getElementById("resetProgressButton").addEventListener("click", function() {
     Swal.fire({
       title: 'هل أنت متأكد؟',
@@ -765,6 +764,7 @@
   
   renderNumbers();
   
+  // تحسين الأداء عند التعامل مع أرقام كثيرة باستخدام التفويض (Event Delegation)
   document.getElementById('numbersList').addEventListener('click', function(e) {
     const btn = e.target.closest('.action-btn');
     if (!btn) return;
@@ -774,6 +774,7 @@
     handleSend(number, index, btn);
   });
   
+  // تحديث العرض بناءً على خيارات التخصيص
   function updateCustomization() {
     const viewMode = document.getElementById('viewModeSelect').value;
     elements.numbersList.classList.remove('list-view', 'grid-view');
@@ -793,6 +794,7 @@
   document.getElementById('cardSizeSelect').addEventListener('change', updateCustomization);
   document.getElementById('buttonStyleSelect').addEventListener('change', updateCustomization);
   
+  // استدعاء updateCustomization عند تحميل الصفحة لتطبيق النمط الافتراضي (مسطح)
   updateCustomization();
   
   const stickyStats = document.getElementById('stickyStats');
@@ -811,61 +813,30 @@
     showReminder("auto");
   }, 600000);
   
-  // دالة عرض الجو الاحتفالي مع تأثير الألعاب النارية
+  // دالة عرض الجو الاحتفالي عند الانتهاء من المراسلة مع اختيار عبارة باللهجة المصرية الدارجة
   function showCelebratoryMood() {
     const celebrationModal = document.getElementById("celebrationModal");
+    const celebrationMessage = document.getElementById("celebrationMessage");
+    const phrases = [
+      "أخيراً خلصت... 😅",
+      "خلصت يا معلم، شغل عالي! 😄",
+      "يا بلاش، المراسلة خلصت والدنيا بتضحك! 😂",
+      "خلصت، دلوقتي احتفل بنفسك! 😆",
+      "أهو كده، المهمة خلصت وأنت نجم! 😜"
+    ];
+    const randomIndex = Math.floor(Math.random() * phrases.length);
+    celebrationMessage.textContent = phrases[randomIndex];
     celebrationModal.style.display = "flex";
-    // إنشاء عنصر canvas إذا لم يكن موجودًا ليكون خلفية التأثير
-    let canvas = celebrationModal.querySelector("canvas");
-    if (!canvas) {
-      canvas = document.createElement("canvas");
-      canvas.style.position = "absolute";
-      canvas.style.top = "0";
-      canvas.style.left = "0";
-      canvas.style.width = "100%";
-      canvas.style.height = "100%";
-      celebrationModal.appendChild(canvas);
-    }
-    if (typeof Fireworks === 'function') {
-      celebrationFireworks = new Fireworks(canvas, {
-        speed: 3,
-        acceleration: 1.05,
-        friction: 0.97,
-        gravity: 1.5,
-        particles: 150,
-        explosion: 6,
-        intensity: 40,
-        autoresize: true,
-        boundaries: {
-          x: 0,
-          y: 0,
-          width: celebrationModal.clientWidth,
-          height: celebrationModal.clientHeight
-        },
-        sound: false,
-      });
-      celebrationFireworks.start();
-      setTimeout(() => {
-        if (celebrationFireworks) {
-          celebrationFireworks.stop();
-        }
-        if(celebrationModal.style.display === "flex") {
-          celebrationModal.style.display = "none";
-        }
-      }, 5000);
-    } else {
-      setTimeout(() => {
-        if(celebrationModal.style.display === "flex") {
-          celebrationModal.style.display = "none";
-        }
-      }, 5000);
-    }
+    // إغلاق المودال تلقائيًا بعد 5 ثوانٍ إن لم يقم المستخدم بالإغلاق يدويًا
+    setTimeout(() => {
+      if(celebrationModal.style.display === "flex") {
+        celebrationModal.style.display = "none";
+      }
+    }, 5000);
   }
   
+  // معالجات إغلاق مودال الاحتفال
   document.getElementById("closeCelebrationBtn").addEventListener("click", function() {
-    if(celebrationFireworks) {
-      celebrationFireworks.stop();
-    }
     document.getElementById("celebrationModal").style.display = "none";
   });
 })();
