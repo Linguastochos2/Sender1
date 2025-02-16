@@ -536,7 +536,7 @@
         processing: new Set(),
         sentNumbers: new Set()
       };
-      let celebrationShown = false; // متغير لتفادي تكرار عرض الاحتفال// استعادة التقدم المحفوظ (إن وجد)
+      let celebrationShown = false; // لتفادي تكرار عرض الاحتفال// استعادة التقدم المحفوظ (إن وجد)
   const savedSent = localStorage.getItem('sent');
   if (savedSent !== null) {
     state.sent = parseInt(savedSent, 10);
@@ -590,7 +590,7 @@
     btn.className = 'action-btn whatsapp-btn';
     btn.setAttribute('data-number', number);
     btn.setAttribute('data-index', index);
-    // عند وجود الرقم في حالة الإرسال، يتم تغيير النص
+    // تغيير النص عند الإرسال الناجح
     if (state.sentNumbers.has(number)) {
       btn.classList.remove('whatsapp-btn');
       btn.classList.add('sent-status', 'status-btn');
@@ -605,7 +605,6 @@
   
   function renderNumbers() {
     elements.numbersList.innerHTML = "";
-    // استخدام DocumentFragment لتحسين الأداء عند التعامل مع أعداد كبيرة من العناصر
     const fragment = document.createDocumentFragment();
     numbers.forEach((number, index) => {
       const card = createNumberCard(number, index);
@@ -698,7 +697,7 @@
     updateStickyStats();
     localStorage.setItem('sent', state.sent);
     localStorage.setItem('sentNumbers', JSON.stringify(Array.from(state.sentNumbers)));
-    // إذا كانت هذه آخر رسالة، يتم عرض الجو الاحتفالي
+    // عرض الجو الاحتفالي عند إرسال الرقم الأخير
     if (state.sent === numbers.length && !celebrationShown) {
       celebrationShown = true;
       showCelebratoryMood();
@@ -735,18 +734,17 @@
     showReminder("manual");
   });
   
-  // استخدام SweetAlert للتأكيد قبل حذف كل البيانات وإعادة تحميل الصفحة
+  // تأكيد قبل حذف كل البيانات وإعادة تحميل الصفحة (التعديل هنا: عند الضغط على نسيان التقدم في الصفحة الثانية لا نحذف "numbers" ليبقى تأثير الصفحة الأولى)
   document.getElementById("resetProgressButton").addEventListener("click", function() {
     Swal.fire({
       title: 'هل أنت متأكد؟',
-      text: 'هل أنت متأكد من أنك تريد حذف كل التقدم؟ سيتم حذف كل البيانات ولن تتمكن من استرجاعها.',
+      text: 'هل أنت متأكد من أنك تريد حذف كل التقدم؟ سيتم حذف التقدم في هذه الصفحة فقط.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'نعم، احذف كل شيء!',
+      confirmButtonText: 'نعم، احذف التقدم!',
       cancelButtonText: 'إلغاء'
     }).then((result) => {
       if (result.isConfirmed) {
-        localStorage.removeItem('numbers');
         localStorage.removeItem('sent');
         localStorage.removeItem('sentNumbers');
         localStorage.removeItem('segments');
@@ -764,7 +762,7 @@
   
   renderNumbers();
   
-  // تحسين الأداء عند التعامل مع أرقام كثيرة باستخدام التفويض (Event Delegation)
+  // التعامل مع الإرسال باستخدام التفويض
   document.getElementById('numbersList').addEventListener('click', function(e) {
     const btn = e.target.closest('.action-btn');
     if (!btn) return;
@@ -794,7 +792,6 @@
   document.getElementById('cardSizeSelect').addEventListener('change', updateCustomization);
   document.getElementById('buttonStyleSelect').addEventListener('change', updateCustomization);
   
-  // استدعاء updateCustomization عند تحميل الصفحة لتطبيق النمط الافتراضي (مسطح)
   updateCustomization();
   
   const stickyStats = document.getElementById('stickyStats');
@@ -813,21 +810,24 @@
     showReminder("auto");
   }, 600000);
   
-  // دالة عرض الجو الاحتفالي عند الانتهاء من المراسلة مع اختيار عبارة باللهجة المصرية الدارجة
+  // دالة عرض الجو الاحتفالي بناءً على عدد الأرقام
   function showCelebratoryMood() {
     const celebrationModal = document.getElementById("celebrationModal");
     const celebrationMessage = document.getElementById("celebrationMessage");
-    const phrases = [
-      "أخيراً خلصت... 😅",
-      "خلصت يا معلم، شغل عالي! 😄",
-      "يا بلاش، المراسلة خلصت والدنيا بتضحك! 😂",
-      "خلصت، دلوقتي احتفل بنفسك! 😆",
-      "أهو كده، المهمة خلصت وأنت نجم! 😜"
-    ];
-    const randomIndex = Math.floor(Math.random() * phrases.length);
-    celebrationMessage.textContent = phrases[randomIndex];
+    if (numbers.length > 50) {
+      const phrases = [
+        "أخيراً خلصت... 😅",
+        "يااااااه.  وأخيرا😵‍💫",
+        "لقد هرمنا من أجل هذه اللحظة👴🏻",
+        "وأخيرا...هم وانزاح🥲",
+        "وأخيرا 😭 ألف حمد وشكر لك يا رب🤍😅"
+      ];
+      const randomIndex = Math.floor(Math.random() * phrases.length);
+      celebrationMessage.textContent = phrases[randomIndex];
+    } else {
+      celebrationMessage.textContent = "تمت العملية بنجاح 😁";
+    }
     celebrationModal.style.display = "flex";
-    // إغلاق المودال تلقائيًا بعد 5 ثوانٍ إن لم يقم المستخدم بالإغلاق يدويًا
     setTimeout(() => {
       if(celebrationModal.style.display === "flex") {
         celebrationModal.style.display = "none";
@@ -835,7 +835,7 @@
     }, 5000);
   }
   
-  // معالجات إغلاق مودال الاحتفال
+  // إغلاق مودال الاحتفال عند النقر على زر الإغلاق
   document.getElementById("closeCelebrationBtn").addEventListener("click", function() {
     document.getElementById("celebrationModal").style.display = "none";
   });
