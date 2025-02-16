@@ -536,17 +536,16 @@
         processing: new Set(),
         sentNumbers: new Set()
       };
-      let celebrationShown = false; // لتفادي تكرار عرض الاحتفال// استعادة التقدم المحفوظ (إن وجد)
-  const savedSent = localStorage.getItem('sent');
-  if (savedSent !== null) {
-    state.sent = parseInt(savedSent, 10);
-  }
-  const savedSentNumbers = localStorage.getItem('sentNumbers');
-  if (savedSentNumbers) {
-    state.sentNumbers = new Set(JSON.parse(savedSentNumbers));
-  }
-  
-  const elements = {
+      let celebrationShown = false; // لتفادي تكرار عرض الاحتفال
+      // استعادة التقدم المحفوظ (إن وجد)
+      const savedSent = localStorage.getItem('sent');
+      if (savedSent !== null) {
+        state.sent = parseInt(savedSent, 10);
+      }
+      const savedSentNumbers = localStorage.getItem('sentNumbers');
+      if (savedSentNumbers) {
+        state.sentNumbers = new Set(JSON.parse(savedSentNumbers));
+      }const elements = {
     numbersList: document.getElementById('numbersList'),
     progress: document.getElementById('progress'),
     totalCount: document.getElementById('totalCount'),
@@ -791,6 +790,13 @@
   document.getElementById('viewModeSelect').addEventListener('change', updateCustomization);
   document.getElementById('cardSizeSelect').addEventListener('change', updateCustomization);
   document.getElementById('buttonStyleSelect').addEventListener('change', updateCustomization);
+  
+  // تحديد العرض الافتراضي بناءً على عدد الأرقام: "شبكة" إذا كان العدد أكثر من 12، وإلا "قائمة"
+  if (numbers.length > 12) {
+      document.getElementById('viewModeSelect').value = 'grid-view';
+  } else {
+      document.getElementById('viewModeSelect').value = 'list-view';
+  }
   
   updateCustomization();
   
