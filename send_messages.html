@@ -372,7 +372,7 @@
     #manualButtons {
       margin-top: 1rem;
     }
-    /* أنماط المودال الاحتفالي الجديد مع تأثير ألعاب نارية */
+    /* أنماط مودال الاحتفال الجديد مع تأثير الألعاب النارية */
     .celebration-modal {
       position: fixed;
       top: 0;
@@ -702,6 +702,7 @@
     updateStickyStats();
     localStorage.setItem('sent', state.sent);
     localStorage.setItem('sentNumbers', JSON.stringify(Array.from(state.sentNumbers)));
+    // إذا كانت هذه آخر رسالة، يتم عرض الجو الاحتفالي
     if (state.sent === numbers.length && !celebrationShown) {
       celebrationShown = true;
       showCelebratoryMood();
@@ -810,29 +811,42 @@
     showReminder("auto");
   }, 600000);
   
+  // دالة عرض الجو الاحتفالي مع تأثير الألعاب النارية
   function showCelebratoryMood() {
     const celebrationModal = document.getElementById("celebrationModal");
     celebrationModal.style.display = "flex";
+    // إنشاء عنصر canvas إذا لم يكن موجودًا ليكون خلفية التأثير
+    let canvas = celebrationModal.querySelector("canvas");
+    if (!canvas) {
+      canvas = document.createElement("canvas");
+      canvas.style.position = "absolute";
+      canvas.style.top = "0";
+      canvas.style.left = "0";
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      celebrationModal.appendChild(canvas);
+    }
     if (typeof Fireworks === 'function') {
-      celebrationFireworks = new Fireworks(celebrationModal, {
-        speed: 2,
+      celebrationFireworks = new Fireworks(canvas, {
+        speed: 3,
         acceleration: 1.05,
-        friction: 0.98,
+        friction: 0.97,
         gravity: 1.5,
         particles: 150,
-        explosion: 5,
-        intensity: 30,
+        explosion: 6,
+        intensity: 40,
+        autoresize: true,
         boundaries: {
-          x: 50,
-          y: 50,
-          width: celebrationModal.offsetWidth - 100,
-          height: celebrationModal.offsetHeight - 100
+          x: 0,
+          y: 0,
+          width: celebrationModal.clientWidth,
+          height: celebrationModal.clientHeight
         },
-        sound: false
+        sound: false,
       });
       celebrationFireworks.start();
       setTimeout(() => {
-        if(celebrationFireworks) {
+        if (celebrationFireworks) {
           celebrationFireworks.stop();
         }
         if(celebrationModal.style.display === "flex") {
@@ -858,4 +872,4 @@
 
   </script>
 </body>
-  </html>
+</html>
