@@ -320,6 +320,7 @@
     .segment input {
       margin-right: 0.5rem;
     }
+    .clear-btn { background-color: #f39c12; color: #fff; }
     /* تحسين تباعد الحقول والعناصر لتعزيز تجربة المستخدم */
     label {
       display: block;
@@ -404,7 +405,8 @@
     <label for="numbers" style="font-size: 1.2rem; font-weight: bold; color: var(--primary-color);">
       الأرقام التي تود مراسلتها:
     </label>
-    <textarea id="numbers" placeholder="ادخل الأرقام هنا بنفسك أو الصق أرقاماً معدة سابقاً" class="input-field" rows="5" oninput="debounceFormatNumbers()"></textarea>
+    <!-- هنا لن يتم السماح بإدخال أي حرف غير الأرقام أو العلامة "+" أو مسافات -->
+    <textarea id="numbers" placeholder="ادخل الأرقام هنا بنفسك أو الصق أرقاماً معدة سابقاً" class="input-field" rows="5"></textarea>
     <!-- إدخال نص الرسالة الأساسي -->
     <label for="message">نص الرسالة (افتراضي في حال عدم تحديد نطاقات):</label>
     <textarea id="message" rows="3" placeholder="اكتب رسالتك هنا..." class="input-field"></textarea>
@@ -542,6 +544,7 @@
       }
       
       /* ===================== دوال التنسيق وتقنية Debounce ===================== */
+      // تمت إزالة استدعاءات debounce من خانة الأرقام لتفادي التنسيق أثناء الكتابة
       window.debounceFormatNumbers = function() {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
@@ -550,10 +553,21 @@
         }, 300);
       }
       
+      // دالة لتنقية خانة الأرقام؛ تزيل أي حرف لا يكون رقم أو علامة "+" أو مسافة (بما فيها أسطر جديدة)
+      function sanitizeNumbersInput() {
+        const currentValue = numbersField.value;
+        const sanitized = currentValue.replace(/[^\d+\s]/g, "");
+        if(sanitized !== currentValue) {
+          numbersField.value = sanitized;
+        }
+      }
+      
+      // تم تعديل دالة التنسيق لتحديد الفاصل المناسب (سطر جديد إذا وُجد، وإلا مسافة)
       function formatNumbers() {
-        const rawInput = numbersField.value.trim();
+        const rawInput = numbersField.value;
+        const separator = rawInput.includes("\n") ? "\n" : " ";
         const uniqueNumbers = [...new Set(rawInput.split(/[\s,]+/).filter(num => num.trim().length > 0))];
-        numbersField.value = uniqueNumbers.join(" ");
+        numbersField.value = uniqueNumbers.join(separator);
       }
       
       async function clearAll() {
@@ -1053,6 +1067,18 @@
         // حفظ تلقائي عند تغيير الرسالة أو الدولة
         messageField.addEventListener("input", autoSave);
         countrySelect.addEventListener("change", autoSave);
+        // إضافة معالجات لخانة الأرقام: عند الإدخال، يتم تنقية النص من الأحرف غير المسموح بها ثم حفظ التقدم
+        numbersField.addEventListener("input", function() {
+          sanitizeNumbersInput();
+          autoSave();
+        });
+        numbersField.addEventListener("blur", formatNumbers);
+        numbersField.addEventListener("paste", function() {
+          setTimeout(function() {
+            sanitizeNumbersInput();
+            formatNumbers();
+          }, 100);
+        });
         
         // تنفيذ حفظ التقدم تلقائيًا كل 3 ثواني
         setInterval(autoSave, 3000);
@@ -1070,4 +1096,4 @@
     })();
   </script>
 </body>
-        </html>
+</html>
