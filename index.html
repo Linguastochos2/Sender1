@@ -629,7 +629,7 @@
         });
       }
       
-      // دالة جديدة للتحقق من "اتصال" الأرقام بالواتساب (محاكاة)
+      // تم تعديل دالة "تحقق من واتساب" لتستخدم libphonenumber وتحديد نوع الرقم (موبايل أو غيره) بشكل أدق
       function checkWhatsAppConnection() {
         let numbers = numbersField.value.split(/[\s,]+/).map(n => n.trim()).filter(n => n !== "");
         numbers = [...new Set(numbers)];
@@ -641,21 +641,22 @@
         numbers.forEach(num => {
           const dialCode = countrySelect.options[countrySelect.selectedIndex].dataset.dial || "";
           let normalized = normalizePhoneNumber(num, dialCode, countrySelect.value);
-          let lastChar = normalized.trim().slice(-1);
-          if (!isNaN(lastChar)) {
-            if (parseInt(lastChar) % 2 === 0) {
+          try {
+            const phoneNumber = libphonenumber.parsePhoneNumberFromString(normalized, countrySelect.value);
+            // نفترض أن الأرقام من نوع MOBILE أو FIXED_LINE_OR_MOBILE لديها حساب واتساب
+            if (phoneNumber && (phoneNumber.getType() === "MOBILE" || phoneNumber.getType() === "FIXED_LINE_OR_MOBILE")) {
               countHas++;
             } else {
               countNot++;
             }
-          } else {
+          } catch (error) {
             countNot++;
           }
         });
         let report = `<h3>تقرير التحقق من اتصال واتساب</h3>
                       <p>إجمالي الأرقام: ${numbers.length}</p>
-                      <p>إجمالي الأرقام التي لها حسابات واتساب: ${countHas}</p>
-                      <p>إجمالي الأرقام التي ليس لها حسابات واتساب: ${countNot}</p>`;
+                      <p>الأرقام التي يُحتمل أن يكون لها حساب واتساب: ${countHas}</p>
+                      <p>الأرقام التي يُحتمل ألا يكون لها حساب واتساب: ${countNot}</p>`;
         openModal(report);
       }
       
