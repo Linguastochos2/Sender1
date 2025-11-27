@@ -316,14 +316,16 @@
       justify-content: space-around;
       align-items: center;
       font-size: 0.9rem;
+      gap: 1rem;
     }
     #stickyStats .stat-item {
       display: flex;
       flex-direction: column;
       align-items: center;
+      min-width: 70px;
     }
     body.sticky-visible {
-      padding-top: 60px;
+      padding-top: 110px; /* زيادة ليتناسب مع العناصر الإضافية */
     }
     /* حالة إرسال الرقم بنجاح */
     .sent-status {
@@ -451,8 +453,19 @@
         <span class="stat-label">المتبقي</span>
         <span class="stat-value" id="stickyRemainingCount">0</span>
       </div>
+
+      <!-- الحقلان الإضافيان في الشريط العلوي العائم -->
+      <div class="stat-item">
+        <span class="stat-label">متوسط (ر/د)</span>
+        <span class="stat-value" id="stickyAvgPerMin">0 ر/د</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">الوقت المتبقي</span>
+        <span class="stat-value" id="stickyEtaRemaining">—</span>
+      </div>
     </div>
   </div>
+
   <div class="container">
     <div class="header">
       <button class="back-btn" id="backBtn" aria-label="الرجوع">
@@ -480,7 +493,7 @@
       <!-- ======= الحقلان الجديدان ======= -->
       <div class="stat-card">
         <div class="stat-title">متوسط الرسائل / دقيقة</div>
-        <div class="stat-value" id="avgPerMin">0</div>
+        <div class="stat-value" id="avgPerMin">0 ر/د</div>
       </div>
       <div class="stat-card">
         <div class="stat-title">الوقت المتبقي (تقديري)</div>
@@ -580,7 +593,12 @@
         successCount: document.getElementById('successCount'),
         remainingCount: document.getElementById('remainingCount'),
         avgPerMin: document.getElementById('avgPerMin'),
-        etaRemaining: document.getElementById('etaRemaining')
+        etaRemaining: document.getElementById('etaRemaining'),
+        stickyTotalCount: document.getElementById('stickyTotalCount'),
+        stickySuccessCount: document.getElementById('stickySuccessCount'),
+        stickyRemainingCount: document.getElementById('stickyRemainingCount'),
+        stickyAvgPerMin: document.getElementById('stickyAvgPerMin'),
+        stickyEtaRemaining: document.getElementById('stickyEtaRemaining')
       };
 
       elements.totalCount.textContent = numbers.length;
@@ -588,9 +606,16 @@
       elements.remainingCount.textContent = numbers.length - state.sent;
 
       function updateStickyStats() {
-        document.getElementById('stickyTotalCount').textContent = elements.totalCount.textContent;
-        document.getElementById('stickySuccessCount').textContent = elements.successCount.textContent;
-        document.getElementById('stickyRemainingCount').textContent = elements.remainingCount.textContent;
+        elements.stickyTotalCount.textContent = elements.totalCount.textContent;
+        elements.stickySuccessCount.textContent = elements.successCount.textContent;
+        elements.stickyRemainingCount.textContent = elements.remainingCount.textContent;
+
+        // تحديث الحقول الجديدة في الشريط العلوي
+        // avgPerMin و etaRemaining محتويان في الصفحة الرئيسية، نستخدمهما لتحديث الشريط العلوي
+        const avgText = elements.avgPerMin.textContent || '0 ر/د';
+        const etaText = elements.etaRemaining.textContent || '—';
+        elements.stickyAvgPerMin.textContent = avgText;
+        elements.stickyEtaRemaining.textContent = etaText;
       }
 
       function formatNumber(n) {
@@ -777,7 +802,8 @@
         // متوسط الرسائل / دقيقة
         const avg = getAveragePerMinute();
         const avgText = avg > 0 ? Number(avg.toFixed(2)) : 0;
-        elements.avgPerMin.textContent = avgText;
+        // عرض مع اختصار ر/د
+        elements.avgPerMin.textContent = avgText > 0 ? `${avgText} ر/د` : '0 ر/د';
 
         // ETA
         const etaSeconds = getEstimatedRemainingSeconds();
@@ -786,6 +812,9 @@
         } else {
           elements.etaRemaining.textContent = secondsToHms(etaSeconds);
         }
+
+        // تحديث الشريط العلوي أيضًا
+        updateStickyStats();
       }
       // ============================================================
 
@@ -942,3 +971,4 @@
   </script>
 </body>
 </html>
+```0
